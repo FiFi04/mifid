@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Data
-public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements Repository<T, E> {
+public abstract class MifidRepository<T extends Mifid<E>, E> implements Repository<T, E> {
 
     private T t;
 

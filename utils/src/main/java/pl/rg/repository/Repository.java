@@ -1,13 +1,12 @@
 package pl.rg.repository;
 
 import pl.rg.db.DBConnector;
-import pl.rg.repository.model.MifidGeneral;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public interface Repository<T extends MifidGeneral<E>, E> {
+public interface Repository<T extends Mifid<E>, E> {
 
     DBConnector dbConnector = DBConnector.getInstance();
 
