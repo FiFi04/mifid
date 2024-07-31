@@ -9,6 +9,7 @@ import java.util.Properties;
 
 public class DBConnector {
 
+    public static final String APP_PROPERTIES = "app.properties";
     private static DBConnector dbConnector;
 
     private Connection connection;
@@ -31,7 +32,6 @@ public class DBConnector {
     private Connection initializeConnection() {
         try {
             Properties properties = getProperties();
-//            String driverClassName = properties.getProperty("db.driverClassName");
             String url = properties.getProperty("db.url");
             String username = properties.getProperty("db.username");
             String password = properties.getProperty("db.password");
@@ -46,7 +46,8 @@ public class DBConnector {
 
     private Properties getProperties() throws IOException {
         Properties properties = new Properties();
-        try (InputStream inputStream = DBConnector.class.getClassLoader().getResourceAsStream("app.properties")) {
+        try (InputStream inputStream = DBConnector.class.getClassLoader().getResourceAsStream(
+            APP_PROPERTIES)) {
             properties.load(inputStream);
         }
         return properties;
