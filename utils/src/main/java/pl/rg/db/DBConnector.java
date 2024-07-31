@@ -1,15 +1,11 @@
 package pl.rg.db;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class DBConnector {
 
-    public static final String APP_PROPERTIES = "app.properties";
     private static DBConnector dbConnector;
 
     private Connection connection;
@@ -31,25 +27,14 @@ public class DBConnector {
 
     private Connection initializeConnection() {
         try {
-            Properties properties = getProperties();
-            String url = properties.getProperty("db.url");
-            String username = properties.getProperty("db.username");
-            String password = properties.getProperty("db.password");
+            String url = PropertiesUtils.getProperty("db.url");
+            String username = PropertiesUtils.getProperty("db.username");
+            String password = PropertiesUtils.getProperty("db.password");
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return connection;
     }
 
-    private Properties getProperties() throws IOException {
-        Properties properties = new Properties();
-        try (InputStream inputStream = DBConnector.class.getClassLoader().getResourceAsStream(
-            APP_PROPERTIES)) {
-            properties.load(inputStream);
-        }
-        return properties;
-    }
 }
