@@ -1,12 +1,7 @@
 package pl.rg.repository;
 
 import lombok.Data;
-import pl.rg.annotations.Autowire;
-import pl.rg.annotations.FieldCategory;
-import pl.rg.exceptions.RepositoryException;
-import pl.rg.logger.Logger;
-import pl.rg.logger.LoggerImpl;
-import pl.rg.repository.model.MifidGeneral;
+import pl.rg.anntotation.FieldCategory;
 
 import java.lang.reflect.*;
 import java.sql.*;
@@ -19,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Data
-public abstract class MifidRepository<T extends Mifid<E>, E> implements Repository<T, E> {
+public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements Repository<T, E> {
 
     private T t;
 
@@ -29,8 +24,9 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
 
     private int innerLevel = 0;
 
-    @Autowire
-    protected Logger logger;
+//    TODO MIFID 3, 5
+//    @Autowire
+//    protected Logger logger;
 
     @Override
     public List<T> findAll() {
@@ -43,26 +39,27 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             Field[] columnsNames = getColumnsNames(allFields);
             t = createInstance(tClass);
             String completeQuery = String.format(query, t.getTableName());
-            logger.log(completeQuery);
+//            TODO MIFID-3
+//            logger.log(completeQuery);
             ResultSet resultSet = statement.executeQuery(completeQuery);
             while (resultSet.next()) {
                 T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
                 bankAccObjects.add(bankAccObject);
             }
         } catch (NoSuchMethodException e) {
-            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
-            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
-            logAndThrowException("Nie można utworzyć obiektu: ", e);
+//            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-            logAndThrowException("Brak dostepu do metody: ", e);
+//            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
-            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
-            logAndThrowException("Błąd odczytu z bazy danych: ", e);
+//            logAndThrowException("Błąd odczytu z bazy danych: ", e);
         } catch (Throwable e) {
-            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         }
         return bankAccObjects;
     }
@@ -74,7 +71,8 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             Class<T> tClass = getTypeClass();
             t = createInstance(tClass);
             String completeQuery = String.format(query, t.getTableName());
-            logger.log(completeQuery);
+//            TODO MIFID-3
+//            logger.log(completeQuery);
             ResultSet resultSet = statement.executeQuery(completeQuery);
             if (!resultSet.next()) {
                 return Optional.empty();
@@ -85,19 +83,19 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
             return Optional.of(bankAccObject);
         } catch (NoSuchMethodException e) {
-            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
-            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
-            logAndThrowException("Nie można utworzyć obiektu: ", e);
+//            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-            logAndThrowException("Brak dostepu do metody: ", e);
+//            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
-            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
-            logAndThrowException("Błąd odczytu z bazy danych: ", e);
+//            logAndThrowException("Błąd odczytu z bazy danych: ", e);
         } catch (Throwable e) {
-            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         }
         return Optional.empty();
     }
@@ -111,7 +109,8 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             constructor.setAccessible(true);
             t = constructor.newInstance();
             String completeQuery = String.format(query, t.getTableName());
-            logger.log(completeQuery);
+//            TODO MIFID-3
+//            logger.log(completeQuery);
             ResultSet resultSet = statement.executeQuery(completeQuery);
             if (!resultSet.next()) {
                 return Optional.empty();
@@ -122,19 +121,19 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, true);
             return Optional.of(bankAccObject);
         } catch (NoSuchMethodException e) {
-            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
-            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
-            logAndThrowException("Nie można utworzyć obiektu: ", e);
+//            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-            logAndThrowException("Brak dostepu do metody: ", e);
+//            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
-            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
-            logAndThrowException("Błąd odczytu z bazy danych: ", e);
+//            logAndThrowException("Błąd odczytu z bazy danych: ", e);
         } catch (Throwable e) {
-            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         }
         return Optional.empty();
     }
@@ -150,31 +149,33 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             for (T object : objects) {
                 E id = object.getId();
                 String completeQuery = String.format(query, t.getTableName(), id);
-                logger.log(completeQuery);
+//                TODO MIFID-3
+//                logger.log(completeQuery);
                 statement.executeUpdate(completeQuery);
             }
             connection.commit();
             connection.setAutoCommit(true);
         } catch (InvocationTargetException e) {
-            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (NoSuchMethodException e) {
-            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InstantiationException e) {
-            logAndThrowException("Nie można utworzyć obiektu: ", e);
+//            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-            logAndThrowException("Brak dostepu do metody: ", e);
+//            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (SQLException e) {
-            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
+//            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
         } catch (Throwable e) {
-            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         } finally {
             try {
                 if (!connection.getAutoCommit()) {
                     connection.rollback();
-                    logger.log("Wycofano zmiany z bazy danych");
+//                    TODO MIFID-3
+//                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
-                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
+//                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
             }
         }
     }
@@ -188,30 +189,32 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             Class<T> tClass = getTypeClass();
             t = createInstance(tClass);
             String completeQuery = String.format(query, t.getTableName());
-            logger.log(completeQuery);
+//            TODO MIFID-3
+//            logger.log(completeQuery);
             statement.executeUpdate(completeQuery);
             connection.commit();
             connection.setAutoCommit(true);
         } catch (InvocationTargetException e) {
-            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (NoSuchMethodException e) {
-            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InstantiationException e) {
-            logAndThrowException("Nie można utworzyć obiektu: ", e);
+//            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-            logAndThrowException("Brak dostepu do metody: ", e);
+//            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (SQLException e) {
-            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
+//            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
         } catch (Throwable e) {
-            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         } finally {
             try {
                 if (!connection.getAutoCommit()) {
                     connection.rollback();
-                    logger.log("Wycofano zmiany z bazy danych");
+//                    TODO MIFID-3
+//                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
-                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
+//                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
             }
         }
     }
@@ -256,14 +259,16 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
                     updateObject(object, insertValues, insertColumns, statement, tableName);
                     if (innerLevel == 0) {
                         connection.commit();
-                        logger.log("Zapisano w bazie danych");
+//                        TODO MIFID-3
+//                        logger.log("Zapisano w bazie danych");
                         connection.setAutoCommit(true);
                     }
                     return;
                 }
             }
             String completeQuery = String.format(insertQuery, tableName, insertColumns, insertValues);
-            logger.log(completeQuery);
+//            TODO MIFID-3
+//            logger.log(completeQuery);
             statement.executeUpdate(completeQuery, Statement.RETURN_GENERATED_KEYS);
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -271,31 +276,33 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
             }
             if (innerLevel == 0) {
                 connection.commit();
-                logger.log("Zapisano w bazie danych");
+//                TODO MIFID-3
+//                logger.log("Zapisano w bazie danych");
                 connection.setAutoCommit(true);
             }
         } catch (NoSuchMethodException e) {
             rollback = true;
-            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
             rollback = true;
-            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
             rollback = true;
-            logAndThrowException("Nie można utworzyć obiektu: ", e);
+//            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
             rollback = true;
-            logAndThrowException("Brak dostepu do metody: ", e);
+//            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
             rollback = true;
-            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
             rollback = true;
-            logAndThrowException("Błąd zapisu do bazy danych: ", e);
+//            logAndThrowException("Błąd zapisu do bazy danych: ", e);
         } catch (Throwable e) {
             rollback = true;
-            logger.logAnException(e, e.getMessage());
-            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+//            TODO MIFID-3
+//            logger.logAnException(e, e.getMessage());
+//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         } finally {
             try {
                 if (rollback && innerLevel == 0) {
@@ -303,10 +310,11 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
                     rollback = false;
                     connection.rollback();
                     connection.setAutoCommit(true);
-                    logger.log("Wycofano zmiany z bazy danych");
+//                    TODO MIFID-3
+//                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
-                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych:", e);
+//                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych:", e);
             }
             innerLevel--;
         }
@@ -318,11 +326,12 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
         return findById(lastSavedObjectId).get();
     }
 
-    protected void logAndThrowException(String message, Throwable exception) {
-        RepositoryException repositoryException = new RepositoryException(message + exception.getMessage(), exception);
-        logger.logAnException(repositoryException, repositoryException.getMessage());
-        throw repositoryException;
-    }
+//    TODO MIFID-3
+//    protected void logAndThrowException(String message, Throwable exception) {
+//        RepositoryException repositoryException = new RepositoryException(message + exception.getMessage(), exception);
+//        logger.logAnException(repositoryException, repositoryException.getMessage());
+//        throw repositoryException;
+//    }
 
     private String getInsertValue(Field objectField, T object) throws IllegalAccessException, ClassNotFoundException,
             NoSuchMethodException, InvocationTargetException, InstantiationException {
@@ -367,7 +376,8 @@ public abstract class MifidRepository<T extends Mifid<E>, E> implements Reposito
         }
         setFields = setFields.substring(0, setFields.length() - 1);
         String completeQuery = String.format(updateQuery, tableName, setFields, object.getId());
-        logger.log(completeQuery);
+//        TODO MIFID-3
+//        logger.log(completeQuery);
         statement.executeUpdate(completeQuery);
         lastSavedObjectId = object.getId();
     }

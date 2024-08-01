@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public interface Repository<T extends Mifid<E>, E> {
+public interface Repository<T extends MifidGeneral<E>, E> {
 
     DBConnector dbConnector = DBConnector.getInstance();
 

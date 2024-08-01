@@ -9,11 +9,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public abstract class Mifid<E> {
-    @FieldCategory(dbColumn = true)
+public abstract class MifidGeneral<E> {
+
     public final static String ID = "id";
 
-    @FieldCategory(dbField = true)
     protected E id;
 
     public abstract String getTableName();
