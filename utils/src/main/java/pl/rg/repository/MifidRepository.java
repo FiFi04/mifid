@@ -47,19 +47,19 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
                 bankAccObjects.add(bankAccObject);
             }
         } catch (NoSuchMethodException e) {
-//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
-//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
-//            logAndThrowException("Nie można utworzyć obiektu: ", e);
+            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-//            logAndThrowException("Brak dostepu do metody: ", e);
+            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
-//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
-//            logAndThrowException("Błąd odczytu z bazy danych: ", e);
+            logAndThrowException("Błąd odczytu z bazy danych: ", e);
         } catch (Throwable e) {
-//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         }
         return bankAccObjects;
     }
@@ -83,19 +83,19 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
             return Optional.of(bankAccObject);
         } catch (NoSuchMethodException e) {
-//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
-//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
-//            logAndThrowException("Nie można utworzyć obiektu: ", e);
+            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-//            logAndThrowException("Brak dostepu do metody: ", e);
+            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
-//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
-//            logAndThrowException("Błąd odczytu z bazy danych: ", e);
+            logAndThrowException("Błąd odczytu z bazy danych: ", e);
         } catch (Throwable e) {
-//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         }
         return Optional.empty();
     }
@@ -121,19 +121,19 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, true);
             return Optional.of(bankAccObject);
         } catch (NoSuchMethodException e) {
-//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
-//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
-//            logAndThrowException("Nie można utworzyć obiektu: ", e);
+            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-//            logAndThrowException("Brak dostepu do metody: ", e);
+            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
-//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
-//            logAndThrowException("Błąd odczytu z bazy danych: ", e);
+            logAndThrowException("Błąd odczytu z bazy danych: ", e);
         } catch (Throwable e) {
-//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         }
         return Optional.empty();
     }
@@ -156,17 +156,17 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             connection.commit();
             connection.setAutoCommit(true);
         } catch (InvocationTargetException e) {
-//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (NoSuchMethodException e) {
-//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InstantiationException e) {
-//            logAndThrowException("Nie można utworzyć obiektu: ", e);
+            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-//            logAndThrowException("Brak dostepu do metody: ", e);
+            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (SQLException e) {
-//            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
+            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
         } catch (Throwable e) {
-//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         } finally {
             try {
                 if (!connection.getAutoCommit()) {
@@ -175,7 +175,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
 //                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
-//                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
+                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
             }
         }
     }
@@ -195,17 +195,17 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             connection.commit();
             connection.setAutoCommit(true);
         } catch (InvocationTargetException e) {
-//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (NoSuchMethodException e) {
-//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InstantiationException e) {
-//            logAndThrowException("Nie można utworzyć obiektu: ", e);
+            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
-//            logAndThrowException("Brak dostepu do metody: ", e);
+            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (SQLException e) {
-//            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
+            logAndThrowException("Błąd podczas usuwania obiektu z bazy danych: ", e);
         } catch (Throwable e) {
-//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         } finally {
             try {
                 if (!connection.getAutoCommit()) {
@@ -214,7 +214,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
 //                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
-//                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
+                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
             }
         }
     }
@@ -282,27 +282,27 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             }
         } catch (NoSuchMethodException e) {
             rollback = true;
-//            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
+            logAndThrowException("Brak metody o podanej sygnaturze: ", e);
         } catch (InvocationTargetException e) {
             rollback = true;
-//            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
+            logAndThrowException("Wystąpił wyjątek podczas wykonywania metody: ", e);
         } catch (InstantiationException e) {
             rollback = true;
-//            logAndThrowException("Nie można utworzyć obiektu: ", e);
+            logAndThrowException("Nie można utworzyć obiektu: ", e);
         } catch (IllegalAccessException e) {
             rollback = true;
-//            logAndThrowException("Brak dostepu do metody: ", e);
+            logAndThrowException("Brak dostepu do metody: ", e);
         } catch (ClassNotFoundException e) {
             rollback = true;
-//            logAndThrowException("Brak klasy o podanej nazwie: ", e);
+            logAndThrowException("Brak klasy o podanej nazwie: ", e);
         } catch (SQLException e) {
             rollback = true;
-//            logAndThrowException("Błąd zapisu do bazy danych: ", e);
+            logAndThrowException("Błąd zapisu do bazy danych: ", e);
         } catch (Throwable e) {
             rollback = true;
 //            TODO MIFID-3
 //            logger.logAnException(e, e.getMessage());
-//            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
+            logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         } finally {
             try {
                 if (rollback && innerLevel == 0) {
@@ -314,7 +314,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
 //                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
-//                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych:", e);
+                logAndThrowException("Błąd podczas wycowywania zmian z bazy danych:", e);
             }
             innerLevel--;
         }
@@ -327,16 +327,16 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     }
 
 //    TODO MIFID-3
-//    protected void logAndThrowException(String message, Throwable exception) {
+    protected void logAndThrowException(String message, Throwable exception) {
 //        RepositoryException repositoryException = new RepositoryException(message + exception.getMessage(), exception);
 //        logger.logAnException(repositoryException, repositoryException.getMessage());
 //        throw repositoryException;
-//    }
+    }
 
     private String getInsertValue(Field objectField, T object) throws IllegalAccessException, ClassNotFoundException,
             NoSuchMethodException, InvocationTargetException, InstantiationException {
         String className = objectField.getType().getName();
-        if (className.startsWith("org.example") && !objectField.getType().isEnum()) {
+        if (className.startsWith("pl.rg") && !objectField.getType().isEnum()) {
             MifidGeneral fieldObject = (MifidGeneral) objectField.get(object);
             Object id = fieldObject.getId();
             if (id != null) {
