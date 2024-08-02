@@ -1,6 +1,7 @@
 package pl.rg.logger;
 
 import pl.rg.db.DBConnector;
+import pl.rg.db.PropertiesUtils;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -8,7 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Properties;
 
 public class LoggerImpl implements Logger{
 
@@ -60,10 +60,8 @@ public class LoggerImpl implements Logger{
 
     private void initializeLogger() {
         try {
-            Properties properties = new Properties();
-            properties.load(LoggerImpl.class.getClassLoader().getResourceAsStream("logger.properties"));
-            logType = LogType.valueOf(properties.getProperty("log.type").toUpperCase());
-            logDirectory = properties.getProperty("log.directory");
+            logType = LogType.valueOf(PropertiesUtils.getProperty("log.type").toUpperCase());
+            logDirectory = PropertiesUtils.getProperty("log.directory");
             initializeLogFile();
             writer = new BufferedWriter(new FileWriter(logFile, true));
         } catch (IOException e) {
