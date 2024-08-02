@@ -1,7 +1,6 @@
 package pl.rg.logger;
 
 import pl.rg.db.DBConnector;
-import pl.rg.exceptions.ValidationException;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -54,7 +53,8 @@ public class LoggerImpl implements Logger{
                 saveLogToFile(logMessage);
             }
         } catch (SQLException e) {
-            throw new ValidationException(e.getMessage(), e);
+//            TODO MIFID-4
+//            throw new ValidationException(e.getMessage(), e);
         }
     }
 
