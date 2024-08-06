@@ -1,6 +1,6 @@
 package pl.rg.validator.impl;
 
-import pl.rg.annotations.Validate;
+import pl.rg.annotation.Validate;
 
 import java.lang.reflect.Field;
 

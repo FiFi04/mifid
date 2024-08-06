@@ -1,7 +1,10 @@
 package pl.rg.validator.impl;
 
-import pl.rg.annotations.Validate;
-import pl.rg.exceptions.ValidationException;
+import pl.rg.annotation.Validate;
+import pl.rg.exception.ValidationException;
+import pl.rg.logger.Logger;
+import pl.rg.logger.LoggerImpl;
+import pl.rg.validator.api.ValidatorService;
 import pl.rg.validator.enums.ValidatorCase;
 
 import java.lang.reflect.Constructor;
@@ -13,7 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class ValidatorServiceImpl {
+public class ValidatorServiceImpl implements ValidatorService {
+
     public static final Map<ValidatorCase, String> classNameResolver = new HashMap<>();
 
     private Logger logger = LoggerImpl.getInstance();
@@ -57,7 +61,7 @@ public class ValidatorServiceImpl {
         Map<String, String> constraints = validateFields(object);
         Field[] declaredFields = object.getClass().getDeclaredFields();
         for (Field field : declaredFields) {
-            if (field.getType().getName().startsWith("org.example") && !field.getType().isEnum()) {
+            if (field.getType().getName().startsWith("pl.rg") && !field.getType().isEnum()) {
                 field.setAccessible(true);
                 try {
                     constraints.putAll(validateWithInnerFields(field.get(object)));

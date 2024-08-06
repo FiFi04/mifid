@@ -1,7 +1,7 @@
 package pl.rg.repository;
 
 import lombok.Data;
-import pl.rg.anntotation.FieldCategory;
+import pl.rg.annotation.FieldCategory;
 import pl.rg.logger.Logger;
 
 import java.lang.reflect.*;

@@ -1,7 +1,5 @@
 package pl.rg.validator.impl;
 
-import org.w3c.dom.DocumentType;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,34 +14,35 @@ public class DocumentNumberValidator extends BaseValidator {
 
     @Override
     public boolean valid(String value, Field field) {
-        DocumentType documentType = null;
+//        TODO MIFID-6
+//        DocumentType documentType = null;
 
         if (value.matches(id_card_regex)) {
-            documentType = DocumentType.ID_CARD;
+//            TODO MIFID-6
+//            documentType = null;
         } else if (value.matches(passport_regex)) {
-            documentType = DocumentType.PASSPORT;
+//            documentType = null;
         }
-
-        if (documentType == null) {
+//        if (documentType == null) {
             return false;
         }
-
-        switch (documentType) {
-            case ID_CARD -> {
-                if (!value.matches(id_card_regex) ||
-                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
-                    return false;
-                }
-            }
-            case PASSPORT -> {
-                if (!value.matches(passport_regex) ||
-                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+//            TODO MIFID-6
+//        switch (documentType) {
+//            case ID_CARD -> {
+//                if (!value.matches(id_card_regex) ||
+//                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
+//                    return false;
+//                }
+//            }
+//            case PASSPORT -> {
+//                if (!value.matches(passport_regex) ||
+//                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
+//                    return false;
+//                }
+//            }
+//        }
+//        return true;
+//    }
 
     private boolean isIdDocControlNumberCorrect(String docNumber, int[] weights) {
         List<String> personalDocumentValues = Arrays.asList(docNumber.split(""));
