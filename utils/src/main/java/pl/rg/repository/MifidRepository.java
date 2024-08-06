@@ -2,6 +2,7 @@ package pl.rg.repository;
 
 import lombok.Data;
 import pl.rg.anntotation.FieldCategory;
+import pl.rg.logger.Logger;
 
 import java.lang.reflect.*;
 import java.sql.*;
@@ -24,9 +25,9 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
 
     private int innerLevel = 0;
 
-//    TODO MIFID 3, 5
+//    TODO MIFID 5
 //    @Autowire
-//    protected Logger logger;
+    protected Logger logger;
 
     @Override
     public List<T> findAll() {
@@ -39,8 +40,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             Field[] columnsNames = getColumnsNames(allFields);
             t = createInstance(tClass);
             String completeQuery = String.format(query, t.getTableName());
-//            TODO MIFID-3
-//            logger.log(completeQuery);
+            logger.log(completeQuery);
             ResultSet resultSet = statement.executeQuery(completeQuery);
             while (resultSet.next()) {
                 T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -71,8 +71,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             Class<T> tClass = getTypeClass();
             t = createInstance(tClass);
             String completeQuery = String.format(query, t.getTableName());
-//            TODO MIFID-3
-//            logger.log(completeQuery);
+            logger.log(completeQuery);
             ResultSet resultSet = statement.executeQuery(completeQuery);
             if (!resultSet.next()) {
                 return Optional.empty();
@@ -109,8 +108,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             constructor.setAccessible(true);
             t = constructor.newInstance();
             String completeQuery = String.format(query, t.getTableName());
-//            TODO MIFID-3
-//            logger.log(completeQuery);
+            logger.log(completeQuery);
             ResultSet resultSet = statement.executeQuery(completeQuery);
             if (!resultSet.next()) {
                 return Optional.empty();
@@ -149,8 +147,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             for (T object : objects) {
                 E id = object.getId();
                 String completeQuery = String.format(query, t.getTableName(), id);
-//                TODO MIFID-3
-//                logger.log(completeQuery);
+                logger.log(completeQuery);
                 statement.executeUpdate(completeQuery);
             }
             connection.commit();
@@ -171,8 +168,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             try {
                 if (!connection.getAutoCommit()) {
                     connection.rollback();
-//                    TODO MIFID-3
-//                    logger.log("Wycofano zmiany z bazy danych");
+                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
                 logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
@@ -189,8 +185,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             Class<T> tClass = getTypeClass();
             t = createInstance(tClass);
             String completeQuery = String.format(query, t.getTableName());
-//            TODO MIFID-3
-//            logger.log(completeQuery);
+            logger.log(completeQuery);
             statement.executeUpdate(completeQuery);
             connection.commit();
             connection.setAutoCommit(true);
@@ -210,8 +205,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             try {
                 if (!connection.getAutoCommit()) {
                     connection.rollback();
-//                    TODO MIFID-3
-//                    logger.log("Wycofano zmiany z bazy danych");
+                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
                 logAndThrowException("Błąd podczas wycowywania zmian z bazy danych", e);
@@ -259,16 +253,14 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
                     updateObject(object, insertValues, insertColumns, statement, tableName);
                     if (innerLevel == 0) {
                         connection.commit();
-//                        TODO MIFID-3
-//                        logger.log("Zapisano w bazie danych");
+                        logger.log("Zapisano w bazie danych");
                         connection.setAutoCommit(true);
                     }
                     return;
                 }
             }
             String completeQuery = String.format(insertQuery, tableName, insertColumns, insertValues);
-//            TODO MIFID-3
-//            logger.log(completeQuery);
+            logger.log(completeQuery);
             statement.executeUpdate(completeQuery, Statement.RETURN_GENERATED_KEYS);
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -276,8 +268,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             }
             if (innerLevel == 0) {
                 connection.commit();
-//                TODO MIFID-3
-//                logger.log("Zapisano w bazie danych");
+                logger.log("Zapisano w bazie danych");
                 connection.setAutoCommit(true);
             }
         } catch (NoSuchMethodException e) {
@@ -300,8 +291,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             logAndThrowException("Błąd zapisu do bazy danych: ", e);
         } catch (Throwable e) {
             rollback = true;
-//            TODO MIFID-3
-//            logger.logAnException(e, e.getMessage());
+            logger.logAnException(e, e.getMessage());
             logAndThrowException("Wystąpił niespodziewany błąd: ", e);
         } finally {
             try {
@@ -310,8 +300,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
                     rollback = false;
                     connection.rollback();
                     connection.setAutoCommit(true);
-//                    TODO MIFID-3
-//                    logger.log("Wycofano zmiany z bazy danych");
+                    logger.log("Wycofano zmiany z bazy danych");
                 }
             } catch (SQLException e) {
                 logAndThrowException("Błąd podczas wycowywania zmian z bazy danych:", e);
@@ -326,7 +315,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         return findById(lastSavedObjectId).get();
     }
 
-//    TODO MIFID-3
+    //    TODO MIFID-4
     protected void logAndThrowException(String message, Throwable exception) {
 //        RepositoryException repositoryException = new RepositoryException(message + exception.getMessage(), exception);
 //        logger.logAnException(repositoryException, repositoryException.getMessage());
@@ -376,8 +365,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         }
         setFields = setFields.substring(0, setFields.length() - 1);
         String completeQuery = String.format(updateQuery, tableName, setFields, object.getId());
-//        TODO MIFID-3
-//        logger.log(completeQuery);
+        logger.log(completeQuery);
         statement.executeUpdate(completeQuery);
         lastSavedObjectId = object.getId();
     }
