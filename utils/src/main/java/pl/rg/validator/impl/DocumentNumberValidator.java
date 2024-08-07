@@ -8,9 +8,9 @@ import java.util.List;
 public class DocumentNumberValidator extends BaseValidator {
     protected static final int[] ID_DOCUMENT_WEIGHTS = {7, 3, 1, 7, 3, 1, 7, 3};
 
-    private final String ID_CARD_REGEX = "[A-Z]{3}\\d{6}";
+    private static final String ID_CARD_REGEX = "[A-Z]{3}\\d{6}";
 
-    private final String PASSPORT_REGEX = "[A-Z]{2}\\d{7}";
+    private static final String PASSPORT_REGEX = "[A-Z]{2}\\d{7}";
 
     @Override
     public boolean valid(String value, Field field) {
