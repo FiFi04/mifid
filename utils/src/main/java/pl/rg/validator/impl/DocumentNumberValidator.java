@@ -8,19 +8,19 @@ import java.util.List;
 public class DocumentNumberValidator extends BaseValidator {
     protected static final int[] ID_DOCUMENT_WEIGHTS = {7, 3, 1, 7, 3, 1, 7, 3};
 
-    private final String id_card_regex = "[A-Z]{3}\\d{6}";
+    private final String ID_CARD_REGEX = "[A-Z]{3}\\d{6}";
 
-    private final String passport_regex = "[A-Z]{2}\\d{7}";
+    private final String PASSPORT_REGEX = "[A-Z]{2}\\d{7}";
 
     @Override
     public boolean valid(String value, Field field) {
 //        TODO MIFID-6
 //        DocumentType documentType = null;
 
-        if (value.matches(id_card_regex)) {
+        if (value.matches(ID_CARD_REGEX)) {
 //            TODO MIFID-6
 //            documentType = null;
-        } else if (value.matches(passport_regex)) {
+        } else if (value.matches(PASSPORT_REGEX)) {
 //            documentType = null;
         }
 //        if (documentType == null) {
@@ -48,7 +48,7 @@ public class DocumentNumberValidator extends BaseValidator {
         List<String> personalDocumentValues = Arrays.asList(docNumber.split(""));
         String docNumberWithoutCtrlNum = "";
         int controlNumberIndex;
-        boolean isIdCard = docNumber.matches(id_card_regex);
+        boolean isIdCard = docNumber.matches(ID_CARD_REGEX);
         if (isIdCard) {
             controlNumberIndex = 3;
             docNumberWithoutCtrlNum = docNumber.substring(0, 3) + docNumber.substring(4);
