@@ -1,4 +1,4 @@
-package pl.rg.anntotation;
+package pl.rg.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

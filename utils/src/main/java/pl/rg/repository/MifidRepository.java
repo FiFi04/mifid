@@ -1,7 +1,8 @@
 package pl.rg.repository;
 
 import lombok.Data;
-import pl.rg.anntotation.FieldCategory;
+import pl.rg.annotation.FieldCategory;
+import pl.rg.exception.RepositoryException;
 import pl.rg.logger.Logger;
 
 import java.lang.reflect.*;
@@ -315,11 +316,10 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         return findById(lastSavedObjectId).get();
     }
 
-    //    TODO MIFID-4
     protected void logAndThrowException(String message, Throwable exception) {
-//        RepositoryException repositoryException = new RepositoryException(message + exception.getMessage(), exception);
-//        logger.logAnException(repositoryException, repositoryException.getMessage());
-//        throw repositoryException;
+        RepositoryException repositoryException = new RepositoryException(message + exception.getMessage(), exception);
+        logger.logAnException(repositoryException, repositoryException.getMessage());
+        throw repositoryException;
     }
 
     private String getInsertValue(Field objectField, T object) throws IllegalAccessException, ClassNotFoundException,
