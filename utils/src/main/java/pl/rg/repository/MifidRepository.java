@@ -1,6 +1,7 @@
 package pl.rg.repository;
 
 import lombok.Data;
+import pl.rg.annotation.Autowire;
 import pl.rg.annotation.FieldCategory;
 import pl.rg.exception.RepositoryException;
 import pl.rg.logger.Logger;
@@ -26,8 +27,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
 
     private int innerLevel = 0;
 
-//    TODO MIFID 5
-//    @Autowire
+    @Autowire
     protected Logger logger;
 
     @Override

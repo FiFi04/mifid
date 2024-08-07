@@ -4,31 +4,25 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
-import pl.rg.annotations.Autowire;
-import pl.rg.annotations.Controller;
-import pl.rg.annotations.Repository;
-import pl.rg.annotations.Service;
+import pl.rg.annotation.Autowire;
+import pl.rg.annotation.Controller;
+import pl.rg.annotation.Repository;
+import pl.rg.annotation.Service;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        System.out.println("Hello world!");
 
         Map<String, Object> container = new HashMap<>();
         Set<Class<?>> annotatedClasses = getAllAnnotatedClasses();
         initializeContainer(annotatedClasses, container);
         initializeFields(container);
-
-//        Stream.of(System.getProperty("java.class.path").split(System.getProperty("path.separator")))
-//                .map(Paths::get)
-//                .forEach(System.out::println);
 
         for (Map.Entry<String, Object> entry : container.entrySet()) {
             System.out.println(entry.getKey() + ":" + entry.getValue());
