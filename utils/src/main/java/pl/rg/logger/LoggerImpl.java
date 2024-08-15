@@ -2,6 +2,7 @@ package pl.rg.logger;
 
 import pl.rg.db.DBConnector;
 import pl.rg.db.PropertiesUtils;
+import pl.rg.exception.RepositoryException;
 import pl.rg.exception.ValidationException;
 
 import java.io.*;
@@ -44,6 +45,12 @@ public class LoggerImpl implements Logger{
     public void logAnException(Throwable exception, String message, Object... additionalInfo) {
         StringBuilder logMessage = createExceptionLogMessage(message, exception, additionalInfo);
         logMessage(logMessage);
+    }
+
+    public void logAndThrowException(String message, Throwable exception) {
+        RepositoryException repositoryException = new RepositoryException(message + exception.getMessage(), exception);
+        logAnException(repositoryException, repositoryException.getMessage());
+        throw repositoryException;
     }
 
     private void logMessage(StringBuilder logMessage) {
