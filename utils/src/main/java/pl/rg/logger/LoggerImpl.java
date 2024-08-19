@@ -67,8 +67,8 @@ public class LoggerImpl implements Logger{
 
     private void initializeLogger() {
         try {
-            logType = LogType.valueOf(PropertiesUtils.getProperty("log.type").toUpperCase());
-            logDirectory = PropertiesUtils.getProperty("log.directory");
+            logType = LogType.valueOf(PropertiesUtils.getProperty("log.type", PropertiesUtils.PROPERTIES_FILE_UTILS).toUpperCase());
+            logDirectory = PropertiesUtils.getProperty("log.directory", PropertiesUtils.PROPERTIES_FILE_UTILS);
             initializeLogFile();
             writer = new BufferedWriter(new FileWriter(logFile, true));
         } catch (IOException e) {
@@ -89,7 +89,7 @@ public class LoggerImpl implements Logger{
 
     private void initializeLogFile() {
         String currentDate = LocalDate.now().toString();
-        String logFilePath = logDirectory + "/" + currentDate + ".log";
+        String logFilePath = logDirectory + currentDate + ".log";
         logFile = new File(logFilePath);
     }
 

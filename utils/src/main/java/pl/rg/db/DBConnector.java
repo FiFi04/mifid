@@ -27,14 +27,13 @@ public class DBConnector {
 
     private Connection initializeConnection() {
         try {
-            String url = PropertiesUtils.getProperty("db.url");
-            String username = PropertiesUtils.getProperty("db.username");
-            String password = PropertiesUtils.getProperty("db.password");
+            String url = PropertiesUtils.getProperty("db.url", PropertiesUtils.PROPERTIES_FILE_UTILS);
+            String username = PropertiesUtils.getProperty("db.username", PropertiesUtils.PROPERTIES_FILE_UTILS);
+            String password = PropertiesUtils.getProperty("db.password", PropertiesUtils.PROPERTIES_FILE_UTILS);
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return connection;
     }
-
 }

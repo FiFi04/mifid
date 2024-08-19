@@ -3,10 +3,14 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="1" author="rg">
-        <createTable tableName="user">
-            <column name="id" type="int" autoIncrement="true"></column>
+    <changeSet id="2" author="rg">
+        <createTable tableName="public_key">
+            <column name="id" type="int">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="key_hash" type="varchar(2048)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
-        <addPrimaryKey tableName="user" columnNames="id"/>
     </changeSet>
 </databaseChangeLog>

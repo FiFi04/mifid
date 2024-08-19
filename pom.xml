@@ -12,6 +12,7 @@
         <module>users/users-impl</module>
         <module>main</module>
         <module>utils</module>
+        <module>security</module>
     </modules>
     <profiles>
         <profile>
