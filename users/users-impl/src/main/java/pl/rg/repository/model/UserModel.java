@@ -1,7 +1,16 @@
 package pl.rg.repository.model;
 
-import pl.rg.annotations.FieldCategory;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import pl.rg.annotation.FieldCategory;
+import pl.rg.repository.MifidGeneral;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class UserModel extends MifidGeneral<Integer> {
 
     @FieldCategory(dbColumn = true)
