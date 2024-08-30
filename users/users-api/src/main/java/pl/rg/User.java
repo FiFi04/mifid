@@ -25,8 +25,4 @@ public interface User {
     String getEmail();
 
     void setEmail(String email);
-
-    String getRole();
-
-    void setRole(String role);
 }

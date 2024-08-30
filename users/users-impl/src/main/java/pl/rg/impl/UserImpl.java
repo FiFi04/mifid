@@ -24,14 +24,11 @@ public class UserImpl implements User {
 
     private String email;
 
-    private String role;
-
-    public UserImpl(String userName, String password, String firstName, String lastName, String email, String role) {
+    public UserImpl(String userName, String password, String firstName, String lastName, String email) {
         this.userName = userName;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.role = role;
     }
 }

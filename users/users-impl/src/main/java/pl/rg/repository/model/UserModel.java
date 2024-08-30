@@ -28,9 +28,6 @@ public class UserModel extends MifidGeneral<Integer> {
     @FieldCategory(dbColumn = true)
     public final static String EMAIL = "email";
 
-    @FieldCategory(dbColumn = true)
-    public final static String ROLE = "role";
-
     private final static String TABLE_NAME = "user";
 
     @FieldCategory(dbField = true)
@@ -47,9 +44,6 @@ public class UserModel extends MifidGeneral<Integer> {
 
     @FieldCategory(dbField = true)
     private String email;
-
-    @FieldCategory(dbField = true)
-    private String role;
 
     @Override
     public String getTableName() {

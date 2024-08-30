@@ -4,6 +4,11 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="1" author="rg" failOnError="true" context="dev, prod">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
         <createTable tableName="user">
             <column name="id" type="int" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -22,9 +27,6 @@
             </column>
             <column name="email" type="varchar(45)">
                 <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="role" type="varchar(45)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
         <rollback>
