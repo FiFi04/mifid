@@ -1,5 +1,7 @@
 package pl.rg.validator.impl;
 
+import pl.rg.enums.DocumentType;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,35 +16,31 @@ public class DocumentNumberValidator extends BaseValidator {
 
     @Override
     public boolean valid(String value, Field field) {
-//        TODO MIFID-6
-//        DocumentType documentType = null;
-
+        DocumentType documentType = null;
         if (value.matches(ID_CARD_REGEX)) {
-//            TODO MIFID-6
-//            documentType = null;
+            documentType = null;
         } else if (value.matches(PASSPORT_REGEX)) {
-//            documentType = null;
+            documentType = null;
         }
-//        if (documentType == null) {
+        if (documentType == null) {
             return false;
         }
-//            TODO MIFID-6
-//        switch (documentType) {
-//            case ID_CARD -> {
-//                if (!value.matches(id_card_regex) ||
-//                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
-//                    return false;
-//                }
-//            }
-//            case PASSPORT -> {
-//                if (!value.matches(passport_regex) ||
-//                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
+        switch (documentType) {
+            case ID_CARD -> {
+                if (!value.matches(ID_CARD_REGEX) ||
+                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
+                    return false;
+                }
+            }
+            case PASSPORT -> {
+                if (!value.matches(PASSPORT_REGEX) ||
+                        !isIdDocControlNumberCorrect(value, ID_DOCUMENT_WEIGHTS)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     private boolean isIdDocControlNumberCorrect(String docNumber, int[] weights) {
         List<String> personalDocumentValues = Arrays.asList(docNumber.split(""));
