@@ -67,8 +67,8 @@ public class LoggerImpl implements Logger{
 
     private void initializeLogger() {
         try {
-            logType = LogType.valueOf(PropertiesUtils.getProperty("log.type", PropertiesUtils.PROPERTIES_FILE_UTILS).toUpperCase());
-            logDirectory = PropertiesUtils.getProperty("log.directory", PropertiesUtils.PROPERTIES_FILE_UTILS);
+            logType = LogType.valueOf(PropertiesUtils.getProperty("log.type").toUpperCase());
+            logDirectory = PropertiesUtils.getProperty("log.directory");
             initializeLogFile();
             writer = new BufferedWriter(new FileWriter(logFile, true));
         } catch (IOException e) {

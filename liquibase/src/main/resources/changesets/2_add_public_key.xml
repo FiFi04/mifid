@@ -4,7 +4,12 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="2" author="rg" failOnError="true" context="dev, prod">
-        <createTable tableName="public_key">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="public_key_hash"/>
+            </not>
+        </preConditions>
+        <createTable tableName="public_key_hash">
             <column name="id" type="int">
                 <constraints primaryKey="true"/>
             </column>
@@ -13,7 +18,7 @@
             </column>
         </createTable>
         <rollback>
-            <dropTable tableName="public_key"/>
+            <dropTable tableName="public_key_hash"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

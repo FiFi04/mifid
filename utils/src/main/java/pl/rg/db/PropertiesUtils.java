@@ -6,13 +6,11 @@ import java.util.Properties;
 
 public class PropertiesUtils {
 
-    public static final String PROPERTIES_FILE_UTILS = "app.properties";
+    public static final String PROPERTIES_FILE = "app.properties";
 
-    public final static String PROPERTIES_FILE_SECURITY = "security.properties";
-
-    public static String getProperty(String key, String propertiesFileName) {
+    public static String getProperty(String key) {
         Properties properties = new Properties();
-        try (InputStream inputStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(propertiesFileName)) {
+        try (InputStream inputStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
             properties.load(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);

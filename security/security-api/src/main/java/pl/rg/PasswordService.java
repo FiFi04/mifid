@@ -1,8 +1,8 @@
-package pl.rg.passwordCipher;
+package pl.rg;
 
 import java.util.Optional;
 
-public interface PasswordCipher {
+public interface PasswordService {
 
     Optional<String> encryptPassword(String password);
 
