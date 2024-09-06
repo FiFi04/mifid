@@ -10,7 +10,7 @@
             </not>
         </preConditions>
         <createTable tableName="public_key_hash">
-            <column name="id" type="int">
+            <column name="id" type="int" defaultValue="1">
                 <constraints primaryKey="true"/>
             </column>
             <column name="key_hash" type="varchar(2048)">

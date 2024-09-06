@@ -21,6 +21,11 @@ public class PublicKeyHashModel extends MifidGeneral<Integer> {
 
     public final static String TABLE_NAME = "public_key_hash";
 
+    public PublicKeyHashModel(Integer id, String keyHash) {
+        super(id);
+        this.keyHash = keyHash;
+    }
+
     @Override
     public String getTableName() {
         return TABLE_NAME;
