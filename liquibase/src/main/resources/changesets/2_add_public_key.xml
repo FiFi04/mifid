@@ -1,0 +1,24 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2" author="rg" failOnError="true" context="dev, prod">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="public_key_hash"/>
+            </not>
+        </preConditions>
+        <createTable tableName="public_key_hash">
+            <column name="id" type="int" defaultValue="1">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="key_hash" type="varchar(2048)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="public_key_hash"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

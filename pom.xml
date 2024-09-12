@@ -12,6 +12,8 @@
         <module>users/users-impl</module>
         <module>main</module>
         <module>utils</module>
+        <module>security/security-api</module>
+        <module>security/security-impl</module>
     </modules>
     <profiles>
         <profile>
