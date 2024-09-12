@@ -11,10 +11,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public abstract class MifidGeneral<E> {
 
-    public final static String ID = "id";
+  public final static String ID = "id";
 
-    protected E id;
+  protected E id;
 
-    public abstract String getTableName();
+  public abstract String getTableName();
 
 }

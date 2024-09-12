@@ -2,9 +2,11 @@ package pl.rg.utils.logger;
 
 public interface Logger {
 
-    void log(String message, Object... additionalInfo);
+  void log(String message, Object... additionalInfo);
 
-    void logAnException(Throwable exception, String message, Object... additionalArguments);
+  void logAnException(Throwable exception, String message, Object... additionalArguments);
 
-    void logAndThrowException(String message, Throwable exception);
+  void logAndThrowRepositoryException(String message, Throwable exception);
+
+  void logAndThrowRuntimeException(RuntimeException exception);
 }

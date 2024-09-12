@@ -1,21 +1,20 @@
 package pl.rg.utils.annotation;
 
-import pl.rg.utils.validator.enums.ValidatorCase;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import pl.rg.utils.validator.enums.ValidatorCase;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Validate {
 
-    ValidatorCase validatorCase();
+  ValidatorCase validatorCase();
 
-    String message();
+  String message();
 
-    String format() default ".*";
+  String format() default ".*";
 
-    int maxTextLength() default 30;
+  int maxTextLength() default 30;
 }

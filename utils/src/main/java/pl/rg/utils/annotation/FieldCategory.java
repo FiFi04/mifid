@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldCategory {
 
-    boolean dbColumn() default false;
+  boolean dbColumn() default false;
 
-    boolean dbField() default false;
+  boolean dbField() default false;
 
-    boolean fetchField() default false;
+  boolean fetchField() default false;
 }
