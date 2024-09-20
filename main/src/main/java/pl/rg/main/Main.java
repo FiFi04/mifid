@@ -3,7 +3,7 @@ package pl.rg.main;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Optional;
-import pl.rg.security.impl.PasswordServiceImpl;
+import pl.rg.security.impl.SecurityModuleImpl;
 
 public class Main {
 
@@ -18,11 +18,11 @@ public class Main {
       System.out.println(entry.getKey() + ":" + entry.getValue());
     }
 
-    PasswordServiceImpl passwordserviceimpl = (PasswordServiceImpl) container.get(
-        "passwordserviceimpl");
-    Optional<String> encryptedPassword = passwordserviceimpl.encryptPassword("Admin123!");
+    SecurityModuleImpl securityModule = (SecurityModuleImpl) container.get(
+        "securityModuleImpl");
+    Optional<String> encryptedPassword = securityModule.encryptPassword("Admin123!");
     System.out.println(encryptedPassword.get());
-    Optional<String> decryptedPassword = passwordserviceimpl.decryptPassword(
+    Optional<String> decryptedPassword = securityModule.decryptPassword(
         encryptedPassword.get());
     System.out.println(decryptedPassword.get());
   }

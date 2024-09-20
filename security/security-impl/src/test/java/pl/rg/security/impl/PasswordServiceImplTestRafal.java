@@ -3,45 +3,29 @@ package pl.rg.security.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static pl.rg.security.impl.PasswordServiceImpl.ALGORITHM_TYPE;
-import static pl.rg.utils.repository.Repository.dbConnector;
+import static pl.rg.security.impl.SecurityModuleImpl.ALGORITHM_TYPE;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Optional;
 import javax.crypto.Cipher;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.utility.DockerImageName;
 import pl.rg.security.repository.PublicKeyHashRepository;
 import pl.rg.utils.db.DBConnector;
-import pl.rg.utils.db.PropertiesUtils;
-import pl.rg.utils.repository.Repository;
 
 //@RunWith(MockitoJUnitRunner.class)
-class PasswordServiceImplTest {
-
-  static MySQLContainer<?> mySQLContainer = new MySQLContainer<>(
-      DockerImageName.parse("mysql:8.0.34"));
+class PasswordServiceImplTestRafal {
 
   @Mock
   private DBConnector dbConnector;
@@ -50,7 +34,7 @@ class PasswordServiceImplTest {
   private PublicKeyHashRepository publicKeyHashRepository;
 
   @InjectMocks
-  private PasswordServiceImpl passwordService;
+  private SecurityModuleImpl passwordService;
 
   private KeyPair keyPair;
 
@@ -60,11 +44,6 @@ class PasswordServiceImplTest {
 //    System.setProperty("db.url", mySQLContainer.getJdbcUrl());
 //    System.setProperty("db.username", mySQLContainer.getUsername());
 //    System.setProperty("db.password", mySQLContainer.getPassword());
-  }
-
-  @AfterAll
-  static void afterAll() {
-    mySQLContainer.close();
   }
 
   @BeforeEach
@@ -109,7 +88,7 @@ class PasswordServiceImplTest {
   void shouldFailDecryptionWhenPrivateKeyIsNotPresent()
       throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
     String password = "Password123!";
-    Method getPrivateKey = PasswordServiceImpl.class.getMethod("getPrivateKey");
+    Method getPrivateKey = SecurityModuleImpl.class.getMethod("getPrivateKey");
     getPrivateKey.setAccessible(true);
     when(getPrivateKey.invoke(passwordService)).thenReturn(Optional.empty());
 

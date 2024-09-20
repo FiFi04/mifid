@@ -16,7 +16,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Optional;
 import javax.crypto.Cipher;
-import pl.rg.security.PasswordService;
+import pl.rg.security.SecurityModuleApi;
 import pl.rg.security.exception.SecurityException;
 import pl.rg.security.repository.PublicKeyHashRepository;
 import pl.rg.utils.annotation.Autowire;
@@ -26,7 +26,7 @@ import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
 @Service
-public class PasswordServiceImpl implements PasswordService {
+public class SecurityModuleImpl implements SecurityModuleApi {
 
   @Autowire
   private PublicKeyHashRepository publicKeyHashRepository;
@@ -38,7 +38,9 @@ public class PasswordServiceImpl implements PasswordService {
   private final boolean shouldGenerateKeys = Boolean.parseBoolean(
       PropertiesUtils.getProperty("application.generateKeys"));
 
-  private Logger logger = LoggerImpl.getInstance();
+  public Logger getLogger() {
+    return LoggerImpl.getInstance();
+  }
 
   @Override
   public Optional<String> encryptPassword(String password) {
@@ -55,8 +57,8 @@ public class PasswordServiceImpl implements PasswordService {
     } catch (GeneralSecurityException e) {
       SecurityException exception = new SecurityException("Błąd podczas szyfrowania hasła",
           e);
-      logger.logAndThrowRuntimeException(exception);
-      return Optional.empty();
+      getLogger().logAnException(exception, e.getMessage());
+      throw exception;
     }
   }
 
@@ -71,7 +73,7 @@ public class PasswordServiceImpl implements PasswordService {
     } catch (GeneralSecurityException e) {
       SecurityException exception = new SecurityException("Błąd podczas odszyfrowania hasła",
           e);
-      logger.logAndThrowRuntimeException(exception);
+      getLogger().logAndThrowRuntimeException(exception);
       return Optional.empty();
     }
   }
@@ -85,7 +87,7 @@ public class PasswordServiceImpl implements PasswordService {
     } catch (IOException e) {
       SecurityException exception = new SecurityException("Błąd zapisu klucza do pliku",
           e);
-      logger.logAndThrowRuntimeException(exception);
+      getLogger().logAndThrowRuntimeException(exception);
       return false;
     }
   }
@@ -101,11 +103,11 @@ public class PasswordServiceImpl implements PasswordService {
     } catch (IOException e) {
       SecurityException exception = new SecurityException("Błąd odczytu klucza z pliku",
           e);
-      logger.logAndThrowRuntimeException(exception);
+      getLogger().logAndThrowRuntimeException(exception);
     } catch (GeneralSecurityException e) {
       SecurityException exception = new SecurityException("Błąd odszyfrowania klucza z pliku",
           e);
-      logger.logAndThrowRuntimeException(exception);
+      getLogger().logAndThrowRuntimeException(exception);
     }
     return Optional.empty();
   }
@@ -120,7 +122,7 @@ public class PasswordServiceImpl implements PasswordService {
     } catch (NoSuchAlgorithmException e) {
       SecurityException exception = new SecurityException("Błąd podczas tworzenia kluczy",
           e);
-      logger.logAndThrowRuntimeException(exception);
+      getLogger().logAndThrowRuntimeException(exception);
     }
   }
 }
