@@ -92,7 +92,7 @@ public class SecurityModuleImpl implements SecurityModuleApi {
     }
   }
 
-  private Optional<PrivateKey> getPrivateKey() {
+  Optional<PrivateKey> getPrivateKey() {
     File keyFile = new File(privateKeyDirectory);
     try {
       byte[] privateKeyBytes = Files.readAllBytes(keyFile.toPath());

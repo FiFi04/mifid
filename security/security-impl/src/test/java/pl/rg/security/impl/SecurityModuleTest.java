@@ -3,6 +3,7 @@ package pl.rg.security.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -39,7 +40,7 @@ public class SecurityModuleTest {
   private KeyPairTestModel keyPairTestModel;
 
   @InjectMocks
-  private SecurityModuleImpl passwordService;
+  private SecurityModuleImpl securityModule;
 
   @BeforeEach
   public void setUp() {
@@ -70,7 +71,7 @@ public class SecurityModuleTest {
 
     // when
     try {
-      passwordService.encryptPassword(password);
+      securityModule.encryptPassword(password);
     } catch (RuntimeException e) {
       exceptionThrown = e;
     }
@@ -81,4 +82,38 @@ public class SecurityModuleTest {
     assertEquals("Błąd podczas szyfrowania hasła", exceptionThrown.getMessage());
   }
 
+  @Test
+  public void whenEncryptPasswordWithValidKeys_thenShouldReturnEncryptedPassword() {
+    //given
+    String password = "Password123!";
+    KeyPair keyPair = keyPairTestModel.getValidKeyPair();
+
+    when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
+
+    //when
+    Optional<String> encryptedPassword = securityModule.encryptPassword(password);
+
+    //then
+    assertNotNull(encryptedPassword);
+    assertTrue(encryptedPassword.isPresent());
+  }
+
+  @Test
+  public void whenDecryptPasswordWithValidKeys_thenReturnOriginalPassword() {
+    //given
+    String password = "Password123!";
+    KeyPair keyPair = keyPairTestModel.getValidKeyPair();
+
+    when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
+    when(securityModule.getPrivateKey()).thenReturn(Optional.of(keyPair.getPrivate()));
+
+    Optional<String> encryptedPassword = securityModule.encryptPassword(password);
+
+    //when
+    Optional<String> decryptedPassword = securityModule.decryptPassword(encryptedPassword.get());
+
+    //then
+    assertTrue(decryptedPassword.isPresent());
+    assertEquals(password, decryptedPassword.get());
+  }
 }
