@@ -31,7 +31,6 @@ public class LoggerImpl implements Logger {
   private final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
   private LoggerImpl() {
-    initializeLogger();
   }
 
   public static LoggerImpl getInstance() {
@@ -67,6 +66,18 @@ public class LoggerImpl implements Logger {
     throw exception;
   }
 
+  @Override
+  public void initializeLogger() {
+    try {
+      logType = LogType.valueOf(PropertiesUtils.getProperty("log.type").toUpperCase());
+      logDirectory = PropertiesUtils.getProperty("log.directory");
+      initializeLogFile();
+      writer = new BufferedWriter(new FileWriter(logFile, true));
+    } catch (IOException e) {
+      logAnException(e, "Błąd inicjalizacji loggera");
+    }
+  }
+
   private void logMessage(StringBuilder logMessage) {
     try {
       if (logType.equals(LogType.CONSOLE) || DBConnector.getInstance().getConnection().isClosed()) {
@@ -76,17 +87,6 @@ public class LoggerImpl implements Logger {
       }
     } catch (SQLException e) {
       throw new ValidationException(e.getMessage(), e);
-    }
-  }
-
-  private void initializeLogger() {
-    try {
-      logType = LogType.valueOf(PropertiesUtils.getProperty("log.type").toUpperCase());
-      logDirectory = PropertiesUtils.getProperty("log.directory");
-      initializeLogFile();
-      writer = new BufferedWriter(new FileWriter(logFile, true));
-    } catch (IOException e) {
-      logAnException(e, "Błąd inicjalizacji loggera");
     }
   }
 

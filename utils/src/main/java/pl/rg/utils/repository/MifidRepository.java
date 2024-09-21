@@ -36,6 +36,10 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
 
   protected Logger logger = LoggerImpl.getInstance();
 
+  {
+    logger.initializeLogger();
+  }
+
   @Override
   public List<T> findAll() {
     String query = "SELECT * FROM %s";

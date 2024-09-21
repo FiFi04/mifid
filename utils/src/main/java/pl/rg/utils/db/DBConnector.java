@@ -11,7 +11,6 @@ public class DBConnector {
   private Connection connection;
 
   private DBConnector() {
-    this.connection = initializeConnection();
   }
 
   public static DBConnector getInstance() {
@@ -22,7 +21,11 @@ public class DBConnector {
   }
 
   public Connection getConnection() {
-    return connection;
+    if (this.connection == null) {
+      return initializeConnection();
+    } else {
+      return connection;
+    }
   }
 
   private Connection initializeConnection() {
