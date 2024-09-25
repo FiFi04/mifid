@@ -12,6 +12,7 @@ import java.security.KeyPair;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -37,15 +38,22 @@ public class SecurityModuleTest {
   @Mock
   private Connection connection;
 
-  private KeyPairTestModel keyPairTestModel;
+  private static KeyPairTestModel keyPairTestModel;
+
+  private static KeyPair keyPair;
 
   @InjectMocks
   private SecurityModuleImpl securityModule;
 
+  @BeforeAll
+  public static void beforeAll() {
+    keyPairTestModel = new KeyPairTestModel();
+    keyPair = keyPairTestModel.getValidKeyPair();
+  }
+
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    keyPairTestModel = new KeyPairTestModel();
   }
 
   @Test
@@ -86,7 +94,6 @@ public class SecurityModuleTest {
   public void whenEncryptPasswordWithValidKeys_thenShouldReturnEncryptedPassword() {
     //given
     String password = "Password123!";
-    KeyPair keyPair = keyPairTestModel.getValidKeyPair();
 
     when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
 
@@ -102,8 +109,6 @@ public class SecurityModuleTest {
   public void whenDecryptPasswordWithValidKeys_thenReturnOriginalPassword() {
     //given
     String password = "Password123!";
-    KeyPair keyPair = keyPairTestModel.getValidKeyPair();
-
     when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
     when(securityModule.getPrivateKey()).thenReturn(Optional.of(keyPair.getPrivate()));
 
