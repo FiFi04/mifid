@@ -2,18 +2,22 @@ package pl.rg.security.impl;
 
 import static pl.rg.security.impl.SecurityModuleImpl.ALGORITHM_TYPE;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.security.KeyFactory;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 public class KeyPairTestModel {
+
+  public final static String PASSWORD = "Password123!";
 
   public KeyPair getEmptyKeyPar() {
     PublicKey publicKey = new PublicKey() {
@@ -53,22 +57,19 @@ public class KeyPairTestModel {
   }
 
   public KeyPair getValidKeyPair() {
+    File privateKey = new File("src/test/resources/private.key");
+    File publicKey = new File("src/test/resources/public.key");
     try {
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(
-          ALGORITHM_TYPE);
-      keyPairGenerator.initialize(2048);
-      KeyPair keyPair = keyPairGenerator.generateKeyPair();
-      String publicKeyHash = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
-      String privateKeyHash = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
-
-      File keyFile = new File("src/test/resources/test.keys");
-      BufferedWriter writer = new BufferedWriter(new FileWriter(keyFile));
-      writer.write(publicKeyHash);
-      writer.newLine();
-      writer.write(privateKeyHash);
-      writer.close();
-      return keyPair;
-    } catch (NoSuchAlgorithmException | IOException e) {
+      byte[] privateKeyBytes = Files.readAllBytes(privateKey.toPath());
+      byte[] publicKeyBytes = Files.readAllBytes(publicKey.toPath());
+      byte[] decodedPrivateKey = Base64.getDecoder().decode(privateKeyBytes);
+      byte[] decodedPublicKey = Base64.getDecoder().decode(publicKeyBytes);
+      KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_TYPE);
+      PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(decodedPrivateKey);
+      X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(decodedPublicKey);
+      return new KeyPair(keyFactory.generatePublic(publicKeySpec),
+          keyFactory.generatePrivate(privateKeySpec));
+    } catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e) {
       throw new RuntimeException(e);
     }
   }
