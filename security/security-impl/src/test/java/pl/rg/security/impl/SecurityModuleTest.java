@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +17,6 @@ import java.security.PublicKey;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -43,18 +44,12 @@ public class SecurityModuleTest {
   @Mock
   private Connection connection;
 
-  private static KeyPairTestModel keyPairTestModel;
+  private KeyPairTestModel keyPairTestModel = new KeyPairTestModel();
 
-  private static KeyPair keyPair;
+  private KeyPair keyPair = keyPairTestModel.getValidKeyPair();
 
   @InjectMocks
   private SecurityModuleImpl securityModule;
-
-  @BeforeAll
-  public static void beforeAll() {
-    keyPairTestModel = new KeyPairTestModel();
-    keyPair = keyPairTestModel.getValidKeyPair();
-  }
 
   @BeforeEach
   public void setUp() {
@@ -78,11 +73,13 @@ public class SecurityModuleTest {
       when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
       when(dbConnector.getConnection()).thenReturn(connection);
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
+      doThrow(new SecurityException("Błąd podczas szyfrowania hasła")).when(logger)
+          .logAndThrowRuntimeException(any(RuntimeException.class));
 
       // when
       try {
         securityModule.encryptPassword(KeyPairTestModel.PASSWORD);
-      } catch (RuntimeException e) {
+      } catch (SecurityException e) {
         exceptionThrown = e;
       }
 
@@ -111,7 +108,7 @@ public class SecurityModuleTest {
     //given
     try (MockedStatic<PropertiesUtils> propertiesMockedStatic = mockStatic(PropertiesUtils.class)) {
 
-      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty("privateKey.directory"))
+      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty(PropertiesUtils.PRIVATE_KEY))
           .thenReturn("src/test/resources/private.key");
       when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
 
@@ -137,13 +134,15 @@ public class SecurityModuleTest {
     try (MockedStatic<PropertiesUtils> propertiesMockedStatic = mockStatic(PropertiesUtils.class);
         MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class)) {
 
-      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty("privateKey.directory"))
+      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty(PropertiesUtils.PRIVATE_KEY))
           .thenReturn(tempEmptyKeyFilePath.toString());
       when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
 
       Optional<String> encryptedPassword = securityModule.encryptPassword(
           KeyPairTestModel.PASSWORD);
+      doThrow(new SecurityException("Błąd odczytu klucza z pliku")).when(logger)
+          .logAndThrowRuntimeException(any(RuntimeException.class));
 
       //when
       try {
@@ -168,9 +167,11 @@ public class SecurityModuleTest {
     try (MockedStatic<PropertiesUtils> propertiesMockedStatic = mockStatic(PropertiesUtils.class);
         MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class)) {
 
-      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty("privateKey.directory"))
+      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty(PropertiesUtils.PRIVATE_KEY))
           .thenReturn("src/test/resources/private.key");
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
+      doThrow(new SecurityException("Błąd podczas odszyfrowania hasła")).when(logger)
+          .logAndThrowRuntimeException(any(RuntimeException.class));
 
       //when
       try {
@@ -194,7 +195,7 @@ public class SecurityModuleTest {
     try (MockedStatic<PropertiesUtils> propertiesMockedStatic = mockStatic(PropertiesUtils.class)) {
       propertiesMockedStatic.when(() -> PropertiesUtils.getProperty("application.generateKeys"))
           .thenReturn("true");
-      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty("privateKey.directory"))
+      propertiesMockedStatic.when(() -> PropertiesUtils.getProperty(PropertiesUtils.PRIVATE_KEY))
           .thenReturn(privateKeyPath.toString());
       when(publicKeyHashRepository.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
       Optional<PublicKey> publicKey = publicKeyHashRepository.getPublicKey();

@@ -14,7 +14,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.crypto.Cipher;
 import pl.rg.security.SecurityModuleApi;
@@ -34,10 +33,12 @@ public class SecurityModuleImpl implements SecurityModuleApi {
 
   public static final String ALGORITHM_TYPE = "RSA";
 
-  private String privateKeyDirectory;
-
   public Logger getLogger() {
     return LoggerImpl.getInstance();
+  }
+
+  public String getPrivateKeyDirectory() {
+    return PropertiesUtils.getProperty(PropertiesUtils.PRIVATE_KEY);
   }
 
   @Override
@@ -54,9 +55,9 @@ public class SecurityModuleImpl implements SecurityModuleApi {
     } catch (GeneralSecurityException e) {
       SecurityException exception = new SecurityException("Błąd podczas szyfrowania hasła",
           e);
-      getLogger().logAnException(exception, e.getMessage());
-      throw exception;
+      getLogger().logAndThrowRuntimeException(exception);
     }
+    return Optional.empty();
   }
 
   @Override
@@ -70,16 +71,13 @@ public class SecurityModuleImpl implements SecurityModuleApi {
     } catch (GeneralSecurityException e) {
       SecurityException exception = new SecurityException("Błąd podczas odszyfrowania hasła",
           e);
-      getLogger().logAnException(exception, exception.getMessage());
-      throw exception;
+      getLogger().logAndThrowRuntimeException(exception);
     }
+    return Optional.empty();
   }
 
   private boolean savePrivateKey(PrivateKey privateKey) {
-    if (privateKeyDirectory == null) {
-      privateKeyDirectory = PropertiesUtils.getProperty("privateKey.directory");
-    }
-    File keyFile = new File(privateKeyDirectory);
+    File keyFile = new File(getPrivateKeyDirectory());
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(keyFile))) {
       String privateKeyStr = Base64.getEncoder().encodeToString(privateKey.getEncoded());
       writer.write(privateKeyStr);
@@ -87,16 +85,13 @@ public class SecurityModuleImpl implements SecurityModuleApi {
     } catch (IOException e) {
       SecurityException exception = new SecurityException("Błąd zapisu klucza do pliku",
           e);
-      getLogger().logAnException(exception, exception.getMessage());
-      throw exception;
+      getLogger().logAndThrowRuntimeException(exception);
     }
+    return false;
   }
 
   private Optional<PrivateKey> getPrivateKey() {
-    if (privateKeyDirectory == null) {
-      privateKeyDirectory = PropertiesUtils.getProperty("privateKey.directory");
-    }
-    File keyFile = new File(privateKeyDirectory);
+    File keyFile = new File(getPrivateKeyDirectory());
     try {
       byte[] privateKeyBytes = Files.readAllBytes(keyFile.toPath());
       byte[] decodedPrivateKey = Base64.getDecoder().decode(privateKeyBytes);
@@ -106,14 +101,13 @@ public class SecurityModuleImpl implements SecurityModuleApi {
     } catch (IOException e) {
       SecurityException exception = new SecurityException("Błąd odczytu klucza z pliku",
           e);
-      getLogger().logAnException(exception, exception.getMessage());
-      throw exception;
+      getLogger().logAndThrowRuntimeException(exception);
     } catch (GeneralSecurityException e) {
       SecurityException exception = new SecurityException("Błąd odszyfrowania klucza z pliku",
           e);
-      getLogger().logAnException(exception, exception.getMessage());
-      throw exception;
+      getLogger().logAndThrowRuntimeException(exception);
     }
+    return Optional.empty();
   }
 
   private void generateRsaKeyPair() {
@@ -126,8 +120,7 @@ public class SecurityModuleImpl implements SecurityModuleApi {
     } catch (NoSuchAlgorithmException e) {
       SecurityException exception = new SecurityException("Błąd podczas tworzenia kluczy",
           e);
-      getLogger().logAnException(exception, exception.getMessage());
-      throw exception;
+      getLogger().logAndThrowRuntimeException(exception);
     }
   }
 }
