@@ -16,5 +16,5 @@ public @interface Validate {
 
   String format() default ".*";
 
-  int maxTextLength() default 30;
+  int maxTextLength() default 45;
 }

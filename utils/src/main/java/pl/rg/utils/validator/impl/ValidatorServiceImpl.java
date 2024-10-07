@@ -22,11 +22,13 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Logger logger = LoggerImpl.getInstance();
 
   static {
-    classNameResolver.put(ValidatorCase.TEXT, "pl.rg.validator.impl.TextValidator");
+    classNameResolver.put(ValidatorCase.TEXT, "pl.rg.utils.validator.impl.TextValidator");
     classNameResolver.put(ValidatorCase.IDENTIFICATION_NUMBER,
-        "pl.rg.validator.impl.IdentificationNumberValidator");
+        "pl.rg.utils.validator.impl.IdentificationNumberValidator");
     classNameResolver.put(ValidatorCase.DOCUMENT_NUMBER,
-        "pl.rg.validator.impl.DocumentNumberValidator");
+        "pl.rg.utils.validator.impl.DocumentNumberValidator");
+    classNameResolver.put(ValidatorCase.PASSWORD,
+        "pl.rg.security.validator.PasswordValidator");
   }
 
   public Map<String, String> validateFields(Object object) {
