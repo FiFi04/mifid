@@ -2,7 +2,7 @@ package pl.rg.security;
 
 import java.util.Optional;
 
-public interface PasswordService {
+public interface SecurityModuleApi {
 
   Optional<String> encryptPassword(String password);
 

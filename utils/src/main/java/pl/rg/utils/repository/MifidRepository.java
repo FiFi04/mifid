@@ -40,7 +40,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   public List<T> findAll() {
     String query = "SELECT * FROM %s";
     List<T> bankAccObjects = new ArrayList<>();
-    try (Statement statement = dbConnector.getConnection().createStatement()) {
+    try (Statement statement = getDBConnector().getConnection().createStatement()) {
       Class<T> tClass = getTypeClass();
       Field[] allFields = getClassFields(tClass);
       Field[] objectFields = getObjectFields(allFields);
@@ -74,7 +74,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   @Override
   public Optional<T> findById(E id) {
     String query = "SELECT * FROM %s WHERE id = " + id;
-    try (Statement statement = dbConnector.getConnection().createStatement()) {
+    try (Statement statement = getDBConnector().getConnection().createStatement()) {
       Class<T> tClass = getTypeClass();
       t = createInstance(tClass);
       String completeQuery = String.format(query, t.getTableName());
@@ -109,7 +109,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   @Override
   public Optional<T> findFetchById(E id) {
     String query = "SELECT * FROM %s WHERE id = " + id;
-    try (Statement statement = dbConnector.getConnection().createStatement()) {
+    try (Statement statement = getDBConnector().getConnection().createStatement()) {
       Class<T> tClass = getTypeClass();
       Constructor<T> constructor = tClass.getConstructor();
       constructor.setAccessible(true);
@@ -146,7 +146,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   @Override
   public void deleteAll(Iterable<T> objects) {
     String query = "DELETE FROM %s WHERE id = %d";
-    Connection connection = dbConnector.getConnection();
+    Connection connection = getDBConnector().getConnection();
     try (Statement statement = connection.createStatement()) {
       connection.setAutoCommit(false);
       Class<T> tClass = getTypeClass();
@@ -186,7 +186,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   @Override
   public void deleteById(E id) {
     String query = "DELETE FROM %s WHERE id = " + id;
-    Connection connection = dbConnector.getConnection();
+    Connection connection = getDBConnector().getConnection();
     try (Statement statement = connection.createStatement()) {
       connection.setAutoCommit(false);
       Class<T> tClass = getTypeClass();
@@ -224,7 +224,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   public void save(T object) {
     String insertQuery = "INSERT INTO %s (%s) VALUES (%s)";
     String idQuery = "SELECT id FROM %s";
-    Connection connection = dbConnector.getConnection();
+    Connection connection = getDBConnector().getConnection();
     try (Statement statement = connection.createStatement()) {
       connection.setAutoCommit(false);
       Class<T> aClass = (Class<T>) object.getClass();

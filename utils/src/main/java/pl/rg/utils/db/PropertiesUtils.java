@@ -6,7 +6,9 @@ import java.util.Properties;
 
 public class PropertiesUtils {
 
-  public static final String PROPERTIES_FILE = "app.properties";
+  public final static String PRIVATE_KEY = "privateKey.directory";
+
+  private final static String PROPERTIES_FILE = "app.properties";
 
   public static String getProperty(String key) {
     Properties properties = new Properties();
