@@ -7,7 +7,9 @@ import pl.rg.utils.db.DBConnector;
 
 public interface Repository<T extends MifidGeneral<E>, E> {
 
-  DBConnector dbConnector = DBConnector.getInstance();
+  default DBConnector getDBConnector() {
+    return DBConnector.getInstance();
+  }
 
   List<T> findAll() throws SQLException;
 
