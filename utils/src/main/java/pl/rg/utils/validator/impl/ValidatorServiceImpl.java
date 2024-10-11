@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+import pl.rg.utils.annotation.Service;
 import pl.rg.utils.annotation.Validate;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.Logger;
@@ -15,6 +16,7 @@ import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.validator.api.ValidatorService;
 import pl.rg.utils.validator.enums.ValidatorCase;
 
+@Service
 public class ValidatorServiceImpl implements ValidatorService {
 
   public static final Map<ValidatorCase, String> classNameResolver = new HashMap<>();

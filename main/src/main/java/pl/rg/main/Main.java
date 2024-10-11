@@ -2,7 +2,8 @@ package pl.rg.main;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import pl.rg.users.User;
+import pl.rg.users.UserDto;
+import pl.rg.users.impl.UserModuleControllerImpl;
 import pl.rg.users.impl.UserModuleImpl;
 
 public class Main {
@@ -26,9 +27,12 @@ public class Main {
 //        encryptedPassword.get());
 //    System.out.println(decryptedPassword.get());
 
-    UserModuleImpl usermoduleimpl = (UserModuleImpl) container.get(
+    UserModuleImpl userMduleImpl = (UserModuleImpl) container.get(
         "usermoduleimpl");
-    User user = usermoduleimpl.createUser("USER1", "Tomasz", "Kowalski", "t.kowalski@gmail.com");
-    System.out.println(user);
+    UserModuleControllerImpl userControllerImpl = (UserModuleControllerImpl) container.get(
+        "usermodulecontrollerimpl");
+    UserDto userDto = userControllerImpl.createUser("Tomasz", "Kowalski", "t.kowalski@gmail.com");
+    System.out.println(userDto);
+    userControllerImpl.addUser(userDto);
   }
 }

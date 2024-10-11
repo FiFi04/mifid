@@ -12,8 +12,12 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import javax.crypto.Cipher;
 import pl.rg.security.SecurityModuleApi;
@@ -24,6 +28,7 @@ import pl.rg.utils.annotation.Service;
 import pl.rg.utils.db.PropertiesUtils;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.utils.validator.impl.BaseValidator;
 
 @Service
 public class SecurityModuleImpl implements SecurityModuleApi {
@@ -74,6 +79,56 @@ public class SecurityModuleImpl implements SecurityModuleApi {
       getLogger().logAndThrowRuntimeException(exception);
     }
     return Optional.empty();
+  }
+
+  @Override
+  public String generatePassword() {
+    int passwordMaxLength = 20;
+    String upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    String lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+    String digits = "0123456789";
+    String specialCharacters = BaseValidator.SPECIAL_CHARACTERS;
+    double[] weights = getWeights();
+    List<String> password = new ArrayList<>();
+    SecureRandom secureRandom = new SecureRandom();
+    int passwordLength = secureRandom.nextInt(8, passwordMaxLength);
+
+    password.add(getRandomChar(upperCaseLetters, secureRandom));
+    password.add(getRandomChar(lowerCaseLetters, secureRandom));
+    password.add(getRandomChar(digits, secureRandom));
+    password.add(getRandomChar(specialCharacters, secureRandom));
+
+    for (int i = password.size(); i < passwordLength; i++) {
+      double value = secureRandom.nextDouble();
+      if (value < weights[0]) {
+        password.add(getRandomChar(upperCaseLetters, secureRandom));
+      } else if (value < weights[1]) {
+        password.add(getRandomChar(lowerCaseLetters, secureRandom));
+      } else if (value < weights[2]) {
+        password.add(getRandomChar(digits, secureRandom));
+      } else {
+        password.add(getRandomChar(specialCharacters, secureRandom));
+      }
+    }
+    Collections.shuffle(password);
+    return String.join("", password);
+  }
+
+  private String getRandomChar(String availableChars, SecureRandom secureRandom) {
+    return String.valueOf(availableChars.charAt(secureRandom.nextInt(availableChars.length())));
+  }
+
+  private double[] getWeights() {
+    double upperCaseWeight = 0.35;
+    double lowerCaseWeight = 0.35;
+    double digitsWeight = 0.2;
+    double specialCharactersWeight = 0.1;
+    double[] weights = new double[4];
+    weights[0] = upperCaseWeight;
+    weights[1] = weights[0] + lowerCaseWeight;
+    weights[2] = weights[1] + digitsWeight;
+    weights[3] = weights[2] + specialCharactersWeight;
+    return weights;
   }
 
   private boolean savePrivateKey(PrivateKey privateKey) {

@@ -1,9 +1,12 @@
-package pl.rg.users.impl;
+package pl.rg.users.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.factory.Mappers;
 import pl.rg.users.User;
+import pl.rg.users.UserDto;
+import pl.rg.users.impl.UserDtoImpl;
+import pl.rg.users.impl.UserImpl;
 import pl.rg.users.model.UserModel;
 
 @Mapper
@@ -15,8 +18,17 @@ public interface UserMapper {
 
   User userModelToDomain(UserModel userModel);
 
+  User dtoToDomain(UserDto userDto);
+
+  UserDto domainToDto(User userModel);
+
   @ObjectFactory
-  default User createUser() {
+  default User createUserImpl() {
     return new UserImpl();
+  }
+
+  @ObjectFactory
+  default UserDto createUserDtoImpl() {
+    return new UserDtoImpl();
   }
 }

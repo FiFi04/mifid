@@ -2,5 +2,7 @@ package pl.rg.users;
 
 public interface UserModuleApi {
 
-  User createUser(String userName, String firsName, String lastName, String email);
+  void addUser(UserDto userDto);
+
+  String generateUsername(String firstName, String lastName);
 }

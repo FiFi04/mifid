@@ -72,10 +72,11 @@ public class AppContainer {
             .toList();
         for (Field field : fields) {
           Iterator<String> containerKeyClassName = container.keySet().iterator();
-          if (containerKeyClassName.hasNext()) {
+          while (containerKeyClassName.hasNext()) {
             String currentKey = containerKeyClassName.next();
             field.setAccessible(true);
-            if (currentKey.equals(field.getName().toLowerCase())) {
+            String fieldName = field.getName().toLowerCase();
+            if (currentKey.equals(fieldName) || isImplementation(currentKey, fieldName)) {
               field.set(classInstance, container.get(currentKey));
             }
           }
@@ -84,5 +85,15 @@ public class AppContainer {
     } catch (IllegalAccessException e) {
       logger.logAndThrowRepositoryException("Brak dostepu do metody: ", e);
     }
+  }
+
+  private boolean isImplementation(String currentKey, String fieldName) {
+    if (currentKey.endsWith("impl")) {
+      fieldName =
+          fieldName.endsWith("api") ? fieldName.substring(0, fieldName.length() - 3) : fieldName;
+      String interfaceName = currentKey.substring(0, currentKey.length() - 4);
+      return interfaceName.equals(fieldName);
+    }
+    return false;
   }
 }

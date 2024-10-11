@@ -8,7 +8,7 @@ public class PasswordValidator extends BaseValidator {
 
   private final String passwordRegex =
       "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[" + SPECIAL_CHARACTERS + "])[A-Za-z\\d"
-          + SPECIAL_CHARACTERS + "]{8,45}$";
+          + SPECIAL_CHARACTERS + "]{8,20}$";
 
   @Override
   public boolean valid(String value, Field field) {
