@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pl.rg.users.UserDto;
 import pl.rg.utils.annotation.Validate;
 import pl.rg.utils.validator.enums.ValidatorCase;
 
@@ -12,14 +11,12 @@ import pl.rg.utils.validator.enums.ValidatorCase;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class UserDtoImpl implements UserDto {
+public class UserDtoImpl {
 
   private Integer id;
 
-  @Validate(validatorCase = ValidatorCase.TEXT, message = "Niepoprawny format nazwy użytkownika", format = "^\\w+$")
   private String userName;
 
-  @Validate(validatorCase = ValidatorCase.PASSWORD, message = "Hasło powinno zawierać przynajmniej jedną wielką literę, jedną małą, cyfrę oraz znak specjalny")
   private String password;
 
   @Validate(validatorCase = ValidatorCase.TEXT, message = "Niepoprawne imię, powinno zawierać tylko litery")
@@ -31,10 +28,7 @@ public class UserDtoImpl implements UserDto {
   @Validate(validatorCase = ValidatorCase.TEXT, message = "Nieprawidłowy format email", format = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")
   private String email;
 
-  public UserDtoImpl(String userName, String password, String firstName, String lastName,
-      String email) {
-    this.userName = userName;
-    this.password = password;
+  public UserDtoImpl(String firstName, String lastName, String email) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;

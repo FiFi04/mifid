@@ -1,8 +1,8 @@
 package pl.rg.users;
 
+import pl.rg.users.impl.UserDtoImpl;
+
 public interface UserModuleApi {
 
-  void addUser(UserDto userDto);
-
-  String generateUsername(String firstName, String lastName);
+  void addUser(UserDtoImpl userDto);
 }

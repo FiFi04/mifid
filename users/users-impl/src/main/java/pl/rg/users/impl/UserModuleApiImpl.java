@@ -3,7 +3,6 @@ package pl.rg.users.impl;
 import java.util.Optional;
 import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
-import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.mapper.UserMapper;
 import pl.rg.users.model.UserModel;
@@ -14,7 +13,7 @@ import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
 @Service
-public class UserModuleImpl implements UserModuleApi {
+public class UserModuleApiImpl implements UserModuleApi {
 
   @Autowire
   private SecurityModuleApi securityModuleApi;
@@ -27,16 +26,17 @@ public class UserModuleImpl implements UserModuleApi {
   UserMapper userMapper = UserMapper.INSTANCE;
 
   @Override
-  public void addUser(UserDto userDto) {
+  public void addUser(UserDtoImpl userDto) {
     User user = userMapper.dtoToDomain(userDto);
+    user.setPassword(securityModuleApi.generatePassword());
+    user.setUserName(generateUsername(user.getFirstName(), user.getLastName()));
     Optional<String> encryptedPassword = securityModuleApi.encryptPassword(user.getPassword());
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
     userRepository.save(userModel);
   }
 
-  @Override
-  public String generateUsername(String firstName, String lastName) {
+  private String generateUsername(String firstName, String lastName) {
     int userIndex = 1;
     String username = firstName.substring(0, 3) + lastName.substring(0, 3);
     while (userRepository.containsUsername(username)) {

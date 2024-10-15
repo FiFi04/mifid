@@ -1,8 +1,8 @@
 package pl.rg.users;
 
+import pl.rg.users.impl.UserDtoImpl;
+
 public interface UserModuleController {
 
-  UserDto createUser(String firstName, String lastName, String email);
-
-  void addUser(UserDto userDto);
+  UserDtoImpl createUser(String firstName, String lastName, String email);
 }

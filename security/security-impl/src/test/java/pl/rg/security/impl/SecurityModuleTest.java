@@ -49,7 +49,7 @@ public class SecurityModuleTest {
   private KeyPair keyPair = keyPairTestModel.getValidKeyPair();
 
   @InjectMocks
-  private SecurityModuleImpl securityModule;
+  private SecurityModuleApiImpl securityModule;
 
   @BeforeEach
   public void setUp() {
