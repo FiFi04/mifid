@@ -31,7 +31,7 @@ import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.validator.impl.BaseValidator;
 
 @Service
-public class SecurityModuleApiImpl implements SecurityModuleApi {
+public class SecurityModuleImpl implements SecurityModuleApi {
 
   @Autowire
   private PublicKeyHashRepository publicKeyHashRepository;

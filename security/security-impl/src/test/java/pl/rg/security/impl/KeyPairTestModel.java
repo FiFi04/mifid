@@ -1,6 +1,6 @@
 package pl.rg.security.impl;
 
-import static pl.rg.security.impl.SecurityModuleApiImpl.ALGORITHM_TYPE;
+import static pl.rg.security.impl.SecurityModuleImpl.ALGORITHM_TYPE;
 
 import java.io.File;
 import java.io.IOException;

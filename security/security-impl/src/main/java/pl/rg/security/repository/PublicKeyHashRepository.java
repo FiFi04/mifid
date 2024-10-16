@@ -1,6 +1,6 @@
 package pl.rg.security.repository;
 
-import static pl.rg.security.impl.SecurityModuleApiImpl.ALGORITHM_TYPE;
+import static pl.rg.security.impl.SecurityModuleImpl.ALGORITHM_TYPE;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;

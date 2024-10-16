@@ -13,7 +13,7 @@ import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
 @Service
-public class UserModuleApiImpl implements UserModuleApi {
+public class UserModuleImpl implements UserModuleApi {
 
   @Autowire
   private SecurityModuleApi securityModuleApi;
@@ -26,19 +26,20 @@ public class UserModuleApiImpl implements UserModuleApi {
   UserMapper userMapper = UserMapper.INSTANCE;
 
   @Override
-  public void addUser(UserDtoImpl userDto) {
-    User user = userMapper.dtoToDomain(userDto);
-    user.setPassword(securityModuleApi.generatePassword());
+  public void addUser(User user) {
     user.setUserName(generateUsername(user.getFirstName(), user.getLastName()));
-    Optional<String> encryptedPassword = securityModuleApi.encryptPassword(user.getPassword());
+    String generatePassword = securityModuleApi.generatePassword();
+    Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
+
+    logger.log("Add new user with login {}", user.getUserName());
     userRepository.save(userModel);
   }
 
   private String generateUsername(String firstName, String lastName) {
     int userIndex = 1;
-    String username = firstName.substring(0, 3) + lastName.substring(0, 3);
+    String username = (firstName.substring(0, 3) + lastName.substring(0, 3)).toLowerCase();
     while (userRepository.containsUsername(username)) {
       if (userIndex == 1) {
         username = username + userIndex;

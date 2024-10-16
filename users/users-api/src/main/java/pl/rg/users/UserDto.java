@@ -1,4 +1,4 @@
-package pl.rg.users.impl;
+package pl.rg.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +11,7 @@ import pl.rg.utils.validator.enums.ValidatorCase;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class UserDtoImpl {
+public class UserDto {
 
   private Integer id;
 
@@ -28,7 +28,7 @@ public class UserDtoImpl {
   @Validate(validatorCase = ValidatorCase.TEXT, message = "Nieprawidłowy format email", format = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")
   private String email;
 
-  public UserDtoImpl(String firstName, String lastName, String email) {
+  public UserDto(String firstName, String lastName, String email) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
