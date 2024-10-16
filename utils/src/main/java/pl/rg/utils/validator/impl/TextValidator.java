@@ -15,6 +15,7 @@ public class TextValidator extends BaseValidator {
   public boolean valid(String value, Field field) {
     int maxTextLength = field.getAnnotation(Validate.class).maxTextLength();
     String fieldRegex = field.getAnnotation(Validate.class).format();
+    fieldRegex = fieldRegex.equals(".*") ? TEXT_REGEX : fieldRegex;
     if (value.length() > maxTextLength || !value.matches(fieldRegex)) {
       return false;
     }

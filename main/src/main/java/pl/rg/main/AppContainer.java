@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,10 +49,15 @@ public class AppContainer {
   private void initializeContainer(Set<Class<?>> annotatedClasses, Map<String, Object> container) {
     try {
       for (Class<?> annotatedClass : annotatedClasses) {
-        String className = annotatedClass.getSimpleName().toLowerCase();
+        String className = annotatedClass.getSimpleName();
+        Class<?>[] implementedInterfaces = annotatedClass.getInterfaces();
+        if (implementedInterfaces.length > 0) {
+          className = implementedInterfaces[0].getSimpleName();
+        }
+        String lowerCase = Character.toLowerCase(className.charAt(0)) + className.substring(1);
         Constructor<?> constructor = annotatedClass.getConstructor();
         Object instance = constructor.newInstance();
-        container.put(className, instance);
+        container.put(lowerCase, instance);
       }
     } catch (InvocationTargetException e) {
       logger.logAndThrowRepositoryException("Błąd wywołania metody: ", e);
@@ -71,11 +77,13 @@ public class AppContainer {
             .filter(field -> field.isAnnotationPresent(Autowire.class))
             .toList();
         for (Field field : fields) {
-          Iterator<String> containerKeyClassName = container.keySet().iterator();
-          if (containerKeyClassName.hasNext()) {
-            String currentKey = containerKeyClassName.next();
+          Iterator<Entry<String, Object>> iterator = container.entrySet().iterator();
+          while (iterator.hasNext()) {
             field.setAccessible(true);
-            if (currentKey.equals(field.getName().toLowerCase())) {
+            Entry<String, Object> next = iterator.next();
+            String currentKey = next.getKey();
+            Object currentValue = next.getValue();
+            if (field.getType().isAssignableFrom(currentValue.getClass())) {
               field.set(classInstance, container.get(currentKey));
             }
           }

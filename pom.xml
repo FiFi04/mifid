@@ -13,6 +13,7 @@
     <org.projectlombok>1.18.34</org.projectlombok>
     <org.junit.jupiter>5.11.0</org.junit.jupiter>
     <org.mockito>5.13.0</org.mockito>
+    <mapstruct.version>1.6.2</mapstruct.version>
   </properties>
 
   <modules>
@@ -85,7 +86,16 @@
       <version>${org.mockito}</version>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct-processor</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>

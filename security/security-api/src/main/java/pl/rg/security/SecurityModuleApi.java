@@ -7,4 +7,6 @@ public interface SecurityModuleApi {
   Optional<String> encryptPassword(String password);
 
   Optional<String> decryptPassword(String encryptedPassword);
+
+  String generatePassword();
 }

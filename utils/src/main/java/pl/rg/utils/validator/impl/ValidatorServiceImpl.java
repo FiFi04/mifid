@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+import pl.rg.utils.annotation.Service;
 import pl.rg.utils.annotation.Validate;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.Logger;
@@ -15,6 +16,7 @@ import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.validator.api.ValidatorService;
 import pl.rg.utils.validator.enums.ValidatorCase;
 
+@Service
 public class ValidatorServiceImpl implements ValidatorService {
 
   public static final Map<ValidatorCase, String> classNameResolver = new HashMap<>();
@@ -22,11 +24,13 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Logger logger = LoggerImpl.getInstance();
 
   static {
-    classNameResolver.put(ValidatorCase.TEXT, "pl.rg.validator.impl.TextValidator");
+    classNameResolver.put(ValidatorCase.TEXT, "pl.rg.utils.validator.impl.TextValidator");
     classNameResolver.put(ValidatorCase.IDENTIFICATION_NUMBER,
-        "pl.rg.validator.impl.IdentificationNumberValidator");
+        "pl.rg.utils.validator.impl.IdentificationNumberValidator");
     classNameResolver.put(ValidatorCase.DOCUMENT_NUMBER,
-        "pl.rg.validator.impl.DocumentNumberValidator");
+        "pl.rg.utils.validator.impl.DocumentNumberValidator");
+    classNameResolver.put(ValidatorCase.PASSWORD,
+        "pl.rg.security.validator.PasswordValidator");
   }
 
   public Map<String, String> validateFields(Object object) {

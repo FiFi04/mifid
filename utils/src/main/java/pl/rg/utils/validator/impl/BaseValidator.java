@@ -5,6 +5,8 @@ import pl.rg.utils.validator.api.Validator;
 
 public abstract class BaseValidator implements Validator {
 
+  public static final String SPECIAL_CHARACTERS = "!@#$%^&*()-_=+<>?";
+
   protected boolean hasRightFormat(String string, int lenght) {
     string = removeInvalidChars(string);
     return string.length() == lenght && containsOnlyDigits(string);
