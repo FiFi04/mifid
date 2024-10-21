@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Connection;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,6 @@ import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.utils.db.DBConnector;
 import pl.rg.utils.logger.LoggerImpl;
 
 class UserModuleImplTest {
@@ -32,12 +30,6 @@ class UserModuleImplTest {
 
   @Mock
   UserRepository userRepository;
-
-  @Mock
-  private DBConnector dbConnector;
-
-  @Mock
-  private Connection connection;
 
   @Mock
   private SecurityModuleApi securityModuleApi;
@@ -87,8 +79,6 @@ class UserModuleImplTest {
     UserModel userModel = new UserModel("jankow", UserModuleImplTest.ENCRYPTED_PASSWORD, "Jan",
         "Kowalski", "jan.kowalski@email.com");
     when(userRepository.findById(any())).thenReturn(Optional.of(userModel));
-    when(securityModuleApi.decryptPassword(anyString())).thenReturn(
-        Optional.of(UserModuleImplTest.GENERATED_PASSWORD));
 
     //when
     Optional<User> user = userModule.find(1);
@@ -117,13 +107,12 @@ class UserModuleImplTest {
     User user = new UserImpl("jankow", UserModuleImplTest.ENCRYPTED_PASSWORD, "Jan",
         "Kowalski", "jan.kowalski@email.com");
     user.setLastName("Nowak");
-    when(securityModuleApi.encryptPassword(any())).thenReturn(
-        Optional.of(UserModuleImplTest.ENCRYPTED_PASSWORD));
 
     //when
     userModule.update(user);
 
     //then
     verify(userRepository, times(1)).save(any());
+    assertEquals("Nowak", user.getLastName());
   }
 }
