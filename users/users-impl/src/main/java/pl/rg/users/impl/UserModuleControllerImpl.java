@@ -1,6 +1,7 @@
 package pl.rg.users.impl;
 
 import java.util.Map;
+import java.util.Optional;
 import pl.rg.users.User;
 import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleController;
@@ -22,7 +23,9 @@ public class UserModuleControllerImpl implements UserModuleController {
   @Autowire
   private ValidatorService validatorService;
 
-  private Logger logger = LoggerImpl.getInstance();
+  public Logger getLogger() {
+    return LoggerImpl.getInstance();
+  }
 
   UserMapper userMapper = UserMapper.INSTANCE;
 
@@ -37,9 +40,26 @@ public class UserModuleControllerImpl implements UserModuleController {
     } else {
       ValidationException exception = new ValidationException(
           "Błędne dane podczas tworzenia użytkownika: ", constraints);
-      logger.logAndThrowRuntimeException(exception);
+      getLogger().logAndThrowRuntimeException(exception);
+      return false;
     }
-    return false;
+  }
+
+  @Override
+  public Optional<UserDto> getUser(Integer userID) {
+    Optional<User> userDomain = userModuleApi.find(userID);
+    return userDomain.map(user -> userMapper.domainToDto(user));
+  }
+
+  @Override
+  public void updateUser(UserDto userDto) {
+    User user = userMapper.dtoToDomain(userDto);
+    userModuleApi.update(user);
+  }
+
+  @Override
+  public void deleteUser(Integer userId) {
+    userModuleApi.delete(userId);
   }
 }
 

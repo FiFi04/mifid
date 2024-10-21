@@ -21,7 +21,9 @@ public class UserModuleImpl implements UserModuleApi {
   @Autowire
   private UserRepository userRepository;
 
-  private Logger logger = LoggerImpl.getInstance();
+  public Logger getLogger() {
+    return LoggerImpl.getInstance();
+  }
 
   UserMapper userMapper = UserMapper.INSTANCE;
 
@@ -32,9 +34,35 @@ public class UserModuleImpl implements UserModuleApi {
     Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
-
-    logger.log("Add new user with login {}", user.getUserName());
+    getLogger().log("Add new user with login {}", user.getUserName());
     userRepository.save(userModel);
+  }
+
+  @Override
+  public Optional<User> find(Integer id) {
+    Optional<UserModel> userModel = userRepository.findById(id);
+    if (userModel.isPresent()) {
+      User user = userMapper.userModelToDomain(userModel.get());
+      Optional<String> encryptedPassword = securityModuleApi.decryptPassword(user.getPassword());
+      user.setId(id);
+      user.setPassword(encryptedPassword.get());
+      return Optional.of(user);
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public void update(User user) {
+    Optional<String> encryptedPassword = securityModuleApi.encryptPassword(user.getPassword());
+    user.setPassword(encryptedPassword.get());
+    UserModel userModel = userMapper.domainToUserModel(user);
+    userRepository.save(userModel);
+  }
+
+  @Override
+  public void delete(Integer userId) {
+    userRepository.deleteById(userId);
   }
 
   private String generateUsername(String firstName, String lastName) {
