@@ -4,9 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.UserModuleController;
-import pl.rg.users.impl.UserDtoImpl;
-import pl.rg.users.impl.UserModuleApiImpl;
-import pl.rg.users.impl.UserModuleControllerImpl;
 
 public class Main {
 
@@ -33,8 +30,8 @@ public class Main {
         "userModuleApi");
     UserModuleController userControllerImpl = (UserModuleController) container.get(
         "userModuleController");
-    UserDtoImpl userDto = userControllerImpl.createUser("Tomasz", "Kowalski", "t.kowalski@gmail.com");
-    System.out.println(userDto);
-    userControllerImpl.addUser(userDto);
+//    userControllerImpl.createUser("Tomasz", "Kowalski",
+//        "t.kowalski@gmail.com");
+    userControllerImpl.showUserForm();
   }
 }

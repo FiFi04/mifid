@@ -6,6 +6,7 @@ import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleController;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.mapper.UserMapper;
+import pl.rg.users.window.UserForm;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.exception.ValidationException;
@@ -40,6 +41,12 @@ public class UserModuleControllerImpl implements UserModuleController {
       logger.logAndThrowRuntimeException(exception);
     }
     return false;
+  }
+
+  @Override
+  public void showUserForm(){
+    UserForm userForm = new UserForm(this);
+    userForm.setVisible(true);
   }
 }
 
