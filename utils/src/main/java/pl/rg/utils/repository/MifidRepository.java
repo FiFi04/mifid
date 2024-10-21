@@ -39,7 +39,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   @Override
   public List<T> findAll() {
     String query = "SELECT * FROM %s";
-    List<T> bankAccObjects = new ArrayList<>();
+    List<T> mifidObjects = new ArrayList<>();
     try (Statement statement = getDBConnector().getConnection().createStatement()) {
       Class<T> tClass = getTypeClass();
       Field[] allFields = getClassFields(tClass);
@@ -50,8 +50,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       logger.log(completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       while (resultSet.next()) {
-        T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
-        bankAccObjects.add(bankAccObject);
+        T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
+        mifidObjects.add(mifidObject);
       }
     } catch (NoSuchMethodException e) {
       logger.logAndThrowRepositoryException("Brak metody o podanej sygnaturze: ", e);
@@ -68,7 +68,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     } catch (Throwable e) {
       logger.logAndThrowRepositoryException("Wystąpił niespodziewany błąd: ", e);
     }
-    return bankAccObjects;
+    return mifidObjects;
   }
 
   @Override
@@ -86,8 +86,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Field[] allFields = getClassFields(tClass);
       Field[] objectFields = getObjectFields(allFields);
       Field[] columnsNames = getColumnsNames(allFields);
-      T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
-      return Optional.of(bankAccObject);
+      T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
+      return Optional.of(mifidObject);
     } catch (NoSuchMethodException e) {
       logger.logAndThrowRepositoryException("Brak metody o podanej sygnaturze: ", e);
     } catch (InvocationTargetException e) {
@@ -123,8 +123,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Field[] allFields = getClassFields(tClass);
       Field[] objectFields = getObjectFields(allFields);
       Field[] columnsNames = getColumnsNames(allFields);
-      T bankAccObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, true);
-      return Optional.of(bankAccObject);
+      T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, true);
+      return Optional.of(mifidObject);
     } catch (NoSuchMethodException e) {
       logger.logAndThrowRepositoryException("Brak metody o podanej sygnaturze: ", e);
     } catch (InvocationTargetException e) {
@@ -393,15 +393,15 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       throws InstantiationException, IllegalAccessException, InvocationTargetException, SQLException, ClassNotFoundException, NoSuchMethodException {
     Constructor<T> constructor = tClass.getConstructor();
     constructor.setAccessible(true);
-    T bankAccObject = constructor.newInstance();
+    T mifidObject = constructor.newInstance();
     for (Field field : objectFields) {
       for (Field columnName : columnsNames) {
-        if (equalFieldsNames(field, columnName, bankAccObject)) {
+        if (equalFieldsNames(field, columnName, mifidObject)) {
           Object object = resultSet.getObject(columnName.getName());
           if (fetch) {
             if (field.getAnnotation(FieldCategory.class).fetchField()) {
               Object newObject = fetchObject(field, (E) object);
-              field.set(bankAccObject, newObject);
+              field.set(mifidObject, newObject);
               break;
             }
           }
@@ -411,21 +411,21 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
           if (field.getType().isEnum()) {
             Class<Enum> enumType = (Class<Enum>) field.getType();
             Enum enumValue = Enum.valueOf(enumType, object.toString());
-            field.set(bankAccObject, enumValue);
+            field.set(mifidObject, enumValue);
             break;
           }
           if (field.getType().isAssignableFrom(LocalDate.class) & !field.getType()
               .isAssignableFrom(Object.class)) {
             Date date = (Date) object;
-            field.set(bankAccObject, date.toLocalDate());
+            field.set(mifidObject, date.toLocalDate());
             break;
           }
-          field.set(bankAccObject, object);
+          field.set(mifidObject, object);
           break;
         }
       }
     }
-    return bankAccObject;
+    return mifidObject;
   }
 
   private Object fetchObject(Field field, E object)

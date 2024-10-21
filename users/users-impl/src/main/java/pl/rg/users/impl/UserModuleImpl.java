@@ -43,9 +43,6 @@ public class UserModuleImpl implements UserModuleApi {
     Optional<UserModel> userModel = userRepository.findById(id);
     if (userModel.isPresent()) {
       User user = userMapper.userModelToDomain(userModel.get());
-      Optional<String> encryptedPassword = securityModuleApi.decryptPassword(user.getPassword());
-      user.setId(id);
-      user.setPassword(encryptedPassword.get());
       return Optional.of(user);
     } else {
       return Optional.empty();
@@ -54,8 +51,6 @@ public class UserModuleImpl implements UserModuleApi {
 
   @Override
   public void update(User user) {
-    Optional<String> encryptedPassword = securityModuleApi.encryptPassword(user.getPassword());
-    user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
     userRepository.save(userModel);
   }
