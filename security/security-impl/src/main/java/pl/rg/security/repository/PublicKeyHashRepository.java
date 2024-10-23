@@ -27,15 +27,13 @@ public class PublicKeyHashRepository extends MifidRepository<PublicKeyHashModel,
         X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
         return Optional.of(keyFactory.generatePublic(publicKeySpec));
       } else {
-        SecurityException exception = new SecurityException("Brak klucza publicznego!");
-        logger.logAndThrowRuntimeException(exception);
+        throw logger.logAndThrowRuntimeException(new SecurityException("Brak klucza publicznego!"));
       }
     } catch (GeneralSecurityException e) {
-      SecurityException exception = new SecurityException("Błąd odszyfrowania klucza z bazy",
-          e);
-      logger.logAndThrowRuntimeException(exception);
+      throw logger.logAndThrowRuntimeException(
+          new SecurityException("Błąd odszyfrowania klucza z bazy",
+              e));
     }
-    return Optional.empty();
   }
 
   public boolean savePublicKey(PublicKey publicKey) {

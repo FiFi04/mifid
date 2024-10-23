@@ -9,6 +9,7 @@ import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
+import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
@@ -43,19 +44,15 @@ public class UserModuleImpl implements UserModuleApi {
     Optional<UserModel> userModel = userRepository.findById(id);
     if (userModel.isPresent()) {
       User user = userMapper.userModelToDomain(userModel.get());
-      Optional<String> encryptedPassword = securityModuleApi.decryptPassword(user.getPassword());
-      user.setId(id);
-      user.setPassword(encryptedPassword.get());
       return Optional.of(user);
     } else {
-      return Optional.empty();
+      throw getLogger().logAndThrowRuntimeException(
+          new ApplicationException("U32GH", "Nie znaleziono użytownika o id: " + id));
     }
   }
 
   @Override
   public void update(User user) {
-    Optional<String> encryptedPassword = securityModuleApi.encryptPassword(user.getPassword());
-    user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
     userRepository.save(userModel);
   }
