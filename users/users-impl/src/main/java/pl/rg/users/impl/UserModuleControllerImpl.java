@@ -1,10 +1,11 @@
 package pl.rg.users.impl;
 
 import java.util.Map;
+import java.util.Optional;
 import pl.rg.users.User;
 import pl.rg.users.UserDto;
-import pl.rg.users.UserModuleController;
 import pl.rg.users.UserModuleApi;
+import pl.rg.users.UserModuleController;
 import pl.rg.users.mapper.UserMapper;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
@@ -22,7 +23,9 @@ public class UserModuleControllerImpl implements UserModuleController {
   @Autowire
   private ValidatorService validatorService;
 
-  private Logger logger = LoggerImpl.getInstance();
+  public Logger getLogger() {
+    return LoggerImpl.getInstance();
+  }
 
   UserMapper userMapper = UserMapper.INSTANCE;
 
@@ -35,11 +38,26 @@ public class UserModuleControllerImpl implements UserModuleController {
       userModuleApi.addUser(user);
       return true;
     } else {
-      ValidationException exception = new ValidationException(
-          "Błędne dane podczas tworzenia użytkownika: ", constraints);
-      logger.logAndThrowRuntimeException(exception);
+      throw getLogger().logAndThrowRuntimeException(new ValidationException(
+          "Błędne dane podczas tworzenia użytkownika: ", constraints));
     }
-    return false;
+  }
+
+  @Override
+  public Optional<UserDto> getUser(Integer userID) {
+    Optional<User> userDomain = userModuleApi.find(userID);
+    return userDomain.map(user -> userMapper.domainToDto(user));
+  }
+
+  @Override
+  public void updateUser(UserDto userDto) {
+    User user = userMapper.dtoToDomain(userDto);
+    userModuleApi.update(user);
+  }
+
+  @Override
+  public void deleteUser(Integer userId) {
+    userModuleApi.delete(userId);
   }
 }
 

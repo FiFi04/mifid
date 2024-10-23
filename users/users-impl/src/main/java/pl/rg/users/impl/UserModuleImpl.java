@@ -9,6 +9,7 @@ import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
+import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
@@ -21,7 +22,9 @@ public class UserModuleImpl implements UserModuleApi {
   @Autowire
   private UserRepository userRepository;
 
-  private Logger logger = LoggerImpl.getInstance();
+  public Logger getLogger() {
+    return LoggerImpl.getInstance();
+  }
 
   UserMapper userMapper = UserMapper.INSTANCE;
 
@@ -32,9 +35,31 @@ public class UserModuleImpl implements UserModuleApi {
     Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
-
-    logger.log("Add new user with login {}", user.getUserName());
+    getLogger().log("Add new user with login {}", user.getUserName());
     userRepository.save(userModel);
+  }
+
+  @Override
+  public Optional<User> find(Integer id) {
+    Optional<UserModel> userModel = userRepository.findById(id);
+    if (userModel.isPresent()) {
+      User user = userMapper.userModelToDomain(userModel.get());
+      return Optional.of(user);
+    } else {
+      throw getLogger().logAndThrowRuntimeException(
+          new ApplicationException("U32GH", "Nie znaleziono użytownika o id: " + id));
+    }
+  }
+
+  @Override
+  public void update(User user) {
+    UserModel userModel = userMapper.domainToUserModel(user);
+    userRepository.save(userModel);
+  }
+
+  @Override
+  public void delete(Integer userId) {
+    userRepository.deleteById(userId);
   }
 
   private String generateUsername(String firstName, String lastName) {

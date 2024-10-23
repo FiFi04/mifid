@@ -62,9 +62,9 @@ public class LoggerImpl implements Logger {
   }
 
   @Override
-  public void logAndThrowRuntimeException(RuntimeException exception) {
+  public <T extends RuntimeException> T logAndThrowRuntimeException(T exception) {
     logAnException(exception, exception.getMessage());
-    throw exception;
+    return exception;
   }
 
   private void logMessage(StringBuilder logMessage) {
