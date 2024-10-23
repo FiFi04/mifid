@@ -8,5 +8,5 @@ public interface Logger {
 
   void logAndThrowRepositoryException(String message, Throwable exception);
 
-  void logAndThrowRuntimeException(RuntimeException exception);
+  <T extends RuntimeException> T logAndThrowRuntimeException(T exception);
 }

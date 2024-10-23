@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 import pl.rg.users.User;
 import pl.rg.users.UserDto;
-import pl.rg.users.UserModuleController;
 import pl.rg.users.UserModuleApi;
+import pl.rg.users.UserModuleController;
 import pl.rg.users.mapper.UserMapper;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
@@ -38,10 +38,8 @@ public class UserModuleControllerImpl implements UserModuleController {
       userModuleApi.addUser(user);
       return true;
     } else {
-      ValidationException exception = new ValidationException(
-          "Błędne dane podczas tworzenia użytkownika: ", constraints);
-      getLogger().logAndThrowRuntimeException(exception);
-      return false;
+      throw getLogger().logAndThrowRuntimeException(new ValidationException(
+          "Błędne dane podczas tworzenia użytkownika: ", constraints));
     }
   }
 

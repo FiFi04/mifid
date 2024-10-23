@@ -9,6 +9,7 @@ import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
+import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
@@ -45,7 +46,8 @@ public class UserModuleImpl implements UserModuleApi {
       User user = userMapper.userModelToDomain(userModel.get());
       return Optional.of(user);
     } else {
-      return Optional.empty();
+      throw getLogger().logAndThrowRuntimeException(
+          new ApplicationException("U32GH", "Nie znaleziono użytownika o id: " + id));
     }
   }
 
