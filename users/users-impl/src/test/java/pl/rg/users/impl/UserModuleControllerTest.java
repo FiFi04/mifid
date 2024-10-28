@@ -1,6 +1,6 @@
 package pl.rg.users.impl;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -20,7 +20,9 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
+import pl.rg.users.session.SessionImpl;
 import pl.rg.utils.db.DBConnector;
+import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.validator.api.ValidatorService;
 
@@ -41,6 +43,9 @@ public class UserModuleControllerTest {
   @Mock
   private UserModuleApi userModuleApi;
 
+  @Mock
+  private SessionImpl session;
+
   @InjectMocks
   UserModuleControllerImpl userModuleController;
 
@@ -52,9 +57,11 @@ public class UserModuleControllerTest {
   @Test
   public void whenCreateUserWithValidData_thenShouldCreateNewUser() {
     //given
-    try (MockedStatic<DBConnector> dbConnectorMockedStatic = mockStatic(DBConnector.class);
+    try (MockedStatic<SessionImpl> sessionMockedStatic = mockStatic(SessionImpl.class);
+        MockedStatic<DBConnector> dbConnectorMockedStatic = mockStatic(DBConnector.class);
         MockedStatic<DriverManager> driverManagerMockedStatic = mockStatic(DriverManager.class)) {
 
+      sessionMockedStatic.when(SessionImpl::getInstance).thenReturn(session);
       dbConnectorMockedStatic.when(DBConnector::getInstance).thenReturn(dbConnector);
       driverManagerMockedStatic.when(
               () -> DriverManager.getConnection(anyString(), anyString(), anyString()))
@@ -70,23 +77,25 @@ public class UserModuleControllerTest {
   }
 
   @Test
-  public void whenCreateUserWithInvalidData_thenShouldReturnFalse() {
+  public void whenCreateUserWithInvalidData_thenShouldThrowException() {
     //given
-    boolean isCreated = true;
     Map<String, String> validationErrors = Map.of(
         "firstName", "Niepoprawne imię, powinno zawierać tylko litery",
         "email", "Nieprawidłowy format email"
     );
-    try (MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class)) {
+
+    //when
+    try (MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class);
+        MockedStatic<SessionImpl> sessionMockedStatic = mockStatic(SessionImpl.class)) {
+      sessionMockedStatic.when(SessionImpl::getInstance).thenReturn(session);
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
       when(validatorService.validateFields(any(UserDto.class))).thenReturn(validationErrors);
-
-      //when
-      isCreated = userModuleController.createUser("Jan123", "Kowalski",
-          "j.kowalski.email.com");
+      when(logger.logAndThrowRuntimeException(any())).thenReturn(new ValidationException());
 
       //then
-      assertFalse(isCreated);
+      assertThrows(ValidationException.class,
+          () -> userModuleController.createUser("Jan123", "Kowalski",
+              "j.kowalski.email.com"));
       verify(logger, times(1)).logAndThrowRuntimeException(any());
     }
   }

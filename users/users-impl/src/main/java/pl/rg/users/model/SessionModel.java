@@ -1,5 +1,6 @@
 package pl.rg.users.model;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,39 +12,33 @@ import pl.rg.utils.repository.MifidGeneral;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class UserModel extends MifidGeneral<Integer> {
+public class SessionModel extends MifidGeneral<Integer> {
 
   @FieldCategory(dbColumn = true)
-  public final static String USER_NAME = "user_name";
+  public final String CURRENT_USER = "user";
 
   @FieldCategory(dbColumn = true)
-  public final static String PASSWORD = "password";
+  public final String TOKEN_FIELD = "token";
 
   @FieldCategory(dbColumn = true)
-  public final static String FIRST_NAME = "first_name";
+  public final String LOGIN_TIME = "login_time";
 
   @FieldCategory(dbColumn = true)
-  public final static String LAST_NAME = "last_name";
+  public final String LOGOUT_TIME = "logout_time";
 
-  @FieldCategory(dbColumn = true)
-  public final static String EMAIL = "email";
-
-  public final static String TABLE_NAME = "user";
+  private final String TABLE_NAME = "session";
 
   @FieldCategory(dbField = true)
-  private String userName;
+  private String user;
 
   @FieldCategory(dbField = true)
-  private String password;
+  private String token;
 
   @FieldCategory(dbField = true)
-  private String firstName;
+  private LocalDateTime loginTime;
 
   @FieldCategory(dbField = true)
-  private String lastName;
-
-  @FieldCategory(dbField = true)
-  private String email;
+  private LocalDateTime logoutTime;
 
   @Override
   public String getTableName() {

@@ -1,6 +1,7 @@
 package pl.rg.users.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -20,6 +21,7 @@ import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
+import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LoggerImpl;
 
 class UserModuleImplTest {
@@ -78,6 +80,7 @@ class UserModuleImplTest {
     //given
     UserModel userModel = new UserModel("jankow", UserModuleImplTest.ENCRYPTED_PASSWORD, "Jan",
         "Kowalski", "jan.kowalski@email.com");
+    userModel.setId(1);
     when(userRepository.findById(any())).thenReturn(Optional.of(userModel));
 
     //when
@@ -90,15 +93,19 @@ class UserModuleImplTest {
   }
 
   @Test
-  public void whenSearchForNonExistingUser_ThenShouldReturnEmptyOptional() {
+  public void whenSearchForNonExistingUser_ThenShouldThrowApplicationException() {
     //given
-    when(userRepository.findById(any())).thenReturn(Optional.empty());
+    try (MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class)) {
+      loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
+      when(logger.logAndThrowRuntimeException(any())).thenReturn(new ApplicationException());
 
-    //when
-    Optional<User> user = userModule.find(1);
+      //when
+      when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-    //then
-    assertTrue(user.isEmpty());
+      //then
+      assertThrows(ApplicationException.class, () -> userModule.find(1));
+      verify(logger, times(1)).logAndThrowRuntimeException(any());
+    }
   }
 
   @Test

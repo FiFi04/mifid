@@ -22,11 +22,9 @@ public class UserModuleImpl implements UserModuleApi {
   @Autowire
   private UserRepository userRepository;
 
-  public Logger getLogger() {
-    return LoggerImpl.getInstance();
-  }
+  private Logger logger = LoggerImpl.getInstance();
 
-  UserMapper userMapper = UserMapper.INSTANCE;
+  private UserMapper userMapper = UserMapper.INSTANCE;
 
   @Override
   public void addUser(User user) {
@@ -35,7 +33,7 @@ public class UserModuleImpl implements UserModuleApi {
     Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
-    getLogger().log("Add new user with login {}", user.getUserName());
+    logger.log("Add new user with login {}", user.getUserName());
     userRepository.save(userModel);
   }
 
@@ -46,7 +44,7 @@ public class UserModuleImpl implements UserModuleApi {
       User user = userMapper.userModelToDomain(userModel.get());
       return Optional.of(user);
     } else {
-      throw getLogger().logAndThrowRuntimeException(
+      throw logger.logAndThrowRuntimeException(
           new ApplicationException("U32GH", "Nie znaleziono użytownika o id: " + id));
     }
   }
@@ -60,6 +58,21 @@ public class UserModuleImpl implements UserModuleApi {
   @Override
   public void delete(Integer userId) {
     userRepository.deleteById(userId);
+  }
+
+  @Override
+  public boolean validateLogInData(String username, String password) {
+    Optional<UserModel> userModel = userRepository.getByUsername(username);
+    if (userModel.isEmpty()) {
+      return false;
+    } else {
+      UserModel model = userModel.get();
+      Optional<String> decryptedPassword = securityModuleApi.decryptPassword(
+          model.getPassword());
+      boolean validUsername = model.getUserName().equals(username);
+      boolean validPassword = decryptedPassword.get().equals(password);
+      return validPassword && validUsername;
+    }
   }
 
   private String generateUsername(String firstName, String lastName) {

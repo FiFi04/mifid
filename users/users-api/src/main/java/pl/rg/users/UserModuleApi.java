@@ -11,4 +11,6 @@ public interface UserModuleApi {
   void update(User user);
 
   void delete (Integer userId);
+
+  boolean validateLogInData(String username, String password);
 }

@@ -1,0 +1,33 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="4" author="rg" failOnError="true" context="dev, prod">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="session"/>
+      </not>
+    </preConditions>
+    <createTable tableName="session">
+      <column name="id" type="int" autoIncrement="true">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="user" type="varchar(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="token" type="varchar(20)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="login_time" type="datetime">
+        <constraints nullable="false"/>
+      </column>
+      <column name="logout_time" type="datetime">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <rollback>
+      <dropTable tableName="session"/>
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

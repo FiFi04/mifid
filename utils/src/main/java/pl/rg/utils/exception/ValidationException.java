@@ -6,6 +6,9 @@ public class ValidationException extends RuntimeException {
 
   private Map<String, String> constraintsMap;
 
+  public ValidationException() {
+  }
+
   public ValidationException(String message) {
     super(message);
   }

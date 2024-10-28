@@ -105,6 +105,9 @@ public class LoggerImpl implements Logger {
     String currentDate = LocalDate.now().toString();
     String logFilePath = logDirectory + currentDate + ".log";
     logFile = new File(logFilePath);
+    if (!logFile.getParentFile().exists()) {
+      logFile.getParentFile().mkdirs();
+    }
   }
 
   private StringBuilder createLogMessage(String message, Object... additionalInfo) {

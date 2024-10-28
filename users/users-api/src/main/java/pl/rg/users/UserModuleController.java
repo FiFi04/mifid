@@ -11,4 +11,8 @@ public interface UserModuleController {
   void updateUser(UserDto userDto);
 
   void deleteUser(Integer userId);
+
+  boolean logIn(String username, String password);
+
+  void logOut();
 }
