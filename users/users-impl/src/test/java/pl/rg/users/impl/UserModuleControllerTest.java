@@ -20,7 +20,6 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
-import pl.rg.users.session.SessionImpl;
 import pl.rg.utils.db.DBConnector;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LoggerImpl;
@@ -43,9 +42,6 @@ public class UserModuleControllerTest {
   @Mock
   private UserModuleApi userModuleApi;
 
-  @Mock
-  private SessionImpl session;
-
   @InjectMocks
   UserModuleControllerImpl userModuleController;
 
@@ -57,11 +53,9 @@ public class UserModuleControllerTest {
   @Test
   public void whenCreateUserWithValidData_thenShouldCreateNewUser() {
     //given
-    try (MockedStatic<SessionImpl> sessionMockedStatic = mockStatic(SessionImpl.class);
-        MockedStatic<DBConnector> dbConnectorMockedStatic = mockStatic(DBConnector.class);
+    try (MockedStatic<DBConnector> dbConnectorMockedStatic = mockStatic(DBConnector.class);
         MockedStatic<DriverManager> driverManagerMockedStatic = mockStatic(DriverManager.class)) {
 
-      sessionMockedStatic.when(SessionImpl::getInstance).thenReturn(session);
       dbConnectorMockedStatic.when(DBConnector::getInstance).thenReturn(dbConnector);
       driverManagerMockedStatic.when(
               () -> DriverManager.getConnection(anyString(), anyString(), anyString()))
@@ -85,9 +79,7 @@ public class UserModuleControllerTest {
     );
 
     //when
-    try (MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class);
-        MockedStatic<SessionImpl> sessionMockedStatic = mockStatic(SessionImpl.class)) {
-      sessionMockedStatic.when(SessionImpl::getInstance).thenReturn(session);
+    try (MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class)) {
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
       when(validatorService.validateFields(any(UserDto.class))).thenReturn(validationErrors);
       when(logger.logAndThrowRuntimeException(any())).thenReturn(new ValidationException());

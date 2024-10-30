@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.Optional;
 import pl.rg.users.model.UserModel;
 import pl.rg.utils.annotation.Repository;
+import pl.rg.utils.exception.RepositoryException;
 import pl.rg.utils.repository.MifidRepository;
 
 @Repository
@@ -22,16 +23,15 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
       resultSet.next();
       return resultSet.getBoolean(1);
     } catch (SQLException e) {
-      logger.logAndThrowRepositoryException("Błąd porównywania wartości w bazie danych: ", e);
-      return false;
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Błąd porównywania wartości w bazie danych"));
     }
   }
 
   public Optional<UserModel> getByUsername(String username) {
-    String query = "SELECT id, " + "%s" + " FROM %s WHERE %s = '" + username + "'";
+    String query = "SELECT id " + "FROM %s WHERE %s = '" + username + "'";
     try (Statement statement = getDBConnector().getConnection().createStatement()) {
-      String completeQuery = String.format(query, UserModel.USER_NAME, UserModel.TABLE_NAME,
-          UserModel.USER_NAME);
+      String completeQuery = String.format(query, UserModel.TABLE_NAME, UserModel.USER_NAME);
       logger.log(completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       if (resultSet.next()) {
@@ -41,8 +41,8 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
         return Optional.empty();
       }
     } catch (SQLException e) {
-      logger.logAndThrowRepositoryException("Błąd porównywania wartości w bazie danych: ", e);
-      return Optional.empty();
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Błąd porównywania wartości w bazie danych"));
     }
   }
 }

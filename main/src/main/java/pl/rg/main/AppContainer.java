@@ -20,6 +20,7 @@ import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.annotation.Repository;
 import pl.rg.utils.annotation.Service;
+import pl.rg.utils.exception.RepositoryException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
@@ -60,13 +61,16 @@ public class AppContainer {
         container.put(lowerCase, instance);
       }
     } catch (InvocationTargetException e) {
-      logger.logAndThrowRepositoryException("Błąd wywołania metody: ", e);
+      throw logger.logAndThrowRepositoryException(new RepositoryException("Błąd wywołania metody"));
     } catch (NoSuchMethodException e) {
-      logger.logAndThrowRepositoryException("Brak metody o podanej sygnaturze: ", e);
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak metody o podanej sygnaturze"));
     } catch (InstantiationException e) {
-      logger.logAndThrowRepositoryException("Nie można utworzyć obiektu: ", e);
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("BNie można utworzyć obiektu"));
     } catch (IllegalAccessException e) {
-      logger.logAndThrowRepositoryException("Brak dostepu do metody: ", e);
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak dostepu do metody"));
     }
   }
 
@@ -90,7 +94,8 @@ public class AppContainer {
         }
       }
     } catch (IllegalAccessException e) {
-      logger.logAndThrowRepositoryException("Brak dostepu do metody: ", e);
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak dostepu do metody"));
     }
   }
 }
