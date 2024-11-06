@@ -1,0 +1,9 @@
+**********************************************************************
+*                       ERROR CODES DICTIONARY                       *
+**********************************************************************
+
+U - users module
+
+U32GH - nie znaleziono uzytkownika po ID.
+U33SE - wylogowano z powodu zbyt długiego czasu nieaktywności
+U34LV - błędne dane podczas logowania

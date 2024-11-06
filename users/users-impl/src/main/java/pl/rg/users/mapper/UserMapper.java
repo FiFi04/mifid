@@ -26,8 +26,4 @@ public interface UserMapper {
     return new UserImpl();
   }
 
-//  @ObjectFactory
-//  default UserDto createUserDtoImpl() {
-//    return new UserDtoImpl();
-//  }
 }

@@ -16,9 +16,11 @@
     <file url="file://$PROJECT_DIR$/liquibase/liquibase/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/liquibase/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/liquibase/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/liquibase/src/main/resources/app.properties" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/main/liquibase/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/main/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/main/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/main/src/main/resources/app.properties" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/raings-impl/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/raings-impl/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ratings/ratings-api/src/main/java" charset="UTF-8" />
@@ -31,8 +33,10 @@
     <file url="file://$PROJECT_DIR$/roles/roles-impl/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/security/security-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/security/security-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/security/security-api/src/main/resources/app.properties" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/security/security-impl/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/security/security-impl/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/security/security-impl/src/main/resources/app.properties" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/security/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/security/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
@@ -44,11 +48,14 @@
     <file url="file://$PROJECT_DIR$/users/users-api/liquibase/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/users/users-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/users/users-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/users/users-api/src/main/resources/app.properties" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/users/users-impl/liquibase/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/users/users-impl/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/users/users-impl/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/users/users-impl/src/main/resources/app.properties" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/utils/liquibase/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/utils/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/utils/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/utils/src/main/resources/app.properties" charset="UTF-8" />
   </component>
 </project>

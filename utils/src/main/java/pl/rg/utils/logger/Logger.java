@@ -1,12 +1,14 @@
 package pl.rg.utils.logger;
 
+import pl.rg.utils.exception.RepositoryException;
+
 public interface Logger {
 
   void log(String message, Object... additionalInfo);
 
   void logAnException(Throwable exception, String message, Object... additionalArguments);
 
-  void logAndThrowRepositoryException(String message, Throwable exception);
+  <T extends RepositoryException> T logAndThrowRepositoryException(T exception);
 
-  void logAndThrowRuntimeException(RuntimeException exception);
+  <T extends RuntimeException> T logAndThrowRuntimeException(T exception);
 }
