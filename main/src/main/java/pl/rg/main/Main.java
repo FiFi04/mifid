@@ -2,8 +2,6 @@ package pl.rg.main;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import java.util.Optional;
-import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.UserModuleController;
 
@@ -31,17 +29,17 @@ public class Main {
         "userModuleApi");
     UserModuleController userControllerImpl = (UserModuleController) container.get(
         "userModuleController");
-    userControllerImpl.logIn("jankow", "IDIO0X%9jf+UCX3+=i");
-//    userControllerImpl.createUser("Jan", "Kowalski",
-//        "j.kowalski@email.com");
-    Optional<UserDto> user = userControllerImpl.getUser(31);
-    System.out.println(user.get());
-    user.get().setLastName("Nowak");
-//    Thread.sleep(7000);
-    userControllerImpl.updateUser(user.get());
-    Optional<UserDto> updatedUser = userControllerImpl.getUser(31);
-    System.out.println(updatedUser.get());
-    userControllerImpl.logOut();
+//    userControllerImpl.logIn("jankow", "IDIO0X%9jf+UCX3+=i");
+    userControllerImpl.createUser("Admin", "Admin",
+        "Admin@email.com");
+//    Optional<UserDto> user = userControllerImpl.getUser(31);
+//    System.out.println(user.get());
+//    user.get().setLastName("Nowak");
+////    Thread.sleep(7000);
+//    userControllerImpl.updateUser(user.get());
+//    Optional<UserDto> updatedUser = userControllerImpl.getUser(31);
+//    System.out.println(updatedUser.get());
+//    userControllerImpl.logOut();
 //    userControllerImpl.deleteUser(19);
   }
 }

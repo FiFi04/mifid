@@ -31,7 +31,7 @@ public class UserModuleControllerImpl implements UserModuleController {
 
   @Override
   public boolean createUser(String firsName, String lastName, String email) {
-    userModuleApi.updateSession();
+//    userModuleApi.updateSession();
     UserDto userDto = new UserDto(firsName, lastName, email);
     Map<String, String> constraints = validatorService.validateFields(userDto);
     if (constraints.isEmpty()) {
@@ -79,12 +79,6 @@ public class UserModuleControllerImpl implements UserModuleController {
   @Override
   public void logOut() {
     userModuleApi.endSession();
-  }
-
-  @Override
-  public void showUserForm(){
-    UserForm userForm = new UserForm(this);
-    userForm.setVisible(true);
   }
 }
 

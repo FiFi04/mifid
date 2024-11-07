@@ -23,6 +23,8 @@ import pl.rg.utils.annotation.FieldCategory;
 import pl.rg.utils.exception.RepositoryException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.paging.Page;
 
 @Data
 public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements Repository<T, E> {
@@ -36,6 +38,18 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   private int innerLevel = 0;
 
   protected Logger logger = LoggerImpl.getInstance();
+
+  @Override
+  public List<T> findAll(List<Filter> filters) {
+    // todo implement
+    return null;
+  }
+
+  @Override
+  public MifidPage findAll(List<Filter> filters, Page page) {
+    // todo implement
+    return null;
+  }
 
   @Override
   public List<T> findAll() {
