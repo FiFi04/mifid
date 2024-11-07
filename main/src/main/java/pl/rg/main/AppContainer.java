@@ -26,17 +26,26 @@ import pl.rg.utils.logger.LoggerImpl;
 
 public class AppContainer {
 
-  Logger logger = LoggerImpl.getInstance();
+  static Logger logger = LoggerImpl.getInstance();
 
-  public Map<String, Object> getContainer() {
-    Map<String, Object> container = new HashMap<>();
-    Set<Class<?>> annotatedClasses = getAllAnnotatedClasses();
-    initializeContainer(annotatedClasses, container);
-    initializeFields(container);
+  static Map<String, Object> container;
+
+  static {
+    container = getContainer();
+  }
+
+  public static Map<String, Object> getContainer() {
+    if (container == null || container.isEmpty()) {
+      container = new HashMap<>();
+      Set<Class<?>> annotatedClasses = getAllAnnotatedClasses();
+      initializeContainer(annotatedClasses, container);
+      initializeFields(container);
+    }
+
     return container;
   }
 
-  private Set<Class<?>> getAllAnnotatedClasses() {
+  private static Set<Class<?>> getAllAnnotatedClasses() {
     Reflections reflections = new Reflections(new ConfigurationBuilder()
         .setUrls(ClasspathHelper.forJavaClassPath())
         .setScanners(Scanners.TypesAnnotated));
@@ -47,7 +56,8 @@ public class AppContainer {
         .collect(Collectors.toSet());
   }
 
-  private void initializeContainer(Set<Class<?>> annotatedClasses, Map<String, Object> container) {
+  private static void initializeContainer(Set<Class<?>> annotatedClasses,
+      Map<String, Object> container) {
     try {
       for (Class<?> annotatedClass : annotatedClasses) {
         String className = annotatedClass.getSimpleName();
@@ -74,7 +84,7 @@ public class AppContainer {
     }
   }
 
-  private void initializeFields(Map<String, Object> container) {
+  private static void initializeFields(Map<String, Object> container) {
     try {
       for (Object classInstance : container.values()) {
         List<Field> fields = Arrays.stream(classInstance.getClass().getDeclaredFields())

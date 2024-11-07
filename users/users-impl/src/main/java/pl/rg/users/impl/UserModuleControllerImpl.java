@@ -7,6 +7,7 @@ import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.UserModuleController;
 import pl.rg.users.mapper.UserMapper;
+import pl.rg.users.window.UserForm;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.exception.ApplicationException;
@@ -30,7 +31,7 @@ public class UserModuleControllerImpl implements UserModuleController {
 
   @Override
   public boolean createUser(String firsName, String lastName, String email) {
-    userModuleApi.updateSession();
+//    userModuleApi.updateSession();
     UserDto userDto = new UserDto(firsName, lastName, email);
     Map<String, String> constraints = validatorService.validateFields(userDto);
     if (constraints.isEmpty()) {
