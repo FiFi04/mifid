@@ -54,11 +54,9 @@ public class LoggerImpl implements Logger {
   }
 
   @Override
-  public void logAndThrowRepositoryException(String message, Throwable exception) {
-    RepositoryException repositoryException = new RepositoryException(
-        message + exception.getMessage(), exception);
-    logAnException(repositoryException, repositoryException.getMessage());
-    throw repositoryException;
+  public <T extends RepositoryException> T logAndThrowRepositoryException(T exception) {
+    logAnException(exception, exception.getMessage());
+    return  exception;
   }
 
   @Override
@@ -105,6 +103,9 @@ public class LoggerImpl implements Logger {
     String currentDate = LocalDate.now().toString();
     String logFilePath = logDirectory + currentDate + ".log";
     logFile = new File(logFilePath);
+    if (!logFile.getParentFile().exists()) {
+      logFile.getParentFile().mkdirs();
+    }
   }
 
   private StringBuilder createLogMessage(String message, Object... additionalInfo) {
