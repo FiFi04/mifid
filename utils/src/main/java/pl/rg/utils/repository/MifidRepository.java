@@ -8,12 +8,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,6 +26,8 @@ import pl.rg.utils.exception.RepositoryException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.filter.FilterSearchType;
+import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.Page;
 
 @Data
@@ -40,34 +44,32 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   protected Logger logger = LoggerImpl.getInstance();
 
   @Override
-  public List<T> findAll(List<Filter> filters) {
-    // todo implement
-    return null;
-  }
-
-  @Override
-  public MifidPage findAll(List<Filter> filters, Page page) {
-    // todo implement
-    return null;
-  }
-
-  @Override
-  public List<T> findAll() {
-    String query = "SELECT * FROM %s";
+  public MifidPage<T> findAll(List<Filter> filters, Page page) {
     List<T> mifidObjects = new ArrayList<>();
-    try (Statement statement = getDBConnector().getConnection().createStatement()) {
+    int totalObjects;
+    StringBuilder query = new StringBuilder("SELECT * FROM %s ");
+    prepareQuery(filters, query);
+    setOrder(page, query);
+    query.append(" LIMIT ").append(page.getTo() - page.getFrom()).append(" OFFSET ")
+        .append(page.getFrom());
+    try (Connection connection = getDBConnector().getConnection()) {
       Class<T> tClass = getTypeClass();
       Field[] allFields = getClassFields(tClass);
       Field[] objectFields = getObjectFields(allFields);
       Field[] columnsNames = getColumnsNames(allFields);
       t = createInstance(tClass);
-      String completeQuery = String.format(query, t.getTableName());
-      logger.log(completeQuery);
-      ResultSet resultSet = statement.executeQuery(completeQuery);
+      totalObjects = getTotalObjectsCount(filters, connection);
+      String completeQuery = String.format(query.toString(), t.getTableName());
+      PreparedStatement statement = connection.prepareStatement(completeQuery);
+      setValues(filters, statement);
+      logger.log(statement.toString());
+      ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
         mifidObjects.add(mifidObject);
       }
+      int totalPages = (int) Math.ceil((double) totalObjects / (page.getTo() - page.getFrom()));
+      return new MifidPage<>(totalObjects, totalPages, page.getFrom(), page.getTo(), mifidObjects);
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
           new RepositoryException("Brak metody o podanej sygnaturze"));
@@ -90,7 +92,116 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       throw logger.logAndThrowRepositoryException(
           new RepositoryException("Wystąpił niespodziewany błąd"));
     }
-    return mifidObjects;
+  }
+
+  private int getTotalObjectsCount(List<Filter> filters, Connection connection) {
+    StringBuilder countQuery = new StringBuilder("SELECT COUNT(*) FROM %s ");
+    prepareQuery(filters, countQuery);
+    try (
+        PreparedStatement statement = connection.prepareStatement(
+            String.format(countQuery.toString(), t.getTableName()))) {
+      setValues(filters, statement);
+      logger.log(statement.toString());
+      ResultSet resultSet = statement.executeQuery();
+      if (resultSet.next()) {
+        return resultSet.getInt(1);
+      }
+      return 0;
+    } catch (SQLException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Błąd odczytu z bazy danych"));
+    }
+  }
+
+  @Override
+  public List<T> findAll(List<Filter> filters) {
+    List<T> mifidObjects = new ArrayList<>();
+    StringBuilder query = new StringBuilder("SELECT * FROM %s ");
+    if (filters != null && !filters.isEmpty()) {
+      prepareQuery(filters, query);
+    } else {
+      return findAll();
+    }
+    try (Connection connection = getDBConnector().getConnection()) {
+      Class<T> tClass = getTypeClass();
+      Field[] allFields = getClassFields(tClass);
+      Field[] objectFields = getObjectFields(allFields);
+      Field[] columnsNames = getColumnsNames(allFields);
+      t = createInstance(tClass);
+      String completeQuery = String.format(query.toString(), t.getTableName());
+      PreparedStatement statement = connection.prepareStatement(completeQuery);
+      setValues(filters, statement);
+      logger.log(statement.toString());
+      ResultSet resultSet = statement.executeQuery();
+      while (resultSet.next()) {
+        T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
+        mifidObjects.add(mifidObject);
+      }
+      return mifidObjects;
+    } catch (NoSuchMethodException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak metody o podanej sygnaturze"));
+    } catch (InvocationTargetException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+    } catch (InstantiationException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Nie można utworzyć obiektu"));
+    } catch (IllegalAccessException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak dostepu do metody"));
+    } catch (ClassNotFoundException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak klasy o podanej nazwie"));
+    } catch (SQLException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Błąd odczytu z bazy danych"));
+    } catch (Throwable e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Wystąpił niespodziewany błąd"));
+    }
+  }
+
+  @Override
+  public List<T> findAll() {
+    String query = "SELECT * FROM %s";
+    List<T> mifidObjects = new ArrayList<>();
+    try (Statement statement = getDBConnector().getConnection().createStatement()) {
+      Class<T> tClass = getTypeClass();
+      Field[] allFields = getClassFields(tClass);
+      Field[] objectFields = getObjectFields(allFields);
+      Field[] columnsNames = getColumnsNames(allFields);
+      t = createInstance(tClass);
+      String completeQuery = String.format(query, t.getTableName());
+      logger.log(completeQuery);
+      ResultSet resultSet = statement.executeQuery(completeQuery);
+      while (resultSet.next()) {
+        T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
+        mifidObjects.add(mifidObject);
+      }
+      return mifidObjects;
+    } catch (NoSuchMethodException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak metody o podanej sygnaturze"));
+    } catch (InvocationTargetException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+    } catch (InstantiationException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Nie można utworzyć obiektu"));
+    } catch (IllegalAccessException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak dostepu do metody"));
+    } catch (ClassNotFoundException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Brak klasy o podanej nazwie"));
+    } catch (SQLException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Błąd odczytu z bazy danych"));
+    } catch (Throwable e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Wystąpił niespodziewany błąd"));
+    }
   }
 
   @Override
@@ -375,6 +486,61 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   public T saveAndFlush(T object) {
     save(object);
     return findById(lastSavedObjectId).get();
+  }
+
+  private static void setOrder(Page page, StringBuilder query) {
+    query.append(" ORDER BY ");
+    for (int i = 0; i < page.getOrders().size(); i++) {
+      Order order = page.getOrders().get(i);
+      query.append(order.getColumn()).append(" ").append(order.getOrderType());
+      if (i < page.getOrders().size() - 1) {
+        query.append(", ");
+      }
+    }
+  }
+
+  private void setValues(List<Filter> filters, PreparedStatement statement)
+      throws SQLException {
+    int parameterIndex = 1;
+    for (Filter filter : filters) {
+      Object[] values = filter.getValue();
+      String sqlValue;
+      for (Object value : values) {
+        sqlValue = value.toString();
+        if (filter.getFilterSearch() == FilterSearchType.MATCH) {
+          sqlValue = "%" + sqlValue.trim() + "%";
+        }
+        statement.setObject(parameterIndex, sqlValue.trim());
+        parameterIndex++;
+      }
+    }
+  }
+
+  private void prepareQuery(List<Filter> filters, StringBuilder query) {
+    query.append("WHERE ");
+    for (int i = 0; i < filters.size(); i++) {
+      Filter filter = filters.get(i);
+      if (i > 0) {
+        query.append(" ").append(filter.getFilterCondition()).append(" ");
+      }
+      query.append(filter.getColumn()).append(" ");
+      switch (filter.getFilterSearch()) {
+        case EQUAL:
+          query.append("= ?");
+          break;
+        case MATCH:
+          query.append("LIKE ?");
+          break;
+        case IN:
+          query.append("IN (");
+          query.append(String.join(", ", Collections.nCopies(filter.getValue().length, "?")));
+          query.append(")");
+          break;
+        default:
+          throw logger.logAndThrowRepositoryException(new RepositoryException(
+              "Nieprawidłowy warunek filtra: " + filter.getFilterSearch()));
+      }
+    }
   }
 
   private String getInsertValue(Field objectField, T object)

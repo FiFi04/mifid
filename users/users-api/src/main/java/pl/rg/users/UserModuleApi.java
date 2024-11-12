@@ -1,8 +1,9 @@
 package pl.rg.users;
 
 import java.util.Optional;
+import pl.rg.utils.pageAndSort.PageFilter;
 
-public interface UserModuleApi {
+public interface UserModuleApi extends PageFilter<User> {
 
   void addUser(User user);
 

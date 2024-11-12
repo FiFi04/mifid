@@ -1,5 +1,7 @@
 package pl.rg.users.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import pl.rg.users.User;
@@ -7,13 +9,15 @@ import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.UserModuleController;
 import pl.rg.users.mapper.UserMapper;
-import pl.rg.users.window.UserForm;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.utils.repository.MifidPage;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.paging.Page;
 import pl.rg.utils.validator.api.ValidatorService;
 
 @Controller
@@ -79,6 +83,30 @@ public class UserModuleControllerImpl implements UserModuleController {
   @Override
   public void logOut() {
     userModuleApi.endSession();
+  }
+
+  @Override
+  public List<UserDto> getFiltered(List<Filter> filters) {
+    List<User> filteredUsers = userModuleApi.getFiltered(filters);
+    List<UserDto> filteredUsersDto = new ArrayList<>();
+    for (User filteredUser : filteredUsers) {
+      filteredUsersDto.add(userMapper.domainToDto(filteredUser));
+    }
+    return filteredUsersDto;
+  }
+
+  @Override
+  public MifidPage getPage(List<Filter> filters, Page page) {
+    MifidPage<User> userPage = userModuleApi.getPage(filters, page);
+    MifidPage<UserDto> userDtoPage = new MifidPage<>(userPage.getTotalObjects(),
+        userPage.getTotalPage(), userPage.getObjectFrom(), userPage.getObjectTo(),
+        new ArrayList<>());
+    List<UserDto> limitedUsersPage = new ArrayList<>();
+    for (User userModel : userPage.getLimitedObjects()) {
+      limitedUsersPage.add(userMapper.domainToDto(userModel));
+    }
+    userDtoPage.setLimitedObjects(limitedUsersPage);
+    return userDtoPage;
   }
 }
 

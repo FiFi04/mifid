@@ -3,6 +3,8 @@ package pl.rg.users.impl;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import pl.rg.security.SecurityModuleApi;
@@ -19,6 +21,9 @@ import pl.rg.utils.annotation.Service;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.utils.repository.MifidPage;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.paging.Page;
 
 @Service
 public class UserModuleImpl implements UserModuleApi {
@@ -112,6 +117,30 @@ public class UserModuleImpl implements UserModuleApi {
     sessionRepository.save(session.getActiveSession());
     logger.log("Zakończono sesję " + session.getActiveSession().getToken());
     session.setActiveSession(null);
+  }
+
+  @Override
+  public List<User> getFiltered(List<Filter> filters) {
+    List<UserModel> filteredUserModels = userRepository.findAll(filters);
+    List<User> filteredUsers = new ArrayList<>();
+    for (UserModel filteredUserModel : filteredUserModels) {
+      filteredUsers.add(userMapper.userModelToDomain(filteredUserModel));
+    }
+    return filteredUsers;
+  }
+
+  @Override
+  public MifidPage<User> getPage(List<Filter> filters, Page page) {
+    MifidPage<UserModel> userModelPage = userRepository.findAll(filters, page);
+    MifidPage<User> userPage = new MifidPage<>(userModelPage.getTotalObjects(),
+        userModelPage.getTotalPage(), userModelPage.getObjectFrom(), userModelPage.getObjectTo(),
+        new ArrayList<>());
+    List<User> limitedUsersPage = new ArrayList<>();
+    for (UserModel userModel : userModelPage.getLimitedObjects()) {
+      limitedUsersPage.add(userMapper.userModelToDomain(userModel));
+    }
+    userPage.setLimitedObjects(limitedUsersPage);
+    return userPage;
   }
 
   private String generateUsername(String firstName, String lastName) {

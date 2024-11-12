@@ -29,5 +29,5 @@ public interface Repository<T extends MifidGeneral<E>, E> {
 
   List<T> findAll(List<Filter> filters);
 
-  MifidPage findAll(List<Filter> filters, Page page);
+  MifidPage<T> findAll(List<Filter> filters, Page page);
 }
