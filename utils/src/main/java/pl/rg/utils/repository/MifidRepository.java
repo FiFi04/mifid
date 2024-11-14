@@ -27,7 +27,6 @@ import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.filter.Filter;
 import pl.rg.utils.repository.filter.FilterSearchType;
-import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.Page;
 
 @Data
@@ -62,7 +61,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       String completeQuery = String.format(query.toString(), t.getTableName());
       PreparedStatement statement = connection.prepareStatement(completeQuery);
       setValues(filters, statement);
-      logger.log(statement.toString());
+      logger.log(completeQuery);
       ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -72,44 +71,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       return new MifidPage<>(totalObjects, totalPages, page.getFrom(), page.getTo(), mifidObjects);
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak klasy o podanej nazwie"));
+          new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd odczytu z bazy danych"));
+          new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
-    }
-  }
-
-  private int getTotalObjectsCount(List<Filter> filters, Connection connection) {
-    StringBuilder countQuery = new StringBuilder("SELECT COUNT(*) FROM %s ");
-    prepareQuery(filters, countQuery);
-    try (
-        PreparedStatement statement = connection.prepareStatement(
-            String.format(countQuery.toString(), t.getTableName()))) {
-      setValues(filters, statement);
-      logger.log(statement.toString());
-      ResultSet resultSet = statement.executeQuery();
-      if (resultSet.next()) {
-        return resultSet.getInt(1);
-      }
-      return 0;
-    } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd odczytu z bazy danych"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
 
@@ -131,7 +111,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       String completeQuery = String.format(query.toString(), t.getTableName());
       PreparedStatement statement = connection.prepareStatement(completeQuery);
       setValues(filters, statement);
-      logger.log(statement.toString());
+      logger.log(completeQuery);
       ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -140,25 +120,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       return mifidObjects;
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak klasy o podanej nazwie"));
+          new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd odczytu z bazy danych"));
+          new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
 
@@ -182,25 +162,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       return mifidObjects;
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak klasy o podanej nazwie"));
+          new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd odczytu z bazy danych"));
+          new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
 
@@ -223,25 +203,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       return Optional.of(mifidObject);
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak klasy o podanej nazwie"));
+          new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd odczytu z bazy danych"));
+          new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
 
@@ -266,25 +246,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       return Optional.of(mifidObject);
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak klasy o podanej nazwie"));
+          new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd odczytu z bazy danych"));
+          new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
 
@@ -306,31 +286,31 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       connection.setAutoCommit(true);
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd podczas usuwania obiektu z bazy danych"));
+          new RepositoryException(DB_DELETE_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     } finally {
       try {
         if (!connection.getAutoCommit()) {
           connection.rollback();
-          logger.log("Wycofano zmiany z bazy danych");
+          logger.log(DB_ROLLBACK_MESSAGE);
         }
       } catch (SQLException e) {
         throw logger.logAndThrowRepositoryException(
-            new RepositoryException("Błąd podczas wycowywania zmian z bazy danych"));
+            new RepositoryException(DB_ROLLBACK_EXCEPTION_MESSAGE));
       }
     }
   }
@@ -350,31 +330,31 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       connection.setAutoCommit(true);
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd podczas usuwania obiektu z bazy danych"));
+          new RepositoryException(DB_DELETE_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     } finally {
       try {
         if (!connection.getAutoCommit()) {
           connection.rollback();
-          logger.log("Wycofano zmiany z bazy danych");
+          logger.log(DB_ROLLBACK_MESSAGE);
         }
       } catch (SQLException e) {
         throw logger.logAndThrowRepositoryException(
-            new RepositoryException("Błąd podczas wycowywania zmian z bazy danych"));
+            new RepositoryException(DB_ROLLBACK_EXCEPTION_MESSAGE));
       }
     }
   }
@@ -419,7 +399,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
           updateObject(object, insertValues, insertColumns, statement, tableName);
           if (innerLevel == 0) {
             connection.commit();
-            logger.log("Zapisano w bazie danych");
+            logger.log(DB_SAVE_MESSAGE);
             connection.setAutoCommit(true);
           }
           return;
@@ -434,37 +414,37 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       }
       if (innerLevel == 0) {
         connection.commit();
-        logger.log("Zapisano w bazie danych");
+        logger.log(DB_SAVE_MESSAGE);
         connection.setAutoCommit(true);
       }
     } catch (NoSuchMethodException e) {
       rollback = true;
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
       rollback = true;
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił wyjątek podczas wykonywania metody"));
+          new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
       rollback = true;
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Nie można utworzyć obiektu"));
+          new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       rollback = true;
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
       rollback = true;
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Brak klasy o podanej nazwie"));
+          new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
       rollback = true;
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd zapisu do bazy danych"));
+          new RepositoryException(DB_SAVE_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       rollback = true;
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Wystąpił niespodziewany błąd"));
+          new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     } finally {
       try {
         if (rollback && innerLevel == 0) {
@@ -472,11 +452,11 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
           rollback = false;
           connection.rollback();
           connection.setAutoCommit(true);
-          logger.log("Wycofano zmiany z bazy danych");
+          logger.log(DB_ROLLBACK_MESSAGE);
         }
       } catch (SQLException e) {
         throw logger.logAndThrowRepositoryException(
-            new RepositoryException("Błąd podczas wycowywania zmian z bazy danych"));
+            new RepositoryException(DB_ROLLBACK_EXCEPTION_MESSAGE));
       }
       innerLevel--;
     }
@@ -488,31 +468,52 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     return findById(lastSavedObjectId).get();
   }
 
-  private static void setOrder(Page page, StringBuilder query) {
-    query.append(" ORDER BY ");
-    for (int i = 0; i < page.getOrders().size(); i++) {
-      Order order = page.getOrders().get(i);
-      query.append(order.getColumn()).append(" ").append(order.getOrderType());
-      if (i < page.getOrders().size() - 1) {
-        query.append(", ");
+  private int getTotalObjectsCount(List<Filter> filters, Connection connection) {
+    StringBuilder countQuery = new StringBuilder("SELECT COUNT(*) FROM %s ");
+    prepareQuery(filters, countQuery);
+    try (
+        PreparedStatement statement = connection.prepareStatement(
+            String.format(countQuery.toString(), t.getTableName()))) {
+      setValues(filters, statement);
+      logger.log(countQuery.toString());
+      ResultSet resultSet = statement.executeQuery();
+      if (resultSet.next()) {
+        return resultSet.getInt(1);
       }
+      return 0;
+    } catch (SQLException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     }
   }
 
-  private void setValues(List<Filter> filters, PreparedStatement statement)
-      throws SQLException {
+  private void setOrder(Page page, StringBuilder query) {
+    query.append(" ORDER BY ");
+    query.append(
+        page.getOrders().stream()
+            .map(order -> order.getColumn() + " " + order.getOrderType())
+            .collect(Collectors.joining(", "))
+    );
+  }
+
+  private void setValues(List<Filter> filters, PreparedStatement statement) {
     int parameterIndex = 1;
-    for (Filter filter : filters) {
-      Object[] values = filter.getValue();
-      String sqlValue;
-      for (Object value : values) {
-        sqlValue = value.toString();
-        if (filter.getFilterSearch() == FilterSearchType.MATCH) {
-          sqlValue = "%" + sqlValue.trim() + "%";
+    try {
+      for (Filter filter : filters) {
+        Object[] values = filter.getValue();
+        String sqlValue;
+        for (Object value : values) {
+          sqlValue = value.toString();
+          if (filter.getFilterSearch() == FilterSearchType.MATCH) {
+            sqlValue = "%" + sqlValue.trim() + "%";
+          }
+          statement.setObject(parameterIndex, sqlValue.trim());
+          parameterIndex++;
         }
-        statement.setObject(parameterIndex, sqlValue.trim());
-        parameterIndex++;
       }
+    } catch (SQLException e) {
+      throw logger.logAndThrowRepositoryException(
+          new RepositoryException("Błąd ustawienia parametrów zapytania"));
     }
   }
 

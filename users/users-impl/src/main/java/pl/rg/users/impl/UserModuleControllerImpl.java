@@ -1,6 +1,5 @@
 package pl.rg.users.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -87,26 +86,15 @@ public class UserModuleControllerImpl implements UserModuleController {
 
   @Override
   public List<UserDto> getFiltered(List<Filter> filters) {
-    List<User> filteredUsers = userModuleApi.getFiltered(filters);
-    List<UserDto> filteredUsersDto = new ArrayList<>();
-    for (User filteredUser : filteredUsers) {
-      filteredUsersDto.add(userMapper.domainToDto(filteredUser));
-    }
-    return filteredUsersDto;
+    return userModuleApi.getFiltered(filters).stream()
+        .map(userMapper::domainToDto)
+        .toList();
   }
 
   @Override
   public MifidPage getPage(List<Filter> filters, Page page) {
     MifidPage<User> userPage = userModuleApi.getPage(filters, page);
-    MifidPage<UserDto> userDtoPage = new MifidPage<>(userPage.getTotalObjects(),
-        userPage.getTotalPage(), userPage.getObjectFrom(), userPage.getObjectTo(),
-        new ArrayList<>());
-    List<UserDto> limitedUsersPage = new ArrayList<>();
-    for (User userModel : userPage.getLimitedObjects()) {
-      limitedUsersPage.add(userMapper.domainToDto(userModel));
-    }
-    userDtoPage.setLimitedObjects(limitedUsersPage);
-    return userDtoPage;
+    return userMapper.userPageToUserDtoPage(userPage);
   }
 }
 

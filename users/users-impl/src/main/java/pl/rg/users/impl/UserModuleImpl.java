@@ -3,7 +3,6 @@ package pl.rg.users.impl;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -121,26 +120,15 @@ public class UserModuleImpl implements UserModuleApi {
 
   @Override
   public List<User> getFiltered(List<Filter> filters) {
-    List<UserModel> filteredUserModels = userRepository.findAll(filters);
-    List<User> filteredUsers = new ArrayList<>();
-    for (UserModel filteredUserModel : filteredUserModels) {
-      filteredUsers.add(userMapper.userModelToDomain(filteredUserModel));
-    }
-    return filteredUsers;
+    return userRepository.findAll(filters).stream()
+        .map(userMapper::userModelToDomain)
+        .toList();
   }
 
   @Override
   public MifidPage<User> getPage(List<Filter> filters, Page page) {
     MifidPage<UserModel> userModelPage = userRepository.findAll(filters, page);
-    MifidPage<User> userPage = new MifidPage<>(userModelPage.getTotalObjects(),
-        userModelPage.getTotalPage(), userModelPage.getObjectFrom(), userModelPage.getObjectTo(),
-        new ArrayList<>());
-    List<User> limitedUsersPage = new ArrayList<>();
-    for (UserModel userModel : userModelPage.getLimitedObjects()) {
-      limitedUsersPage.add(userMapper.userModelToDomain(userModel));
-    }
-    userPage.setLimitedObjects(limitedUsersPage);
-    return userPage;
+    return userMapper.userModelPageToUserPage(userModelPage);
   }
 
   private String generateUsername(String firstName, String lastName) {

@@ -24,7 +24,7 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
       return resultSet.getBoolean(1);
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd porównywania wartości w bazie danych"));
+          new RepositoryException(DB_COMPARE_EXCEPTION_MESSAGE));
     }
   }
 
@@ -42,7 +42,7 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
       }
     } catch (SQLException e) {
       throw logger.logAndThrowRepositoryException(
-          new RepositoryException("Błąd porównywania wartości w bazie danych"));
+          new RepositoryException(DB_COMPARE_EXCEPTION_MESSAGE));
     }
   }
 }

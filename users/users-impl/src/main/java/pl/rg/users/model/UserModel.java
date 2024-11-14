@@ -14,21 +14,21 @@ import pl.rg.utils.repository.MifidGeneral;
 public class UserModel extends MifidGeneral<Integer> {
 
   @FieldCategory(dbColumn = true)
-  public final static String USER_NAME = "user_name";
+  public static final String USER_NAME = "user_name";
 
   @FieldCategory(dbColumn = true)
-  public final static String PASSWORD = "password";
+  public static final String PASSWORD = "password";
 
   @FieldCategory(dbColumn = true)
-  public final static String FIRST_NAME = "first_name";
+  public static final String FIRST_NAME = "first_name";
 
   @FieldCategory(dbColumn = true)
-  public final static String LAST_NAME = "last_name";
+  public static final String LAST_NAME = "last_name";
 
   @FieldCategory(dbColumn = true)
-  public final static String EMAIL = "email";
+  public static final String EMAIL = "email";
 
-  public final static String TABLE_NAME = "user";
+  public static final String TABLE_NAME = "user";
 
   @FieldCategory(dbField = true)
   private String userName;

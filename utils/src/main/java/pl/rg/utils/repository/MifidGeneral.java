@@ -13,7 +13,7 @@ import pl.rg.utils.annotation.FieldCategory;
 public abstract class MifidGeneral<E> {
 
   @FieldCategory(dbColumn = true)
-  public final static String ID = "id";
+  public static final String ID = "id";
 
   @FieldCategory(dbField = true)
   protected E id;

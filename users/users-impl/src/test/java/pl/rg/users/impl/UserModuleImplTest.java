@@ -26,9 +26,9 @@ import pl.rg.utils.logger.LoggerImpl;
 
 class UserModuleImplTest {
 
-  protected final static String GENERATED_PASSWORD = "Password123!";
+  protected static final String GENERATED_PASSWORD = "Password123!";
 
-  protected final static String ENCRYPTED_PASSWORD = "EncryptedPassword123!";
+  protected static final String ENCRYPTED_PASSWORD = "EncryptedPassword123!";
 
   @Mock
   UserRepository userRepository;
