@@ -21,6 +21,7 @@ import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.annotation.Repository;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.exception.RepositoryException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
@@ -71,15 +72,16 @@ public class AppContainer {
         container.put(lowerCase, instance);
       }
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(new RepositoryException("Błąd wywołania metody"));
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+          new RepositoryException("Błąd wywołania metody"));
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException("Brak metody o podanej sygnaturze"));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
-          new RepositoryException("BNie można utworzyć obiektu"));
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+          new RepositoryException("Nie można utworzyć obiektu"));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException("Brak dostepu do metody"));
     }
   }
@@ -104,7 +106,7 @@ public class AppContainer {
         }
       }
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException("Brak dostepu do metody"));
     }
   }

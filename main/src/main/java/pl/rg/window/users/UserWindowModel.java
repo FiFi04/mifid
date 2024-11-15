@@ -7,6 +7,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import pl.rg.users.UserModuleController;
 import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.window.AbstractWindow;
 
 public class UserWindowModel extends AbstractWindow {
@@ -79,7 +80,7 @@ public class UserWindowModel extends AbstractWindow {
     actions.add(resetPasswordAction);
 
     if (actions.size() != buttonNames.length) {
-      throw logger.logAndThrowRuntimeException(
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
           new ApplicationException("M23SD", "Brak implementacji wszystkich akcji!"));
     }
 

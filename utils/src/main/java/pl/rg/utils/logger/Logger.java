@@ -4,11 +4,19 @@ import pl.rg.utils.exception.RepositoryException;
 
 public interface Logger {
 
-  void log(String message, Object... additionalInfo);
+  void log(LogLevel logLevel, String message, Object... additionalInfo);
 
-  void logAnException(Throwable exception, String message, Object... additionalArguments);
+  void log(LogLevel logLevel, String message, boolean isSqlLog);
 
-  <T extends RepositoryException> T logAndThrowRepositoryException(T exception);
+  void logAnException(LogLevel logLevel, Throwable exception, String message, Object... additionalArguments);
 
-  <T extends RuntimeException> T logAndThrowRuntimeException(T exception);
+  void logAnException(LogLevel logLevel, Throwable exception, String message, boolean isSqlLog);
+
+  <T extends RepositoryException> T logAndThrowRepositoryException(LogLevel logLevel, T exception);
+
+  <T extends RepositoryException> T logAndThrowRepositoryException(LogLevel logLevel, T exception, boolean isSqlLog);
+
+  <T extends RuntimeException> T logAndThrowRuntimeException(LogLevel logLevel, T exception);
+
+  <T extends RuntimeException> T logAndThrowRuntimeException(LogLevel logLevel, T exception, boolean isSqlLog);
 }

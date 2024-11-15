@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.annotation.Validate;
 import pl.rg.utils.exception.ValidationException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.validator.api.ValidatorService;
@@ -55,7 +56,7 @@ public class ValidatorServiceImpl implements ValidatorService {
                    InstantiationException | NoSuchMethodException e) {
             ValidationException exception = new ValidationException(
                 "Błąd podczas walidacji: " + e.getMessage(), e);
-            logger.logAnException(exception, exception.getMessage());
+            logger.logAnException(LogLevel.ERROR, exception, exception.getMessage());
             throw exception;
           }
         });
@@ -74,7 +75,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         } catch (IllegalAccessException e) {
           ValidationException exception = new ValidationException(
               "Błąd podczas walidacji: " + e.getMessage(), e);
-          logger.logAnException(exception, exception.getMessage());
+          logger.logAnException(LogLevel.DEBUG, exception, exception.getMessage());
           throw exception;
         }
       }
