@@ -15,18 +15,18 @@ import pl.rg.utils.repository.MifidGeneral;
 public class SessionModel extends MifidGeneral<Integer> {
 
   @FieldCategory(dbColumn = true)
-  public final String CURRENT_USER = "user";
+  public static final String USER = "user";
 
   @FieldCategory(dbColumn = true)
-  public final String TOKEN_FIELD = "token";
+  public static final String TOKEN = "token";
 
   @FieldCategory(dbColumn = true)
-  public final String LOGIN_TIME = "login_time";
+  public static final String LOGIN_TIME = "login_time";
 
   @FieldCategory(dbColumn = true)
-  public final String LOGOUT_TIME = "logout_time";
+  public static final String LOGOUT_TIME = "logout_time";
 
-  private final String TABLE_NAME = "session";
+  private static final String TABLE_NAME = "session";
 
   @FieldCategory(dbField = true)
   private String user;

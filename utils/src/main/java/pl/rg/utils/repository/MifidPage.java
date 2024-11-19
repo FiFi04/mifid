@@ -1,10 +1,14 @@
 package pl.rg.utils.repository;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class MifidPage<T extends MifidGeneral<E>, E> {
+@AllArgsConstructor
+@NoArgsConstructor
+public class MifidPage<T> {
 
   private int totalObjects;
 
@@ -17,7 +21,6 @@ public class MifidPage<T extends MifidGeneral<E>, E> {
   private List<T> limitedObjects;
 
   private boolean hasObjects() {
-    // todo implement
-    return false;
+    return limitedObjects != null && !limitedObjects.isEmpty();
   }
 }

@@ -1,5 +1,6 @@
 package pl.rg.users.impl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import pl.rg.users.User;
@@ -7,13 +8,15 @@ import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.UserModuleController;
 import pl.rg.users.mapper.UserMapper;
-import pl.rg.users.window.UserForm;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.utils.repository.MifidPage;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.paging.Page;
 import pl.rg.utils.validator.api.ValidatorService;
 
 @Controller
@@ -31,7 +34,7 @@ public class UserModuleControllerImpl implements UserModuleController {
 
   @Override
   public boolean createUser(String firsName, String lastName, String email) {
-//    userModuleApi.updateSession();
+    userModuleApi.updateSession();
     UserDto userDto = new UserDto(firsName, lastName, email);
     Map<String, String> constraints = validatorService.validateFields(userDto);
     if (constraints.isEmpty()) {
@@ -79,6 +82,19 @@ public class UserModuleControllerImpl implements UserModuleController {
   @Override
   public void logOut() {
     userModuleApi.endSession();
+  }
+
+  @Override
+  public List<UserDto> getFiltered(List<Filter> filters) {
+    return userModuleApi.getFiltered(filters).stream()
+        .map(userMapper::domainToDto)
+        .toList();
+  }
+
+  @Override
+  public MifidPage getPage(List<Filter> filters, Page page) {
+    MifidPage<User> userPage = userModuleApi.getPage(filters, page);
+    return userMapper.userPageToUserDtoPage(userPage);
   }
 }
 

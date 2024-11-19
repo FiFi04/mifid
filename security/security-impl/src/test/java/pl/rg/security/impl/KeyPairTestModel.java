@@ -17,7 +17,7 @@ import java.util.Base64;
 
 public class KeyPairTestModel {
 
-  public final static String PASSWORD = "Password123!";
+  public static final String PASSWORD = "Password123!";
 
   public KeyPair getEmptyKeyPar() {
     PublicKey publicKey = new PublicKey() {

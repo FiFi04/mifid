@@ -4,5 +4,4 @@ public enum FilterSearchType {
   EQUAL,
   MATCH,
   IN
-
 }

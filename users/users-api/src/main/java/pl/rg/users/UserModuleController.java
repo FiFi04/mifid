@@ -1,6 +1,10 @@
 package pl.rg.users;
 
+import java.util.List;
 import java.util.Optional;
+import pl.rg.utils.repository.MifidPage;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.paging.Page;
 
 public interface UserModuleController {
 
@@ -15,4 +19,8 @@ public interface UserModuleController {
   boolean logIn(String username, String password);
 
   void logOut();
+
+  List<UserDto> getFiltered(List<Filter> filters);
+
+  MifidPage getPage(List<Filter> filters, Page page);
 }

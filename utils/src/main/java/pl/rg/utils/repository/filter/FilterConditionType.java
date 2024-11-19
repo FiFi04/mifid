@@ -1,6 +1,6 @@
 package pl.rg.utils.repository.filter;
 
-public enum FilterContitionType {
+public enum FilterConditionType {
   OR,
   AND;
 }

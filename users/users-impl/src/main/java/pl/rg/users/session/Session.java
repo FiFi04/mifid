@@ -2,10 +2,12 @@ package pl.rg.users.session;
 
 import java.time.LocalTime;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 import pl.rg.users.model.SessionModel;
 import pl.rg.utils.db.PropertiesUtils;
 
 @Data
+@SuperBuilder
 public class Session {
 
   private static Session session;

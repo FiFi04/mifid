@@ -1,7 +1,9 @@
 package pl.rg.utils.repository.filter;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
 public class Filter {
 
@@ -13,6 +15,13 @@ public class Filter {
 
   private FilterSearchType filterSearch;
 
-  private FilterContitionType filterContition = FilterContitionType.AND;
+  private FilterConditionType filterCondition = FilterConditionType.AND;
 
+  public Filter(String column, Object[] value, FilterDataType filterData,
+      FilterSearchType filterSearch) {
+    this.column = column;
+    this.value = value;
+    this.filterData = filterData;
+    this.filterSearch = filterSearch;
+  }
 }

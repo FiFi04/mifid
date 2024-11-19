@@ -7,9 +7,11 @@ import pl.rg.users.User;
 import pl.rg.users.UserDto;
 import pl.rg.users.impl.UserImpl;
 import pl.rg.users.model.UserModel;
+import pl.rg.utils.pageAndSort.MifidPageMapper;
+import pl.rg.utils.repository.MifidPage;
 
 @Mapper
-public interface UserMapper {
+public interface UserMapper extends MifidPageMapper {
 
   UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
@@ -26,4 +28,7 @@ public interface UserMapper {
     return new UserImpl();
   }
 
+  MifidPage<User> userModelPageToUserPage(MifidPage<UserModel> userModelPage);
+
+  MifidPage<UserDto> userPageToUserDtoPage(MifidPage<User> userPage);
 }
