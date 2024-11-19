@@ -17,8 +17,6 @@ public class UserDto {
 
   private String userName;
 
-  private String password;
-
   @Validate(validatorCase = ValidatorCase.TEXT, message = "Niepoprawne imię, powinno zawierać tylko litery")
   private String firstName;
 
