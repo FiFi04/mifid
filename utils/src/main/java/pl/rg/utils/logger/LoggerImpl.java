@@ -1,5 +1,10 @@
 package pl.rg.utils.logger;
 
+import static pl.rg.utils.db.PropertiesUtils.LOG_DIRECTORY;
+import static pl.rg.utils.db.PropertiesUtils.LOG_LEVEL;
+import static pl.rg.utils.db.PropertiesUtils.LOG_SQL;
+import static pl.rg.utils.db.PropertiesUtils.LOG_TYPE;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,9 +38,9 @@ public class LoggerImpl implements Logger {
 
   private final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
-  private LogLevel logLevel = LogLevel.valueOf(PropertiesUtils.getProperty("log.level"));
+  private LogLevel logLevel;
 
-  private boolean logSql = Boolean.parseBoolean(PropertiesUtils.getProperty("log.sql"));
+  private boolean logSql;
 
   private LoggerImpl() {
     initializeLogger();
@@ -133,8 +138,10 @@ public class LoggerImpl implements Logger {
 
   private void initializeLogger() {
     try {
-      logType = LogType.valueOf(PropertiesUtils.getProperty("log.type").toUpperCase());
-      logDirectory = PropertiesUtils.getProperty("log.directory");
+      logLevel = LogLevel.valueOf(PropertiesUtils.getProperty(LOG_LEVEL));
+      logSql = Boolean.parseBoolean(PropertiesUtils.getProperty(LOG_SQL));
+      logType = LogType.valueOf(PropertiesUtils.getProperty(LOG_TYPE).toUpperCase());
+      logDirectory = PropertiesUtils.getProperty(LOG_DIRECTORY);
       initializeLogFile();
       writer = new BufferedWriter(new FileWriter(logFile, true));
     } catch (IOException e) {
