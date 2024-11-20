@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -55,6 +57,13 @@ public class MainWindow extends JFrame {
     add(rightPanel, BorderLayout.EAST);
     addButtonActions(searchPanel, rightPanel, userModuleController);
 
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        userModuleController.logOut();
+        dispose();
+      }
+    });
   }
 
   private void addButtonActions(JPanel searchPanel, JPanel rightPanel,
