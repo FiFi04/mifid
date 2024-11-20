@@ -1,6 +1,7 @@
 package pl.rg.window.users;
 
 import java.awt.GridLayout;
+import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -8,58 +9,72 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import pl.rg.users.UserDto;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
-public class UserWindow extends JFrame {
+public class UserUpdateWindow extends JFrame {
 
   Logger logger = LoggerImpl.getInstance();
 
-  public UserWindow(UserWindowModel userWindowModel) {
+  public UserUpdateWindow(UserWindowModel userWindowModel) {
     setTitle("Dane użytkownika");
     setSize(300, 200);
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setLocationRelativeTo(null);
 
-    JButton saveButton = new JButton("Zapisz");
+    JButton updateButton = new JButton("Aktualizuj");
     JButton cancelButton = new JButton("Anuluj");
 
     JPanel panel = new JPanel();
     panel.setLayout(new GridLayout(6, 1));
 
     for (UserColumn userColumn : UserColumn.values()) {
+      if (userColumn == UserColumn.ID) {
+        panel.add(new JLabel("Id aktualnego użytkownika"));
+        panel.add(userColumn.getName(), new JTextField());
+      }
       if (userColumn.isVisibility()) {
         panel.add(new JLabel(userColumn.getName()));
         panel.add(userColumn.getName(), new JTextField());
       }
     }
-    panel.add(saveButton);
+    panel.add(updateButton);
     panel.add(cancelButton);
     panel.setBorder(
         BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
     add(panel);
 
-    saveButton.addActionListener(e -> {
+    updateButton.addActionListener(e -> {
       try {
+        int id = Integer.parseInt(getTextFieldValue(panel, "Id aktualnego użytkownika"));
         String firstName = getTextFieldValue(panel, "Imię");
         String lastName = getTextFieldValue(panel, "Nazwisko");
         String email = getTextFieldValue(panel, "Email");
 
-        boolean userCreated = userWindowModel.getUserModuleController()
-            .createUser(firstName, lastName, email);
-
-        if (userCreated) {
-          JOptionPane.showMessageDialog(this, "Użytkownik zapisany pomyślnie");
-          dispose();
-        } else {
-          JOptionPane.showMessageDialog(this, "Nie udało się utworzyć użytkownika");
-          dispose();
+        Optional<UserDto> user = userWindowModel.getUserModuleController().getUser(id);
+        UserDto userDto = user.get();
+        if (!firstName.isEmpty()) {
+          userDto.setFirstName(firstName);
         }
+        if (!lastName.isEmpty()) {
+          userDto.setFirstName(firstName);
+        }
+        if (!email.isEmpty()) {
+          userDto.setFirstName(firstName);
+        }
+        userWindowModel.getUserModuleController().updateUser(user.get());
+        JOptionPane.showMessageDialog(this, "Dane użytkownika zaktualizowane");
+        dispose();
       } catch (RuntimeException ex) {
-        JOptionPane.showMessageDialog(this, "Błąd zapisu");
+        if (ex.getMessage().startsWith("U32GH")) {
+          JOptionPane.showMessageDialog(this, "Brak użytkownika o podanym ID");
+        } else {
+          JOptionPane.showMessageDialog(this, "Błąd aktualizacji");
+        }
       }
     });
 

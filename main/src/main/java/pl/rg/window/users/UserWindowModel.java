@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import lombok.Getter;
 import pl.rg.users.UserModuleController;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.window.AbstractWindow;
 
+@Getter
 public class UserWindowModel extends AbstractWindow {
 
   private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
@@ -56,7 +58,8 @@ public class UserWindowModel extends AbstractWindow {
     };
 
     ActionListener editAction = e -> {
-      // todo
+      UserUpdateWindow userWindow = new UserUpdateWindow(this);
+      userWindow.setVisible(true);
     };
 
     ActionListener deleteAction = e -> {
