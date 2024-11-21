@@ -6,17 +6,11 @@ public interface Logger {
 
   void log(LogLevel logLevel, String message, Object... additionalInfo);
 
-  void log(LogLevel logLevel, String message, boolean isSqlLog);
+  void logSql(LogLevel logLevel, String message);
 
   void logAnException(LogLevel logLevel, Throwable exception, String message, Object... additionalArguments);
 
-  void logAnException(LogLevel logLevel, Throwable exception, String message, boolean isSqlLog);
-
   <T extends RepositoryException> T logAndThrowRepositoryException(LogLevel logLevel, T exception);
 
-  <T extends RepositoryException> T logAndThrowRepositoryException(LogLevel logLevel, T exception, boolean isSqlLog);
-
   <T extends RuntimeException> T logAndThrowRuntimeException(LogLevel logLevel, T exception);
-
-  <T extends RuntimeException> T logAndThrowRuntimeException(LogLevel logLevel, T exception, boolean isSqlLog);
 }

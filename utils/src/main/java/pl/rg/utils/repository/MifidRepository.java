@@ -62,7 +62,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       String completeQuery = String.format(query.toString(), t.getTableName());
       PreparedStatement statement = connection.prepareStatement(completeQuery);
       setValues(filters, statement);
-      logger.log(LogLevel.INFO, completeQuery, true);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -112,7 +112,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       String completeQuery = String.format(query.toString(), t.getTableName());
       PreparedStatement statement = connection.prepareStatement(completeQuery);
       setValues(filters, statement);
-      logger.log(LogLevel.INFO, completeQuery, true);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -154,7 +154,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Field[] columnsNames = getColumnsNames(allFields);
       t = createInstance(tClass);
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(LogLevel.INFO, completeQuery, true);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -192,7 +192,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Class<T> tClass = getTypeClass();
       t = createInstance(tClass);
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(LogLevel.INFO, completeQuery, true);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       if (!resultSet.next()) {
         return Optional.empty();
@@ -235,7 +235,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       constructor.setAccessible(true);
       t = constructor.newInstance();
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(LogLevel.INFO, completeQuery, true);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       if (!resultSet.next()) {
         return Optional.empty();
@@ -280,7 +280,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       for (T object : objects) {
         E id = object.getId();
         String completeQuery = String.format(query, t.getTableName(), id);
-        logger.log(LogLevel.INFO, completeQuery, true);
+        logger.logSql(LogLevel.INFO, completeQuery);
         statement.executeUpdate(completeQuery);
       }
       connection.commit();
@@ -325,7 +325,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Class<T> tClass = getTypeClass();
       t = createInstance(tClass);
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(LogLevel.INFO, completeQuery, true);
+      logger.logSql(LogLevel.INFO, completeQuery);
       statement.executeUpdate(completeQuery);
       connection.commit();
       connection.setAutoCommit(true);
@@ -407,7 +407,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         }
       }
       String completeQuery = String.format(insertQuery, tableName, insertColumns, insertValues);
-      logger.log(LogLevel.INFO, completeQuery, true);
+      logger.logSql(LogLevel.INFO, completeQuery);
       statement.executeUpdate(completeQuery, Statement.RETURN_GENERATED_KEYS);
       ResultSet generatedKeys = statement.getGeneratedKeys();
       if (generatedKeys.next()) {
@@ -476,7 +476,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         PreparedStatement statement = connection.prepareStatement(
             String.format(countQuery.toString(), t.getTableName()))) {
       setValues(filters, statement);
-      logger.log(LogLevel.INFO, countQuery.toString(), true);
+      logger.logSql(LogLevel.INFO, countQuery.toString());
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
         return resultSet.getInt(1);
@@ -592,7 +592,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     }
     setFields = setFields.substring(0, setFields.length() - 1);
     String completeQuery = String.format(updateQuery, tableName, setFields, object.getId());
-    logger.log(LogLevel.INFO, completeQuery, true);
+    logger.logSql(LogLevel.INFO, completeQuery);
     statement.executeUpdate(completeQuery);
     lastSavedObjectId = object.getId();
   }

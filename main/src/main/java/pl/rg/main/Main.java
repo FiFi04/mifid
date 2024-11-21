@@ -63,7 +63,7 @@ public class Main {
     logger.log(LogLevel.INFO, "INFO LEVEL");
     logger.log(LogLevel.DEBUG, "DEBUG LEVEL");
     logger.log(LogLevel.ERROR, "ERROR LEVEL");
-    logger.log(LogLevel.INFO, "SQL", true);
+    logger.logSql(LogLevel.INFO, "SQL");
 
 //    Filter filter = new Filter("login_time", new Object[]{LocalDate.of(2024,10,30)},
 //        FilterDataType.INTEGER, FilterSearchType.MATCH);
