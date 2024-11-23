@@ -1,5 +1,10 @@
 package pl.rg.utils.logger;
 
+import static pl.rg.utils.db.PropertiesUtils.LOG_DIRECTORY;
+import static pl.rg.utils.db.PropertiesUtils.LOG_LEVEL;
+import static pl.rg.utils.db.PropertiesUtils.LOG_SQL;
+import static pl.rg.utils.db.PropertiesUtils.LOG_TYPE;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,9 +38,9 @@ public class LoggerImpl implements Logger {
 
   private final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
-  private LogLevel logLevel = LogLevel.valueOf(PropertiesUtils.getProperty("log.level"));
+  private LogLevel logLevel;
 
-  private boolean logSql = Boolean.parseBoolean(PropertiesUtils.getProperty("log.sql"));
+  private boolean logSql;
 
   private LoggerImpl() {
     initializeLogger();
@@ -57,8 +62,8 @@ public class LoggerImpl implements Logger {
   }
 
   @Override
-  public void log(LogLevel logLevel, String message, boolean isSqlLog) {
-    if (logSql && isSqlLog && logLevel.ordinal() >= this.logLevel.ordinal()) {
+  public void logSql(LogLevel logLevel, String message) {
+    if (logSql && logLevel.ordinal() >= this.logLevel.ordinal()) {
       StringBuilder logMessage = createLogMessage(logLevel, message);
       logMessage(logMessage);
     }
@@ -75,27 +80,9 @@ public class LoggerImpl implements Logger {
   }
 
   @Override
-  public void logAnException(LogLevel logLevel, Throwable exception, String message,
-      boolean isSqlLog) {
-    if (logSql && isSqlLog && logLevel.ordinal() >= this.logLevel.ordinal()) {
-      StringBuilder logMessage = createExceptionLogMessage(logLevel, message, exception);
-      logMessage(logMessage);
-    }
-  }
-
-  @Override
   public <T extends RepositoryException> T logAndThrowRepositoryException(LogLevel logLevel,
       T exception) {
     if (logLevel.ordinal() >= this.logLevel.ordinal()) {
-      logAnException(logLevel, exception, exception.getMessage());
-    }
-    return exception;
-  }
-
-  @Override
-  public <T extends RepositoryException> T logAndThrowRepositoryException(LogLevel logLevel,
-      T exception, boolean isSqlLog) {
-    if (logSql && isSqlLog && logLevel.ordinal() >= this.logLevel.ordinal()) {
       logAnException(logLevel, exception, exception.getMessage());
     }
     return exception;
@@ -105,15 +92,6 @@ public class LoggerImpl implements Logger {
   public <T extends RuntimeException> T logAndThrowRuntimeException(LogLevel logLevel,
       T exception) {
     if (logLevel.ordinal() >= this.logLevel.ordinal()) {
-      logAnException(logLevel, exception, exception.getMessage());
-    }
-    return exception;
-  }
-
-  @Override
-  public <T extends RuntimeException> T logAndThrowRuntimeException(LogLevel logLevel, T exception,
-      boolean isSqlLog) {
-    if (logSql && isSqlLog && logLevel.ordinal() >= this.logLevel.ordinal()) {
       logAnException(logLevel, exception, exception.getMessage());
     }
     return exception;
@@ -133,8 +111,10 @@ public class LoggerImpl implements Logger {
 
   private void initializeLogger() {
     try {
-      logType = LogType.valueOf(PropertiesUtils.getProperty("log.type").toUpperCase());
-      logDirectory = PropertiesUtils.getProperty("log.directory");
+      logLevel = LogLevel.valueOf(PropertiesUtils.getProperty(LOG_LEVEL));
+      logSql = Boolean.parseBoolean(PropertiesUtils.getProperty(LOG_SQL));
+      logType = LogType.valueOf(PropertiesUtils.getProperty(LOG_TYPE).toUpperCase());
+      logDirectory = PropertiesUtils.getProperty(LOG_DIRECTORY);
       initializeLogFile();
       writer = new BufferedWriter(new FileWriter(logFile, true));
     } catch (IOException e) {
@@ -155,7 +135,7 @@ public class LoggerImpl implements Logger {
 
   private void initializeLogFile() {
     Path projectRoot = Paths.get(System.getProperty("user.dir"));
-    while (!Files.exists(projectRoot.resolve("loggerFiles"))) {
+    while (!Files.exists(projectRoot.resolve("main"))) {
       projectRoot = projectRoot.getParent();
     }
     String currentDate = LocalDate.now().toString();
