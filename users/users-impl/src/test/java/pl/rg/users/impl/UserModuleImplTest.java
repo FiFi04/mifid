@@ -97,14 +97,14 @@ class UserModuleImplTest {
     //given
     try (MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class)) {
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
-      when(logger.logAndThrowRuntimeException(any())).thenReturn(new ApplicationException());
+      when(logger.logAndThrowRuntimeException(any(), any())).thenReturn(new ApplicationException());
 
       //when
       when(userRepository.findById(any())).thenReturn(Optional.empty());
 
       //then
       assertThrows(ApplicationException.class, () -> userModule.find(1));
-      verify(logger, times(1)).logAndThrowRuntimeException(any());
+      verify(logger, times(1)).logAndThrowRuntimeException(any(), any());
     }
   }
 

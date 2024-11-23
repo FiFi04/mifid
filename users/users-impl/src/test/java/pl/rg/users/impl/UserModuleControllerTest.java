@@ -82,13 +82,13 @@ public class UserModuleControllerTest {
     try (MockedStatic<LoggerImpl> loggerMockedStatic = mockStatic(LoggerImpl.class)) {
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
       when(validatorService.validateFields(any(UserDto.class))).thenReturn(validationErrors);
-      when(logger.logAndThrowRuntimeException(any())).thenReturn(new ValidationException());
+      when(logger.logAndThrowRuntimeException(any(), any())).thenReturn(new ValidationException());
 
       //then
       assertThrows(ValidationException.class,
           () -> userModuleController.createUser("Jan123", "Kowalski",
               "j.kowalski.email.com"));
-      verify(logger, times(1)).logAndThrowRuntimeException(any());
+      verify(logger, times(1)).logAndThrowRuntimeException(any(), any());
     }
   }
 }

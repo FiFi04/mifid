@@ -7,6 +7,7 @@ import java.util.Optional;
 import pl.rg.users.model.UserModel;
 import pl.rg.utils.annotation.Repository;
 import pl.rg.utils.exception.RepositoryException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.repository.MifidRepository;
 
 @Repository
@@ -18,12 +19,12 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
     try (Statement statement = getDBConnector().getConnection().createStatement()) {
       String completeQuery = String.format(query, UserModel.USER_NAME, UserModel.TABLE_NAME,
           UserModel.USER_NAME);
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       resultSet.next();
       return resultSet.getBoolean(1);
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_COMPARE_EXCEPTION_MESSAGE));
     }
   }
@@ -32,7 +33,7 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
     String query = "SELECT id " + "FROM %s WHERE %s = '" + username + "'";
     try (Statement statement = getDBConnector().getConnection().createStatement()) {
       String completeQuery = String.format(query, UserModel.TABLE_NAME, UserModel.USER_NAME);
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       if (resultSet.next()) {
         int userId = resultSet.getInt(1);
@@ -41,7 +42,7 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
         return Optional.empty();
       }
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_COMPARE_EXCEPTION_MESSAGE));
     }
   }

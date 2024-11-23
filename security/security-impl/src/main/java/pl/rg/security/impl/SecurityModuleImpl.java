@@ -26,6 +26,7 @@ import pl.rg.security.repository.PublicKeyHashRepository;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.db.PropertiesUtils;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.validator.impl.BaseValidator;
@@ -58,7 +59,7 @@ public class SecurityModuleImpl implements SecurityModuleApi {
       return Optional.of(
           Base64.getEncoder().encodeToString(encryptCipher.doFinal(password.getBytes())));
     } catch (GeneralSecurityException e) {
-      throw getLogger().logAndThrowRuntimeException(
+      throw getLogger().logAndThrowRuntimeException(LogLevel.ERROR,
           new SecurityException("Błąd podczas szyfrowania hasła",
               e));
     }
@@ -73,7 +74,7 @@ public class SecurityModuleImpl implements SecurityModuleApi {
       return Optional.of(
           new String(decryptCipher.doFinal(Base64.getDecoder().decode(encryptedPassword))));
     } catch (GeneralSecurityException e) {
-      throw getLogger().logAndThrowRuntimeException(
+      throw getLogger().logAndThrowRuntimeException(LogLevel.ERROR,
           new SecurityException("Błąd podczas odszyfrowania hasła",
               e));
     }
@@ -136,7 +137,7 @@ public class SecurityModuleImpl implements SecurityModuleApi {
       writer.write(privateKeyStr);
       return true;
     } catch (IOException e) {
-      throw getLogger().logAndThrowRuntimeException(
+      throw getLogger().logAndThrowRuntimeException(LogLevel.ERROR,
           new SecurityException("Błąd zapisu klucza do pliku",
               e));
     }
@@ -151,11 +152,11 @@ public class SecurityModuleImpl implements SecurityModuleApi {
       PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(decodedPrivateKey);
       return Optional.of(keyFactory.generatePrivate(privateKeySpec));
     } catch (IOException e) {
-      throw getLogger().logAndThrowRuntimeException(
+      throw getLogger().logAndThrowRuntimeException(LogLevel.ERROR,
           new SecurityException("Błąd odczytu klucza z pliku",
               e));
     } catch (GeneralSecurityException e) {
-      throw getLogger().logAndThrowRuntimeException(
+      throw getLogger().logAndThrowRuntimeException(LogLevel.ERROR,
           new SecurityException("Błąd odszyfrowania klucza z pliku",
               e));
     }
@@ -169,7 +170,7 @@ public class SecurityModuleImpl implements SecurityModuleApi {
       publicKeyHashRepository.savePublicKey(keyPair.getPublic());
       savePrivateKey(keyPair.getPrivate());
     } catch (NoSuchAlgorithmException e) {
-      throw getLogger().logAndThrowRuntimeException(
+      throw getLogger().logAndThrowRuntimeException(LogLevel.ERROR,
           new SecurityException("Błąd podczas tworzenia kluczy",
               e));
     }

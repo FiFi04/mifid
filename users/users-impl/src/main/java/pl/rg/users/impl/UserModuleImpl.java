@@ -18,6 +18,7 @@ import pl.rg.users.session.Session;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.MifidPage;
@@ -49,7 +50,7 @@ public class UserModuleImpl implements UserModuleApi {
     Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
-    logger.log("Add new user with login {}", user.getUserName());
+    logger.log(LogLevel.INFO, "Add new user with login {}", user.getUserName());
     userRepository.save(userModel);
   }
 
@@ -60,7 +61,7 @@ public class UserModuleImpl implements UserModuleApi {
       User user = userMapper.userModelToDomain(userModel.get());
       return Optional.of(user);
     } else {
-      throw logger.logAndThrowRuntimeException(
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
           new ApplicationException("U32GH", "Nie znaleziono użytownika o id: " + id));
     }
   }
@@ -94,7 +95,7 @@ public class UserModuleImpl implements UserModuleApi {
     session.setStartTimeCounter(LocalTime.now());
     session.setActiveSession(
         new SessionModel(currentUser, generateToken(), LocalDateTime.now(), null));
-    logger.log("Rozpoczęto sesję " + session.getActiveSession().getToken());
+    logger.log(LogLevel.INFO, "Rozpoczęto sesję " + session.getActiveSession().getToken());
   }
 
   @Override
@@ -105,7 +106,7 @@ public class UserModuleImpl implements UserModuleApi {
       session.setStartTimeCounter(currentTime);
     } else {
       endSession();
-      throw logger.logAndThrowRuntimeException(new ApplicationException("U33SE",
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG, new ApplicationException("U33SE",
           "Wylogowano z powodu zbyt długiego czasu nieaktywności"));
     }
   }
@@ -114,7 +115,7 @@ public class UserModuleImpl implements UserModuleApi {
   public void endSession() {
     session.getActiveSession().setLogoutTime(LocalDateTime.now());
     sessionRepository.save(session.getActiveSession());
-    logger.log("Zakończono sesję " + session.getActiveSession().getToken());
+    logger.log(LogLevel.INFO, "Zakończono sesję " + session.getActiveSession().getToken());
     session.setActiveSession(null);
   }
 

@@ -12,6 +12,7 @@ import java.util.Optional;
 import pl.rg.security.exception.SecurityException;
 import pl.rg.security.model.PublicKeyHashModel;
 import pl.rg.utils.annotation.Repository;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.repository.MifidRepository;
 
 @Repository
@@ -27,10 +28,11 @@ public class PublicKeyHashRepository extends MifidRepository<PublicKeyHashModel,
         X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
         return Optional.of(keyFactory.generatePublic(publicKeySpec));
       } else {
-        throw logger.logAndThrowRuntimeException(new SecurityException("Brak klucza publicznego!"));
+        throw logger.logAndThrowRuntimeException(LogLevel.ERROR,
+            new SecurityException("Brak klucza publicznego!"));
       }
     } catch (GeneralSecurityException e) {
-      throw logger.logAndThrowRuntimeException(
+      throw logger.logAndThrowRuntimeException(LogLevel.ERROR,
           new SecurityException("Błąd odszyfrowania klucza z bazy",
               e));
     }

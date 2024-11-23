@@ -8,6 +8,14 @@ public class PropertiesUtils {
 
   public static final String PRIVATE_KEY = "privateKey.directory";
 
+  public static final String LOG_TYPE = "log.type";
+
+  public static final String LOG_DIRECTORY = "log.directory";
+
+  public static final String LOG_LEVEL = "log.level";
+
+  public static final String LOG_SQL = "log.sql";
+
   private static final String PROPERTIES_FILE = "app.properties";
 
   public static String getProperty(String key) {

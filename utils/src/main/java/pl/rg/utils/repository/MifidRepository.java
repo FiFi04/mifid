@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import lombok.Data;
 import pl.rg.utils.annotation.FieldCategory;
 import pl.rg.utils.exception.RepositoryException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.filter.Filter;
@@ -61,7 +62,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       String completeQuery = String.format(query.toString(), t.getTableName());
       PreparedStatement statement = connection.prepareStatement(completeQuery);
       setValues(filters, statement);
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -70,25 +71,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       int totalPages = (int) Math.ceil((double) totalObjects / (page.getTo() - page.getFrom()));
       return new MifidPage<>(totalObjects, totalPages, page.getFrom(), page.getTo(), mifidObjects);
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
@@ -111,7 +112,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       String completeQuery = String.format(query.toString(), t.getTableName());
       PreparedStatement statement = connection.prepareStatement(completeQuery);
       setValues(filters, statement);
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery();
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -119,25 +120,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       }
       return mifidObjects;
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
@@ -153,7 +154,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Field[] columnsNames = getColumnsNames(allFields);
       t = createInstance(tClass);
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       while (resultSet.next()) {
         T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
@@ -161,25 +162,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       }
       return mifidObjects;
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
@@ -191,7 +192,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Class<T> tClass = getTypeClass();
       t = createInstance(tClass);
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       if (!resultSet.next()) {
         return Optional.empty();
@@ -202,25 +203,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, false);
       return Optional.of(mifidObject);
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
@@ -234,7 +235,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       constructor.setAccessible(true);
       t = constructor.newInstance();
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       ResultSet resultSet = statement.executeQuery(completeQuery);
       if (!resultSet.next()) {
         return Optional.empty();
@@ -245,25 +246,25 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       T mifidObject = getObjectFromDB(tClass, objectFields, columnsNames, resultSet, true);
       return Optional.of(mifidObject);
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     }
   }
@@ -279,37 +280,37 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       for (T object : objects) {
         E id = object.getId();
         String completeQuery = String.format(query, t.getTableName(), id);
-        logger.log(completeQuery);
+        logger.logSql(LogLevel.INFO, completeQuery);
         statement.executeUpdate(completeQuery);
       }
       connection.commit();
       connection.setAutoCommit(true);
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_DELETE_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     } finally {
       try {
         if (!connection.getAutoCommit()) {
           connection.rollback();
-          logger.log(DB_ROLLBACK_MESSAGE);
+          logger.log(LogLevel.INFO, DB_ROLLBACK_MESSAGE);
         }
       } catch (SQLException e) {
-        throw logger.logAndThrowRepositoryException(
+        throw logger.logAndThrowRepositoryException(LogLevel.ERROR,
             new RepositoryException(DB_ROLLBACK_EXCEPTION_MESSAGE));
       }
     }
@@ -324,36 +325,36 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       Class<T> tClass = getTypeClass();
       t = createInstance(tClass);
       String completeQuery = String.format(query, t.getTableName());
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       statement.executeUpdate(completeQuery);
       connection.commit();
       connection.setAutoCommit(true);
     } catch (InvocationTargetException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (NoSuchMethodException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InstantiationException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_DELETE_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     } finally {
       try {
         if (!connection.getAutoCommit()) {
           connection.rollback();
-          logger.log(DB_ROLLBACK_MESSAGE);
+          logger.log(LogLevel.INFO, DB_ROLLBACK_MESSAGE);
         }
       } catch (SQLException e) {
-        throw logger.logAndThrowRepositoryException(
+        throw logger.logAndThrowRepositoryException(LogLevel.ERROR,
             new RepositoryException(DB_ROLLBACK_EXCEPTION_MESSAGE));
       }
     }
@@ -399,14 +400,14 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
           updateObject(object, insertValues, insertColumns, statement, tableName);
           if (innerLevel == 0) {
             connection.commit();
-            logger.log(DB_SAVE_MESSAGE);
+            logger.log(LogLevel.INFO, DB_SAVE_MESSAGE);
             connection.setAutoCommit(true);
           }
           return;
         }
       }
       String completeQuery = String.format(insertQuery, tableName, insertColumns, insertValues);
-      logger.log(completeQuery);
+      logger.logSql(LogLevel.INFO, completeQuery);
       statement.executeUpdate(completeQuery, Statement.RETURN_GENERATED_KEYS);
       ResultSet generatedKeys = statement.getGeneratedKeys();
       if (generatedKeys.next()) {
@@ -414,36 +415,36 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
       }
       if (innerLevel == 0) {
         connection.commit();
-        logger.log(DB_SAVE_MESSAGE);
+        logger.log(LogLevel.INFO, DB_SAVE_MESSAGE);
         connection.setAutoCommit(true);
       }
     } catch (NoSuchMethodException e) {
       rollback = true;
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_METHOD_MESSAGE));
     } catch (InvocationTargetException e) {
       rollback = true;
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION_MESSAGE));
     } catch (InstantiationException e) {
       rollback = true;
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INSTANTIATION_EXCEPTION_MESSAGE));
     } catch (IllegalAccessException e) {
       rollback = true;
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_ACCESS_MESSAGE));
     } catch (ClassNotFoundException e) {
       rollback = true;
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(NO_CLASS_MESSAGE));
     } catch (SQLException e) {
       rollback = true;
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_SAVE_EXCEPTION_MESSAGE));
     } catch (Throwable e) {
       rollback = true;
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(GENERAL_EXCEPTION_MESSAGE));
     } finally {
       try {
@@ -452,10 +453,10 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
           rollback = false;
           connection.rollback();
           connection.setAutoCommit(true);
-          logger.log(DB_ROLLBACK_MESSAGE);
+          logger.log(LogLevel.INFO, DB_ROLLBACK_MESSAGE);
         }
       } catch (SQLException e) {
-        throw logger.logAndThrowRepositoryException(
+        throw logger.logAndThrowRepositoryException(LogLevel.ERROR,
             new RepositoryException(DB_ROLLBACK_EXCEPTION_MESSAGE));
       }
       innerLevel--;
@@ -475,14 +476,14 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         PreparedStatement statement = connection.prepareStatement(
             String.format(countQuery.toString(), t.getTableName()))) {
       setValues(filters, statement);
-      logger.log(countQuery.toString());
+      logger.logSql(LogLevel.INFO, countQuery.toString());
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
         return resultSet.getInt(1);
       }
       return 0;
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(DB_READ_EXCEPTION_MESSAGE));
     }
   }
@@ -512,7 +513,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         }
       }
     } catch (SQLException e) {
-      throw logger.logAndThrowRepositoryException(
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException("Błąd ustawienia parametrów zapytania"));
     }
   }
@@ -538,7 +539,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
           query.append(")");
           break;
         default:
-          throw logger.logAndThrowRepositoryException(new RepositoryException(
+          throw logger.logAndThrowRepositoryException(LogLevel.DEBUG, new RepositoryException(
               "Nieprawidłowy warunek filtra: " + filter.getFilterSearch()));
       }
     }
@@ -591,7 +592,7 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     }
     setFields = setFields.substring(0, setFields.length() - 1);
     String completeQuery = String.format(updateQuery, tableName, setFields, object.getId());
-    logger.log(completeQuery);
+    logger.logSql(LogLevel.INFO, completeQuery);
     statement.executeUpdate(completeQuery);
     lastSavedObjectId = object.getId();
   }

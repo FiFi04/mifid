@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
@@ -37,7 +38,7 @@ public abstract class AbstractWindow {
       }
     }
 
-    throw logger.logAndThrowRuntimeException(
+    throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
         new ApplicationException("M45FV", "Nie znaleziono akcji dla podanego przycisku"));
   }
 

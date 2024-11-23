@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.UserModuleController;
+import pl.rg.utils.logger.LogLevel;
+import pl.rg.utils.logger.Logger;
+import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
 import pl.rg.utils.repository.filter.FilterConditionType;
@@ -26,6 +29,8 @@ public class Main {
     for (Map.Entry<String, Object> entry : container.entrySet()) {
       System.out.println(entry.getKey() + ":" + entry.getValue());
     }
+
+    Logger logger = LoggerImpl.getInstance();
 
 //    SecurityModuleImpl securityModule = (SecurityModuleImpl) container.get(
 //        "securityModuleImpl");
@@ -54,6 +59,11 @@ public class Main {
     for (Object limitedObject : mifidPage.getLimitedObjects()) {
       System.out.println(limitedObject.toString());
     }
+
+    logger.log(LogLevel.INFO, "INFO LEVEL");
+    logger.log(LogLevel.DEBUG, "DEBUG LEVEL");
+    logger.log(LogLevel.ERROR, "ERROR LEVEL");
+    logger.logSql(LogLevel.INFO, "SQL");
 
 //    Filter filter = new Filter("login_time", new Object[]{LocalDate.of(2024,10,30)},
 //        FilterDataType.INTEGER, FilterSearchType.MATCH);

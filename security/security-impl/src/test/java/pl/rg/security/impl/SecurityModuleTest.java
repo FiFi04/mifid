@@ -74,7 +74,7 @@ public class SecurityModuleTest {
       when(dbConnector.getConnection()).thenReturn(connection);
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
       doThrow(new SecurityException("Błąd podczas szyfrowania hasła")).when(logger)
-          .logAndThrowRuntimeException(any(RuntimeException.class));
+          .logAndThrowRuntimeException(any(), any(RuntimeException.class));
 
       // when
       try {
@@ -142,7 +142,7 @@ public class SecurityModuleTest {
       Optional<String> encryptedPassword = securityModule.encryptPassword(
           KeyPairTestModel.PASSWORD);
       doThrow(new SecurityException("Błąd odczytu klucza z pliku")).when(logger)
-          .logAndThrowRuntimeException(any(RuntimeException.class));
+          .logAndThrowRuntimeException(any(), any(RuntimeException.class));
 
       //when
       try {
@@ -171,7 +171,7 @@ public class SecurityModuleTest {
           .thenReturn("src/test/resources/private.key");
       loggerMockedStatic.when(LoggerImpl::getInstance).thenReturn(logger);
       doThrow(new SecurityException("Błąd podczas odszyfrowania hasła")).when(logger)
-          .logAndThrowRuntimeException(any(RuntimeException.class));
+          .logAndThrowRuntimeException(any(), any(RuntimeException.class));
 
       //when
       try {

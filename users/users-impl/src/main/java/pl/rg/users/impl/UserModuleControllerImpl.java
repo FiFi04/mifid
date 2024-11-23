@@ -12,6 +12,7 @@ import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.ValidationException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.MifidPage;
@@ -42,7 +43,7 @@ public class UserModuleControllerImpl implements UserModuleController {
       userModuleApi.addUser(user);
       return true;
     } else {
-      throw logger.logAndThrowRuntimeException(new ValidationException(
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG, new ValidationException(
           "Błędne dane podczas tworzenia użytkownika: ", constraints));
     }
   }
@@ -74,7 +75,7 @@ public class UserModuleControllerImpl implements UserModuleController {
       userModuleApi.startSession(username);
       return true;
     } else {
-      throw logger.logAndThrowRuntimeException(
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
           new ApplicationException("U34LV", "Błędne dane podczas logowania"));
     }
   }
