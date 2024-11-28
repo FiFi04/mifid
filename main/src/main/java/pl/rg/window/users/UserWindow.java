@@ -13,7 +13,6 @@ import javax.swing.JTextField;
 import lombok.Getter;
 import lombok.Setter;
 import pl.rg.users.UserDto;
-import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.RepositoryException;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.window.WindowUtils;
@@ -90,22 +89,19 @@ public class UserWindow extends JFrame implements WindowUtils {
   private void update(UserWindowModel userWindowModel, String firstName, String lastName,
       String email) {
     try {
-      if (!firstName.isBlank()) {
-        userDto.setFirstName(firstName);
-      }
-      if (!lastName.isBlank()) {
-        userDto.setLastName(lastName);
-      }
-      if (!email.isBlank()) {
-        userDto.setEmail(email);
-      }
+
+      userDto.setFirstName(firstName);
+      userDto.setLastName(lastName);
+      userDto.setEmail(email);
+
       userWindowModel.getUserModuleController().updateUser(userDto);
       JOptionPane.showMessageDialog(this, "Dane użytkownika zaktualizowane");
       dispose();
-    } catch (ApplicationException | ValidationException ex) {
-      JOptionPane.showMessageDialog(this, ex.getMessage());
+    } catch (ValidationException ex) {
+      showValidationMessage(ex);
     } catch (RepositoryException ex1) {
-      JOptionPane.showMessageDialog(this, "Błąd aktualizacji w bazie danych");
+      JOptionPane.showMessageDialog(this, "Błąd aktualizacji w bazie danych", "Błąd!",
+          JOptionPane.ERROR_MESSAGE);
     }
   }
 
@@ -121,8 +117,11 @@ public class UserWindow extends JFrame implements WindowUtils {
         JOptionPane.showMessageDialog(this, "Nie udało się utworzyć użytkownika");
         dispose();
       }
-    } catch (RuntimeException ex) {
-      JOptionPane.showMessageDialog(this, "Błąd zapisu");
+    } catch (ValidationException ex) {
+      showValidationMessage(ex);
+    } catch (RepositoryException ex) {
+      JOptionPane.showMessageDialog(this, "Nie zapisu do bazy danych!", "Błąd!",
+          JOptionPane.ERROR_MESSAGE);
     }
   }
 }

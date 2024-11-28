@@ -44,14 +44,7 @@ public class UserWindowModel extends AbstractWindow {
           user.getEmail()
       });
     }
-//    Object[][] userData = { // todo replace after implement search users method
-//        {1, "jankow", "Jan", "Kowalski", "jan.kowalski@example.com"},
-//        {2, "annnow", "Anna", "Nowak", "anna.nowak@example.com"},
-//        {3, "piowis", "Piotr", "Wiśniewski", "piotr.wisniewski@example.com"}
-//    };
-//    for (Object[] row : userData) {
-//      tableModel.addRow(row);
-//    }
+
     return tableModel;
   }
 
@@ -78,6 +71,7 @@ public class UserWindowModel extends AbstractWindow {
       int selectedRow = mainTable.getSelectedRow();
       if (selectedRow < 0) {
         JOptionPane.showMessageDialog(new JFrame(), "Nie wybrano żadnego użytkownika do edycji");
+        return;
       }
       int id = (int) mainTable.getValueAt(selectedRow, 0);
       UserWindow userWindow = new UserWindow(this, true, id);
@@ -86,6 +80,10 @@ public class UserWindowModel extends AbstractWindow {
 
     ActionListener deleteAction = e -> {
       int selectedRow = mainTable.getSelectedRow();
+      if (selectedRow < 0) {
+        JOptionPane.showMessageDialog(new JFrame(), "Nie wybrano żadnego użytkownika do edycji");
+        return;
+      }
       Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
       userModuleController.deleteUser(id);
       refreshTable();
