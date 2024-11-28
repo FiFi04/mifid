@@ -70,7 +70,7 @@ public class UserWindowModel extends AbstractWindow {
     actions = new ArrayList<>();
 
     ActionListener addAction = e -> {
-      UserWindow userWindow = new UserWindow(this);
+      UserWindow userWindow = new UserWindow(this, false, null);
       userWindow.setVisible(true);
     };
 
@@ -80,9 +80,7 @@ public class UserWindowModel extends AbstractWindow {
         JOptionPane.showMessageDialog(new JFrame(), "Nie wybrano żadnego użytkownika do edycji");
       }
       int id = (int) mainTable.getValueAt(selectedRow, 0);
-      UserWindow userWindow = new UserWindow(this);
-      userWindow.setEdit(true);
-      userWindow.setUserId(id);
+      UserWindow userWindow = new UserWindow(this, true, id);
       userWindow.setVisible(true);
     };
 
@@ -90,6 +88,7 @@ public class UserWindowModel extends AbstractWindow {
       int selectedRow = mainTable.getSelectedRow();
       Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
       userModuleController.deleteUser(id);
+      refreshTable();
     };
 
     ActionListener searchAction = e -> {

@@ -566,6 +566,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         rollback = repository.rollback;
         return savedObject.getId().toString();
       }
+    } else if (objectField.get(object) == null) {
+      return null;
     } else {
       return objectField.get(object).toString();
     }

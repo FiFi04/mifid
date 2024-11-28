@@ -3,7 +3,6 @@ package pl.rg.window.users;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,17 +16,15 @@ import pl.rg.users.UserDto;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.RepositoryException;
 import pl.rg.utils.exception.ValidationException;
-import pl.rg.window.MainWindow;
+import pl.rg.window.WindowUtils;
 
 @Getter
 @Setter
-public class UserWindow extends JFrame {
+public class UserWindow extends JFrame implements WindowUtils {
 
-  private boolean edit;
+  private UserDto userDto;
 
-  private int userId;
-
-  public UserWindow(UserWindowModel userWindowModel) {
+  public UserWindow(UserWindowModel userWindowModel, boolean edit, Integer userId) {
     setTitle("Dane użytkownika");
     setSize(300, 200);
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -39,10 +36,27 @@ public class UserWindow extends JFrame {
     JPanel panel = new JPanel();
     panel.setLayout(new GridLayout(6, 1));
 
+    if (edit) {
+      userDto = userWindowModel.getUserModuleController().getUser(userId).get();
+    }
     for (UserColumn userColumn : UserColumn.values()) {
       if (userColumn.isVisibility()) {
         panel.add(new JLabel(userColumn.getName()));
-        panel.add(userColumn.getName(), new JTextField());
+        if (edit) {
+          JTextField textField = new JTextField();
+          if (userColumn.getName().equals(UserColumn.NAME.getName())) {
+            textField.setText(userDto.getFirstName());
+          }
+          if (userColumn.getName().equals(UserColumn.SURNAME.getName())) {
+            textField.setText(userDto.getLastName());
+          }
+          if (userColumn.getName().equals(UserColumn.EMAIL.getName())) {
+            textField.setText(userDto.getEmail());
+          }
+          panel.add(userColumn.getName(), textField);
+        } else {
+          panel.add(userColumn.getName(), new JTextField());
+        }
       }
     }
     panel.add(saveButton);
@@ -51,9 +65,9 @@ public class UserWindow extends JFrame {
     add(panel);
 
     saveButton.addActionListener(e -> {
-      String firstName = MainWindow.getTextFieldValue(panel, UserColumn.NAME.getName());
-      String lastName = MainWindow.getTextFieldValue(panel, UserColumn.SURNAME.getName());
-      String email = MainWindow.getTextFieldValue(panel, UserColumn.EMAIL.getName());
+      String firstName = getTextFieldValue(panel, UserColumn.NAME.getName());
+      String lastName = getTextFieldValue(panel, UserColumn.SURNAME.getName());
+      String email = getTextFieldValue(panel, UserColumn.EMAIL.getName());
       if (!edit) {
         save(userWindowModel, firstName, lastName, email);
       } else {
@@ -76,8 +90,6 @@ public class UserWindow extends JFrame {
   private void update(UserWindowModel userWindowModel, String firstName, String lastName,
       String email) {
     try {
-      Optional<UserDto> user = userWindowModel.getUserModuleController().getUser(userId);
-      UserDto userDto = user.get();
       if (!firstName.isBlank()) {
         userDto.setFirstName(firstName);
       }

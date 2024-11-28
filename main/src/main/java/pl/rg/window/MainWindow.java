@@ -37,8 +37,6 @@ public class MainWindow extends JFrame {
 
   private UserWindowModel userWindowModel;
 
-  private static Logger logger = LoggerImpl.getInstance();
-
   private MainWindow() {
     setTitle("Ankieta Mifid");
     setSize(900, 550);
@@ -169,18 +167,5 @@ public class MainWindow extends JFrame {
       MainWindow window = new MainWindow();
       window.setVisible(true);
     });
-  }
-
-  public static String getTextFieldValue(JPanel panel, String labelName) {
-    for (int i = 0; i < panel.getComponentCount(); i++) {
-      if (panel.getComponent(i) instanceof JLabel label && label.getText().equals(labelName)) {
-        if (i + 1 < panel.getComponentCount() && panel.getComponent(
-            i + 1) instanceof JTextField textField) {
-          return textField.getText().trim();
-        }
-      }
-    }
-    throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
-        new ApplicationException("M26BP", "Brak pola tekstowego dla: " + labelName));
   }
 }
