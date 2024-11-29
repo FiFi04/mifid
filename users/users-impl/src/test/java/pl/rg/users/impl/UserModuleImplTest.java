@@ -1,15 +1,18 @@
 package pl.rg.users.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,13 @@ import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.utils.repository.MifidPage;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.filter.FilterConditionType;
+import pl.rg.utils.repository.filter.FilterSearchType;
+import pl.rg.utils.repository.paging.Order;
+import pl.rg.utils.repository.paging.OrderType;
+import pl.rg.utils.repository.paging.Page;
 
 class UserModuleImplTest {
 
@@ -87,6 +97,7 @@ class UserModuleImplTest {
     Optional<User> user = userModule.find(1);
 
     //then
+    assertNotNull(user);
     assertTrue(user.isPresent());
     assertEquals("jankow", user.get().getUserName());
     assertEquals(1, user.get().getId());
@@ -121,5 +132,68 @@ class UserModuleImplTest {
     //then
     verify(userRepository, times(1)).save(any());
     assertEquals("Nowak", user.getLastName());
+  }
+
+  @Test
+  public void whenSearchUsersWithFilters_thenShouldReturnFilteredUsers() {
+    //given
+    List<Filter> filters = List.of(
+        new Filter("firstName", new Object[]{"Jan"}, FilterSearchType.EQUAL),
+        new Filter("lastName", new Object[]{"Nowak"}, FilterSearchType.MATCH,
+            FilterConditionType.OR));
+    List<UserModel> userModels = List.of(
+        new UserModel("jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com"),
+        new UserModel("tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
+    userModels.get(0).setId(1);
+    userModels.get(1).setId(2);
+    List<User> users = List.of(
+        new UserImpl(1, "jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com"),
+        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
+    when(userRepository.findAll(filters)).thenReturn(userModels);
+
+    //when
+    List<User> filteredUsers = userModule.getFiltered(filters);
+
+    //then
+    assertNotNull(filteredUsers);
+    verify(userRepository, times(1)).findAll(filters);
+    verify(userRepository).findAll(argThat(argument ->
+        argument.size() == filters.size() && argument.containsAll(filters)));
+    assertEquals("jankow", filteredUsers.get(0).getUserName());
+    assertEquals("tomnow", filteredUsers.get(1).getUserName());
+    assertEquals(2, filteredUsers.size());
+    assertEquals(users, filteredUsers);
+  }
+
+  @Test
+  public void whenSearchUsersByPage_thenShouldReturnMifidUsersPage() {
+    //given
+    List<Filter> filters = List.of(
+        new Filter("firstName", new Object[]{"Jan"}, FilterSearchType.EQUAL));
+    new Filter("lastName", new Object[]{"Nowak"}, FilterSearchType.MATCH, FilterConditionType.OR);
+    Order order = new Order("last_name", OrderType.ASC);
+    Order order2 = new Order("first_name", OrderType.DESC);
+    Page page = new Page(0, 2, List.of(order, order2));
+    List<UserModel> userModels = List.of(
+        new UserModel("jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com"),
+        new UserModel("tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
+    userModels.get(0).setId(1);
+    userModels.get(1).setId(2);
+    List<User> users = List.of(
+        new UserImpl(1, "jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com"),
+        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
+    when(userRepository.findAll(filters, page)).thenReturn(new MifidPage<>(2, 1, 0, 2, userModels));
+
+    //when
+    MifidPage usersPage = userModule.getPage(filters, page);
+
+    //then
+    assertNotNull(usersPage);
+    verify(userRepository, times(1)).findAll(filters, page);
+    verify(userRepository).findAll(filters, page);
+    assertEquals(1, usersPage.getTotalPage());
+    assertEquals(2, usersPage.getTotalObjects());
+    assertEquals(page.getTo() - page.getFrom(), usersPage.getLimitedObjects().size());
+    assertEquals(users, usersPage.getLimitedObjects());
   }
 }
