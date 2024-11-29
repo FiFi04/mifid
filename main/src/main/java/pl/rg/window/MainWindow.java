@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -14,15 +16,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import pl.rg.main.AppContainer;
 import pl.rg.users.UserModuleController;
-import pl.rg.utils.exception.ApplicationException;
-import pl.rg.utils.logger.LogLevel;
-import pl.rg.utils.logger.Logger;
-import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.window.users.UserWindowModel;
 
 public class MainWindow extends JFrame {
@@ -58,6 +55,14 @@ public class MainWindow extends JFrame {
     add(rightPanel, BorderLayout.EAST);
     addButtonActions(searchPanel, rightPanel, userModuleController);
     userWindowModel = new UserWindowModel(mainTable, userModuleController);
+
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        userModuleController.logOut();
+        dispose();
+      }
+    });
   }
 
   private void addButtonActions(JPanel searchPanel, JPanel rightPanel,
