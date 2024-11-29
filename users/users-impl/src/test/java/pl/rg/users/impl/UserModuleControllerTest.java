@@ -1,10 +1,12 @@
 package pl.rg.users.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -121,7 +123,13 @@ public class UserModuleControllerTest {
     List<UserDto> filteredUserDto = userModuleController.getFiltered(filters);
 
     //then
+    assertNotNull(filteredUserDto);
     verify(userModuleApi, times(1)).getFiltered(filters);
+    verify(userModuleApi).getFiltered(argThat(argument ->
+        argument.size() == filters.size() && argument.containsAll(filters)));
+    assertEquals("jankow", filteredUserDto.get(0).getUserName());
+    assertEquals("tomnow", filteredUserDto.get(1).getUserName());
+    assertEquals(2, filteredUserDto.size());
     assertEquals(userDtos, filteredUserDto);
   }
 
@@ -147,7 +155,12 @@ public class UserModuleControllerTest {
     MifidPage usersPage = userModuleController.getPage(filters, page);
 
     //then
+    assertNotNull(usersPage);
     verify(userModuleApi, times(1)).getPage(filters, page);
+    verify(userModuleApi).getPage(filters, page);
+    assertEquals(1, usersPage.getTotalPage());
+    assertEquals(2, usersPage.getTotalObjects());
+    assertEquals(page.getTo() - page.getFrom(), usersPage.getLimitedObjects().size());
     assertEquals(userDtos, usersPage.getLimitedObjects());
   }
 }
