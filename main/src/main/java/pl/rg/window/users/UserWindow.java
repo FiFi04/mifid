@@ -1,6 +1,8 @@
 package pl.rg.window.users;
 
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -8,16 +10,20 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import pl.rg.utils.exception.ApplicationException;
-import pl.rg.utils.logger.LogLevel;
-import pl.rg.utils.logger.Logger;
-import pl.rg.utils.logger.LoggerImpl;
+import lombok.Getter;
+import lombok.Setter;
+import pl.rg.users.UserDto;
+import pl.rg.utils.exception.RepositoryException;
+import pl.rg.utils.exception.ValidationException;
+import pl.rg.window.WindowUtils;
 
-public class UserWindow extends JFrame {
+@Getter
+@Setter
+public class UserWindow extends JFrame implements WindowUtils {
 
-  Logger logger = LoggerImpl.getInstance();
+  private UserDto userDto;
 
-  public UserWindow(UserWindowModel userWindowModel) {
+  public UserWindow(UserWindowModel userWindowModel, boolean edit, Integer userId) {
     setTitle("Dane użytkownika");
     setSize(300, 200);
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -29,55 +35,93 @@ public class UserWindow extends JFrame {
     JPanel panel = new JPanel();
     panel.setLayout(new GridLayout(6, 1));
 
+    if (edit) {
+      userDto = userWindowModel.getUserModuleController().getUser(userId).get();
+    }
     for (UserColumn userColumn : UserColumn.values()) {
       if (userColumn.isVisibility()) {
         panel.add(new JLabel(userColumn.getName()));
-        panel.add(userColumn.getName(), new JTextField());
+        if (edit) {
+          JTextField textField = new JTextField();
+          if (userColumn.getName().equals(UserColumn.NAME.getName())) {
+            textField.setText(userDto.getFirstName());
+          }
+          if (userColumn.getName().equals(UserColumn.SURNAME.getName())) {
+            textField.setText(userDto.getLastName());
+          }
+          if (userColumn.getName().equals(UserColumn.EMAIL.getName())) {
+            textField.setText(userDto.getEmail());
+          }
+          panel.add(userColumn.getName(), textField);
+        } else {
+          panel.add(userColumn.getName(), new JTextField());
+        }
       }
     }
     panel.add(saveButton);
     panel.add(cancelButton);
-    panel.setBorder(
-        BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
+    panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     add(panel);
 
     saveButton.addActionListener(e -> {
-      try {
-        String firstName = getTextFieldValue(panel, "Imię");
-        String lastName = getTextFieldValue(panel, "Nazwisko");
-        String email = getTextFieldValue(panel, "Email");
-
-        boolean userCreated = userWindowModel.getUserModuleController()
-            .createUser(firstName, lastName, email);
-
-        if (userCreated) {
-          JOptionPane.showMessageDialog(this, "Użytkownik zapisany pomyślnie");
-          dispose();
-        } else {
-          JOptionPane.showMessageDialog(this, "Nie udało się utworzyć użytkownika");
-          dispose();
-        }
-      } catch (RuntimeException ex) {
-        JOptionPane.showMessageDialog(this, "Błąd zapisu");
+      String firstName = getTextFieldValue(panel, UserColumn.NAME.getName());
+      String lastName = getTextFieldValue(panel, UserColumn.SURNAME.getName());
+      String email = getTextFieldValue(panel, UserColumn.EMAIL.getName());
+      if (!edit) {
+        save(userWindowModel, firstName, lastName, email);
+      } else {
+        update(userWindowModel, firstName, lastName, email);
       }
     });
 
     cancelButton.addActionListener(e -> {
       dispose();
     });
+
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosed(WindowEvent e) {
+        userWindowModel.refreshTable();
+      }
+    });
   }
 
-  private String getTextFieldValue(JPanel panel, String labelName) {
-    for (int i = 0; i < panel.getComponentCount(); i++) {
-      if (panel.getComponent(i) instanceof JLabel label && label.getText().equals(labelName)) {
-        if (i + 1 < panel.getComponentCount() && panel.getComponent(
-            i + 1) instanceof JTextField textField) {
-          return textField.getText().trim();
-        }
-      }
+  private void update(UserWindowModel userWindowModel, String firstName, String lastName,
+      String email) {
+    try {
+
+      userDto.setFirstName(firstName);
+      userDto.setLastName(lastName);
+      userDto.setEmail(email);
+
+      userWindowModel.getUserModuleController().updateUser(userDto);
+      JOptionPane.showMessageDialog(this, "Dane użytkownika zaktualizowane");
+      dispose();
+    } catch (ValidationException ex) {
+      showValidationMessage(ex);
+    } catch (RepositoryException ex1) {
+      JOptionPane.showMessageDialog(this, "Błąd aktualizacji w bazie danych", "Błąd!",
+          JOptionPane.ERROR_MESSAGE);
     }
-    throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
-        new ApplicationException("M26BP", "Brak pola tekstowego dla: " + labelName));
+  }
+
+  private void save(UserWindowModel userWindowModel, String firstName, String lastName,
+      String email) {
+    try {
+      boolean userCreated = userWindowModel.getUserModuleController()
+          .createUser(firstName, lastName, email);
+      if (userCreated) {
+        JOptionPane.showMessageDialog(this, "Użytkownik zapisany pomyślnie");
+        dispose();
+      } else {
+        JOptionPane.showMessageDialog(this, "Nie udało się utworzyć użytkownika");
+        dispose();
+      }
+    } catch (ValidationException ex) {
+      showValidationMessage(ex);
+    } catch (RepositoryException ex) {
+      JOptionPane.showMessageDialog(this, "Nie zapisu do bazy danych!", "Błąd!",
+          JOptionPane.ERROR_MESSAGE);
+    }
   }
 }

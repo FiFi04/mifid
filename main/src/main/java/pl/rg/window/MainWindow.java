@@ -43,8 +43,6 @@ public class MainWindow extends JFrame {
 
     UserModuleController userModuleController = (UserModuleController) AppContainer.getContainer()
         .get("userModuleController");
-    userWindowModel = new UserWindowModel(mainTable,
-        userModuleController);
 
     add(createLeftPanel(), BorderLayout.WEST);
     JPanel centerPanel = createCenterPanel();
@@ -56,6 +54,7 @@ public class MainWindow extends JFrame {
     JPanel rightPanel = createRightPanel();
     add(rightPanel, BorderLayout.EAST);
     addButtonActions(searchPanel, rightPanel, userModuleController);
+    userWindowModel = new UserWindowModel(mainTable, userModuleController);
 
     addWindowListener(new WindowAdapter() {
       @Override
