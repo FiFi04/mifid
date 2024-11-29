@@ -14,10 +14,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import pl.rg.main.AppContainer;
 import pl.rg.users.UserModuleController;
+import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.logger.LogLevel;
+import pl.rg.utils.logger.Logger;
+import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.window.users.UserWindowModel;
 
 public class MainWindow extends JFrame {
@@ -41,8 +46,6 @@ public class MainWindow extends JFrame {
 
     UserModuleController userModuleController = (UserModuleController) AppContainer.getContainer()
         .get("userModuleController");
-    userWindowModel = new UserWindowModel(mainTable,
-        userModuleController);
 
     add(createLeftPanel(), BorderLayout.WEST);
     JPanel centerPanel = createCenterPanel();
@@ -54,7 +57,7 @@ public class MainWindow extends JFrame {
     JPanel rightPanel = createRightPanel();
     add(rightPanel, BorderLayout.EAST);
     addButtonActions(searchPanel, rightPanel, userModuleController);
-
+    userWindowModel = new UserWindowModel(mainTable, userModuleController);
   }
 
   private void addButtonActions(JPanel searchPanel, JPanel rightPanel,

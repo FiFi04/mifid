@@ -58,8 +58,14 @@ public class UserModuleControllerImpl implements UserModuleController {
   @Override
   public void updateUser(UserDto userDto) {
     userModuleApi.updateSession();
-    User user = userMapper.dtoToDomain(userDto);
-    userModuleApi.update(user);
+    Map<String, String> constraints = validatorService.validateFields(userDto);
+    if (constraints.isEmpty()) {
+      User user = userMapper.dtoToDomain(userDto);
+      userModuleApi.update(user);
+    } else {
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG, new ValidationException(
+          "Błędne dane podczas aktualizowania użytkownika: ", constraints));
+    }
   }
 
   @Override

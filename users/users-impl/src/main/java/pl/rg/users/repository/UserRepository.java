@@ -14,7 +14,6 @@ import pl.rg.utils.repository.MifidRepository;
 public class UserRepository extends MifidRepository<UserModel, Integer> {
 
   public boolean containsUsername(String value) {
-
     String query = "SELECT EXISTS (SELECT %s FROM %s WHERE %s = '" + value + "')";
     try (Statement statement = getDBConnector().getConnection().createStatement()) {
       String completeQuery = String.format(query, UserModel.USER_NAME, UserModel.TABLE_NAME,
