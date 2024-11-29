@@ -24,4 +24,10 @@ public class Filter {
     this.filterData = filterData;
     this.filterSearch = filterSearch;
   }
+
+  public Filter(String column, Object[] value, FilterSearchType filterSearch) {
+    this.column = column;
+    this.value = value;
+    this.filterSearch = filterSearch;
+  }
 }

@@ -2,20 +2,33 @@ package pl.rg.window.users;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import lombok.Getter;
 import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleController;
+import pl.rg.users.model.UserModel;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
+import pl.rg.utils.repository.MifidPage;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.filter.FilterSearchType;
+import pl.rg.utils.repository.paging.Order;
+import pl.rg.utils.repository.paging.OrderType;
+import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
+import pl.rg.window.WindowUtils;
 
 @Getter
-public class UserWindowModel extends AbstractWindow {
+public class UserWindowModel extends AbstractWindow implements WindowUtils {
 
   private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
       "Resetuj hasło"};
@@ -26,26 +39,29 @@ public class UserWindowModel extends AbstractWindow {
 
   private UserModuleController userModuleController;
 
-  public UserWindowModel(JTable mainTable, UserModuleController userModuleController) {
+  private JPanel searchPanel;
+
+  private JComboBox<String> sortColumnComboBox;
+
+  private JComboBox<Integer> pageNumberComboBox;
+
+  public UserWindowModel(JTable mainTable, UserModuleController userModuleController,
+      JPanel searchPanel, JComboBox<String> sortColumnComboBox,
+      JComboBox<Integer> pageNumberComboBox) {
     this.mainTable = mainTable;
     this.userModuleController = userModuleController;
+    this.searchPanel = searchPanel;
+    this.sortColumnComboBox = sortColumnComboBox;
+    this.pageNumberComboBox = pageNumberComboBox;
   }
 
-  public DefaultTableModel loadUserData() { // todo replace after implement search users method
-    DefaultTableModel tableModel = new DefaultTableModel(getColumnNames(), 0);
-    tableModel.setRowCount(0);
-    List<UserDto> userData = userModuleController.getFiltered(null);
-    for (UserDto user : userData) {
-      tableModel.addRow(new Object[]{
-          user.getId(),
-          user.getUserName(),
-          user.getFirstName(),
-          user.getLastName(),
-          user.getEmail()
-      });
-    }
-
-    return tableModel;
+  public DefaultTableModel loadUserData() {
+    Page page = new Page();
+    page.setFrom(0);
+    page.setTo(AbstractWindow.PAGE_SIZE);
+    page.setOrders(List.of(new Order(UserModel.ID, OrderType.ASC)));
+    updateSortAndPage(sortColumnComboBox, pageNumberComboBox);
+    return getUpdatedTable(null, page);
   }
 
   public void refreshTable() {
@@ -90,7 +106,7 @@ public class UserWindowModel extends AbstractWindow {
     };
 
     ActionListener searchAction = e -> {
-      // todo
+      updateTable();
     };
 
     ActionListener resetPasswordAction = e -> {
@@ -109,6 +125,16 @@ public class UserWindowModel extends AbstractWindow {
     }
   }
 
+  public void addSortAndPageActions() {
+    this.sortColumnComboBox.addActionListener(e -> {
+      updateTable();
+    });
+
+    this.pageNumberComboBox.addActionListener(e -> {
+      updateTable();
+    });
+  }
+
   @Override
   protected List<ActionListener> getActions() {
     return actions;
@@ -117,5 +143,55 @@ public class UserWindowModel extends AbstractWindow {
   @Override
   public String[] getColumnNames() {
     return UserColumn.getColumnNames();
+  }
+
+  private void updateTable() {
+    HashMap<String, String> fieldValues = getFieldsValues(searchPanel);
+    List<Filter> filters = getFilters(fieldValues);
+    String sortColumn = (String) sortColumnComboBox.getSelectedItem();
+    int pageNumber = (int) pageNumberComboBox.getSelectedItem();
+    Page page = new Page();
+    page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
+    page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
+    page.setOrders(
+        List.of(new Order(UserColumn.getDbColumnByName(sortColumn).get(), OrderType.ASC)));
+    DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
+    mainTable.setModel(tableUpdate);
+  }
+
+  private HashMap<String, String> getFieldsValues(JPanel searchPanel) {
+    return Arrays.stream(getColumnNames())
+        .collect(Collectors.toMap(
+            columnName -> UserColumn.getDbColumnByName(columnName).get(),
+            columnName -> getTextFieldValue(searchPanel, columnName),
+            (existing, newValue) -> existing,
+            HashMap::new
+        ));
+  }
+
+  private List<Filter> getFilters(HashMap<String, String> fieldValues) {
+    return fieldValues.entrySet().stream()
+        .filter(textField -> !textField.getValue().isBlank())
+        .map(textField -> new Filter(textField.getKey(), new Object[]{textField.getValue()},
+            FilterSearchType.MATCH))
+        .toList();
+  }
+
+  private DefaultTableModel getUpdatedTable(List<Filter> filters, Page page) {
+    DefaultTableModel tableModel = new DefaultTableModel(getColumnNames(), 0);
+    tableModel.setRowCount(0);
+    MifidPage<UserDto> mifidPage = userModuleController.getPage(filters, page);
+    CURRENT_PAGES = mifidPage.getTotalPage();
+    List<UserDto> usersData = mifidPage.getLimitedObjects();
+    for (UserDto user : usersData) {
+      tableModel.addRow(new Object[]{
+          user.getId(),
+          user.getUserName(),
+          user.getFirstName(),
+          user.getLastName(),
+          user.getEmail()
+      });
+    }
+    return tableModel;
   }
 }
