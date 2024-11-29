@@ -16,7 +16,7 @@ import pl.rg.window.users.UserColumn;
 
 public interface WindowUtils {
 
-  Logger logger = LoggerImpl.getInstance();
+  Logger loggerInstance = LoggerImpl.getInstance();
 
   default String getTextFieldValue(JPanel panel, String labelName) {
     for (int i = 0; i < panel.getComponentCount(); i++) {
@@ -27,7 +27,7 @@ public interface WindowUtils {
         }
       }
     }
-    throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
+    throw loggerInstance.logAndThrowRuntimeException(LogLevel.DEBUG,
         new ApplicationException("M26BP", "Brak pola tekstowego dla: " + labelName));
   }
 
