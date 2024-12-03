@@ -44,8 +44,7 @@ public class Main {
     UserModuleController userControllerImpl = (UserModuleController) container.get(
         "userModuleController");
 
-    Filter filter = new Filter("first_name", new Object[]{"Jan"}, FilterDataType.STRING,
-        FilterSearchType.MATCH);
+    Filter filter = new Filter("first_name", new Object[]{"Jan"}, FilterSearchType.MATCH);
     Filter filter2 = new Filter("last_name", new Object[]{"Nowak"},
         FilterDataType.STRING, FilterSearchType.EQUAL, FilterConditionType.OR);
     Order order = new Order("last_name", OrderType.ASC);
