@@ -16,6 +16,10 @@ import pl.rg.utils.logger.LoggerImpl;
 
 public abstract class AbstractWindow {
 
+  public static int PAGE_SIZE = 10;
+
+  public static int CURRENT_PAGES;
+
   public AbstractWindow() {
     createActions();
   }
@@ -37,7 +41,6 @@ public abstract class AbstractWindow {
         return getActions().get(i);
       }
     }
-
     throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
         new ApplicationException("M45FV", "Nie znaleziono akcji dla podanego przycisku"));
   }
@@ -59,10 +62,8 @@ public abstract class AbstractWindow {
     for (String column : getColumnNames()) {
       sortColumnComboBox.addItem(column);
     }
-
-    // todo pages from repo
-    int page = 20;
-    for (int i = 1; i <= page; i++) {
+    pageNumberComboBox.removeAllItems();
+    for (int i = 1; i <= CURRENT_PAGES; i++) {
       pageNumberComboBox.addItem(i);
     }
   }
