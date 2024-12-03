@@ -3,6 +3,7 @@ package pl.rg.users.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.Data;
 import pl.rg.users.User;
 import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleApi;
@@ -20,6 +21,7 @@ import pl.rg.utils.repository.filter.Filter;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.utils.validator.api.ValidatorService;
 
+@Data
 @Controller
 public class UserModuleControllerImpl implements UserModuleController {
 

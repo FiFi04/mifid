@@ -6,25 +6,32 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static pl.rg.users.impl.UserTestModel.ENCRYPTED_PASSWORD;
+import static pl.rg.users.impl.UserTestModel.GENERATED_PASSWORD;
+import static pl.rg.users.model.UserModel.EMAIL;
+import static pl.rg.users.model.UserModel.FIRST_NAME;
+import static pl.rg.users.model.UserModel.LAST_NAME;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
-import pl.rg.users.User;
+import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.UserDto;
-import pl.rg.users.UserModuleApi;
+import pl.rg.users.model.UserModel;
+import pl.rg.users.repository.UserRepository;
 import pl.rg.utils.db.DBConnector;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LoggerImpl;
@@ -52,14 +59,26 @@ public class UserModuleControllerTest {
   private ValidatorService validatorService;
 
   @Mock
-  private UserModuleApi userModuleApi;
+  private UserRepository userRepository;
+
+  @Mock
+  private SecurityModuleApi securityModuleApi;
 
   @InjectMocks
-  UserModuleControllerImpl userModuleController;
+  private UserModuleControllerImpl userModuleController;
+
+  @InjectMocks
+  private UserModuleImpl userModuleApi;
+
+  private UserTestModel userTestModel;
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
+    userTestModel = new UserTestModel();
+    userModuleApi.getSession().setStartTimeCounter(LocalTime.now());
+    userModuleController.setUserModuleApi(userModuleApi);
+
   }
 
   @Test
@@ -73,6 +92,9 @@ public class UserModuleControllerTest {
               () -> DriverManager.getConnection(anyString(), anyString(), anyString()))
           .thenReturn(connection);
       when(dbConnector.getConnection()).thenReturn(connection);
+      when(securityModuleApi.generatePassword()).thenReturn(GENERATED_PASSWORD);
+      when(securityModuleApi.encryptPassword(anyString())).thenReturn(
+          Optional.of(ENCRYPTED_PASSWORD));
     }
 
     //when
@@ -86,8 +108,8 @@ public class UserModuleControllerTest {
   public void whenCreateUserWithInvalidData_thenShouldThrowException() {
     //given
     Map<String, String> validationErrors = Map.of(
-        "firstName", "Niepoprawne imię, powinno zawierać tylko litery",
-        "email", "Nieprawidłowy format email"
+        FIRST_NAME, "Niepoprawne imię, powinno zawierać tylko litery",
+        EMAIL, "Nieprawidłowy format email"
     );
 
     //when
@@ -108,59 +130,43 @@ public class UserModuleControllerTest {
   public void whenSearchUsersWithFilters_thenShouldReturnFilteredUsers() {
     //given
     List<Filter> filters = List.of(
-        new Filter("firstName", new Object[]{"Jan"}, FilterSearchType.EQUAL),
-        new Filter("lastName", new Object[]{"Nowak"}, FilterSearchType.MATCH,
+        new Filter(FIRST_NAME, new Object[]{"Jan"}, FilterSearchType.EQUAL),
+        new Filter(LAST_NAME, new Object[]{"Nowak"}, FilterSearchType.MATCH,
             FilterConditionType.OR));
-    List<User> users = List.of(
-        new UserImpl(1, "jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com"),
-        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
-    List<UserDto> userDtos = List.of(
-        new UserDto(1, "jankow", "Jan", "Kowalski", "jan.kowalski@example.com"),
-        new UserDto(2, "tomnow", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
-    when(userModuleApi.getFiltered(filters)).thenReturn(users);
+    when(userRepository.findAll(filters)).thenReturn(userTestModel.returnUserModelList());
 
     //when
     List<UserDto> filteredUserDto = userModuleController.getFiltered(filters);
 
     //then
     assertNotNull(filteredUserDto);
-    verify(userModuleApi, times(1)).getFiltered(filters);
-    verify(userModuleApi).getFiltered(argThat(argument ->
-        argument.size() == filters.size() && argument.containsAll(filters)));
     assertEquals("jankow", filteredUserDto.get(0).getUserName());
     assertEquals("tomnow", filteredUserDto.get(1).getUserName());
     assertEquals(2, filteredUserDto.size());
-    assertEquals(userDtos, filteredUserDto);
+    assertEquals(userTestModel.returnUserDtoList(), filteredUserDto);
   }
 
   @Test
   public void whenSearchUsersByPage_thenShouldReturnMifidUsersPage() {
     //given
     List<Filter> filters = List.of(
-        new Filter("firstName", new Object[]{"Jan"}, FilterSearchType.EQUAL),
-        new Filter("lastName", new Object[]{"Nowak"}, FilterSearchType.MATCH,
+        new Filter(FIRST_NAME, new Object[]{"Jan"}, FilterSearchType.EQUAL),
+        new Filter(LAST_NAME, new Object[]{"Nowak"}, FilterSearchType.MATCH,
             FilterConditionType.OR));
-    Order order = new Order("last_name", OrderType.ASC);
-    Order order2 = new Order("first_name", OrderType.DESC);
+    Order order = new Order(LAST_NAME, OrderType.ASC);
+    Order order2 = new Order(FIRST_NAME, OrderType.DESC);
     Page page = new Page(0, 2, List.of(order, order2));
-    List<User> users = List.of(
-        new UserImpl(1, "jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com"),
-        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
-    List<UserDto> userDtos = List.of(
-        new UserDto(1, "jankow", "Jan", "Kowalski", "jan.kowalski@example.com"),
-        new UserDto(2, "tomnow", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
-    when(userModuleApi.getPage(filters, page)).thenReturn(new MifidPage<>(2, 1, 0, 2, users));
+    when(userRepository.findAll(filters, page)).thenReturn(
+        new MifidPage<UserModel>(2, 1, 0, 2, userTestModel.returnUserModelList()));
 
     //when
     MifidPage usersPage = userModuleController.getPage(filters, page);
 
     //then
     assertNotNull(usersPage);
-    verify(userModuleApi, times(1)).getPage(filters, page);
-    verify(userModuleApi).getPage(filters, page);
     assertEquals(1, usersPage.getTotalPage());
     assertEquals(2, usersPage.getTotalObjects());
     assertEquals(page.getTo() - page.getFrom(), usersPage.getLimitedObjects().size());
-    assertEquals(userDtos, usersPage.getLimitedObjects());
+    assertEquals(userTestModel.returnUserDtoList(), usersPage.getLimitedObjects());
   }
 }

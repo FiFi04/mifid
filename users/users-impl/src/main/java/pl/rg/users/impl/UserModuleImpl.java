@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import lombok.Data;
 import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
 import pl.rg.users.UserModuleApi;
@@ -25,6 +26,7 @@ import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
 import pl.rg.utils.repository.paging.Page;
 
+@Data
 @Service
 public class UserModuleImpl implements UserModuleApi {
 
