@@ -14,7 +14,7 @@ import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 
-public abstract class AbstractWindow {
+public abstract class AbstractWindow implements WindowUtils {
 
   public static int PAGE_SIZE = 10;
 
@@ -58,13 +58,15 @@ public abstract class AbstractWindow {
 
   public void updateSortAndPage(JComboBox<String> sortColumnComboBox,
       JComboBox<Integer> pageNumberComboBox) {
-    sortColumnComboBox.removeAllItems();
-    for (String column : getColumnNames()) {
-      sortColumnComboBox.addItem(column);
+    if (sortColumnComboBox.getItemCount() == 0) {
+      for (String column : getColumnNames()) {
+        sortColumnComboBox.addItem(column);
+      }
     }
-    pageNumberComboBox.removeAllItems();
-    for (int i = 1; i <= CURRENT_PAGES; i++) {
-      pageNumberComboBox.addItem(i);
+    if (pageNumberComboBox.getItemCount() == 0) {
+      for (int i = 1; i <= CURRENT_PAGES; i++) {
+        pageNumberComboBox.addItem(i);
+      }
     }
   }
 

@@ -2,10 +2,8 @@ package pl.rg.window.users;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -20,15 +18,13 @@ import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
-import pl.rg.utils.repository.filter.FilterSearchType;
 import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
-import pl.rg.window.WindowUtils;
 
 @Getter
-public class UserWindowModel extends AbstractWindow implements WindowUtils {
+public class UserWindowModel extends AbstractWindow {
 
   private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
       "Resetuj hasło"};
@@ -146,7 +142,7 @@ public class UserWindowModel extends AbstractWindow implements WindowUtils {
   }
 
   private void updateTable() {
-    HashMap<String, String> fieldValues = getFieldsValues(searchPanel);
+    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this);
     List<Filter> filters = getFilters(fieldValues);
     String sortColumn = (String) sortColumnComboBox.getSelectedItem();
     int pageNumber = (int) pageNumberComboBox.getSelectedItem();
@@ -157,24 +153,6 @@ public class UserWindowModel extends AbstractWindow implements WindowUtils {
         List.of(new Order(UserColumn.getDbColumnByName(sortColumn).get(), OrderType.ASC)));
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
-  }
-
-  private HashMap<String, String> getFieldsValues(JPanel searchPanel) {
-    return Arrays.stream(getColumnNames())
-        .collect(Collectors.toMap(
-            columnName -> UserColumn.getDbColumnByName(columnName).get(),
-            columnName -> getTextFieldValue(searchPanel, columnName),
-            (existing, newValue) -> existing,
-            HashMap::new
-        ));
-  }
-
-  private List<Filter> getFilters(HashMap<String, String> fieldValues) {
-    return fieldValues.entrySet().stream()
-        .filter(textField -> !textField.getValue().isBlank())
-        .map(textField -> new Filter(textField.getKey(), new Object[]{textField.getValue()},
-            FilterSearchType.MATCH))
-        .toList();
   }
 
   private DefaultTableModel getUpdatedTable(List<Filter> filters, Page page) {

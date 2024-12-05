@@ -1,5 +1,8 @@
 package pl.rg.window;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.swing.JFrame;
@@ -12,6 +15,8 @@ import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.utils.repository.filter.Filter;
+import pl.rg.utils.repository.filter.FilterSearchType;
 import pl.rg.window.users.UserColumn;
 
 public interface WindowUtils {
@@ -41,5 +46,23 @@ public interface WindowUtils {
 
     JOptionPane.showMessageDialog(new JFrame(), message, messageSplited[0],
         JOptionPane.WARNING_MESSAGE);
+  }
+
+  default HashMap<String, String> getFieldsValues(JPanel searchPanel, AbstractWindow window) {
+    return Arrays.stream(window.getColumnNames())
+        .collect(Collectors.toMap(
+            columnName -> UserColumn.getDbColumnByName(columnName).get(),
+            columnName -> getTextFieldValue(searchPanel, columnName),
+            (existing, newValue) -> existing,
+            HashMap::new
+        ));
+  }
+
+  default List<Filter> getFilters(HashMap<String, String> fieldValues) {
+    return fieldValues.entrySet().stream()
+        .filter(textField -> !textField.getValue().isBlank())
+        .map(textField -> new Filter(textField.getKey(), new Object[]{textField.getValue()},
+            FilterSearchType.MATCH))
+        .toList();
   }
 }

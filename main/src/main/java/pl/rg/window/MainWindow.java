@@ -20,8 +20,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import pl.rg.main.AppContainer;
 import pl.rg.users.UserModuleController;
-import pl.rg.utils.logger.Logger;
-import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.window.users.UserWindowModel;
 
 public class MainWindow extends JFrame {
@@ -35,8 +33,6 @@ public class MainWindow extends JFrame {
   private JComboBox<Integer> pageNumberComboBox;
 
   private UserWindowModel userWindowModel;
-
-  private static Logger logger = LoggerImpl.getInstance();
 
   private MainWindow() {
     setTitle("Ankieta Mifid");
