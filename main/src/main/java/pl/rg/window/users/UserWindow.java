@@ -89,11 +89,9 @@ public class UserWindow extends JFrame implements WindowUtils {
   private void update(UserWindowModel userWindowModel, String firstName, String lastName,
       String email) {
     try {
-
       userDto.setFirstName(firstName);
       userDto.setLastName(lastName);
       userDto.setEmail(email);
-
       userWindowModel.getUserModuleController().updateUser(userDto);
       JOptionPane.showMessageDialog(this, "Dane użytkownika zaktualizowane");
       dispose();
