@@ -15,6 +15,10 @@ public interface UserModuleApi extends PageFilter<User> {
 
   boolean validateLogInData(String username, String password);
 
+  int checkAvailableLoginAttempts(String username);
+
+  void resetLoginAttempts(String username);
+
   void startSession(String currentUser);
 
   void updateSession();
