@@ -1,0 +1,33 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="5" author="rg" failOnError="true" context="dev, prod">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="user" columnName="login_attempts"/>
+      </not>
+      <not>
+        <columnExists tableName="user" columnName="blocked"/>
+      </not>
+      <not>
+        <columnExists tableName="user" columnName="blocked_time"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="user">
+      <column name="login_attempts" type="int" defaultValue="0"/>
+    </addColumn>
+    <addColumn tableName="user">
+      <column name="blocked" type="int" defaultValue="0"/>
+    </addColumn>
+    <addColumn tableName="user">
+      <column name="blocked_time" type="datetime"/>
+    </addColumn>
+    <rollback>
+      <dropColumn tableName="user" columnName="login_attempts"/>
+      <dropColumn tableName="user" columnName="blocked"/>
+      <dropColumn tableName="user" columnName="blocked_time"/>
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

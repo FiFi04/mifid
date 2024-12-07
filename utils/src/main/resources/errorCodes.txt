@@ -7,6 +7,7 @@ M - main module
 
 U32GH - nie znaleziono uzytkownika po ID.
 U33SE - wylogowano z powodu zbyt długiego czasu nieaktywności
+U33LV - wykorzystano wszystkie próby logowania, konto zablokowane
 U34LV - błędne dane podczas logowania
 
 M23SD - brak implementacji wszystkich akcji
