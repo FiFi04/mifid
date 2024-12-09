@@ -78,19 +78,33 @@ public class UserModuleControllerImpl implements UserModuleController {
 
   @Override
   public boolean logIn(String username, String password) {
+    int availableLoginAttempts = userModuleApi.checkAvailableLoginAttempts(username);
     boolean validLogInData = userModuleApi.validateLogInData(username, password);
-    if (validLogInData) {
+    if (validLogInData && availableLoginAttempts > 0) {
       userModuleApi.startSession(username);
+      userModuleApi.resetLoginAttempts(username);
       return true;
     } else {
-      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
-          new ApplicationException("U34LV", "Błędne dane podczas logowania"));
+      if (availableLoginAttempts == 0) {
+        throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
+            new ApplicationException("U33LV",
+                "Wykorzystano wszystkie próby logowania. Spróbuj ponownie później."));
+      } else {
+        throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
+            new ApplicationException("U34LV", "Błędne dane podczas logowania. Pozostało "
+                + availableLoginAttempts + " prób logowania."));
+      }
     }
   }
 
   @Override
   public void logOut() {
     userModuleApi.endSession();
+  }
+
+  @Override
+  public void resetLoginAttempts(String username) {
+    userModuleApi.resetLoginAttempts(username);
   }
 
   @Override

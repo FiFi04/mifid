@@ -106,7 +106,8 @@ public class UserWindowModel extends AbstractWindow {
     };
 
     ActionListener resetPasswordAction = e -> {
-      // todo
+      UserResetWindow userWindow = new UserResetWindow(this);
+      userWindow.setVisible(true);
     };
 
     actions.add(addAction);

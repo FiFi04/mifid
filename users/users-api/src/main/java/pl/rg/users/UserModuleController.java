@@ -20,6 +20,8 @@ public interface UserModuleController {
 
   void logOut();
 
+  void resetLoginAttempts(String username);
+
   List<UserDto> getFiltered(List<Filter> filters);
 
   MifidPage getPage(List<Filter> filters, Page page);
