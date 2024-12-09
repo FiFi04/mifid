@@ -22,6 +22,7 @@ import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
+import pl.rg.window.DataEnumColumn;
 
 @Getter
 public class UserWindowModel extends AbstractWindow {
@@ -138,7 +139,7 @@ public class UserWindowModel extends AbstractWindow {
 
   @Override
   public String[] getColumnNames() {
-    return UserColumn.getColumnNames();
+    return DataEnumColumn.getColumnNames(UserColumn.values());
   }
 
   private void updateTable() {
@@ -150,7 +151,8 @@ public class UserWindowModel extends AbstractWindow {
     page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
     page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
     page.setOrders(
-        List.of(new Order(UserColumn.getDbColumnByName(sortColumn).get(), OrderType.ASC)));
+        List.of(new Order(DataEnumColumn.getDbColumnByName(sortColumn, UserColumn.values()).get(),
+            OrderType.ASC)));
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
   }
