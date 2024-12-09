@@ -52,7 +52,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     setOrder(page, query);
     query.append(" LIMIT ").append(page.getTo() - page.getFrom()).append(" OFFSET ")
         .append(page.getFrom());
-    try (Connection connection = getDBConnector().getConnection()) {
+    try {
+      Connection connection = getDBConnector().getConnection();
       Class<T> tClass = getTypeClass();
       Field[] allFields = getClassFields(tClass);
       Field[] objectFields = getObjectFields(allFields);
@@ -103,7 +104,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     } else {
       return findAll();
     }
-    try (Connection connection = getDBConnector().getConnection()) {
+    try {
+      Connection connection = getDBConnector().getConnection();
       Class<T> tClass = getTypeClass();
       Field[] allFields = getClassFields(tClass);
       Field[] objectFields = getObjectFields(allFields);
@@ -498,6 +500,9 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   }
 
   private void setValues(List<Filter> filters, PreparedStatement statement) {
+    if (filters == null || filters.isEmpty()) {
+      return;
+    }
     int parameterIndex = 1;
     try {
       for (Filter filter : filters) {
@@ -519,6 +524,9 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   }
 
   private void prepareQuery(List<Filter> filters, StringBuilder query) {
+    if (filters == null || filters.isEmpty()) {
+      return;
+    }
     query.append("WHERE ");
     for (int i = 0; i < filters.size(); i++) {
       Filter filter = filters.get(i);

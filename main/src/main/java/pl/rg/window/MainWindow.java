@@ -54,7 +54,9 @@ public class MainWindow extends JFrame {
     JPanel rightPanel = createRightPanel();
     add(rightPanel, BorderLayout.EAST);
     addButtonActions(searchPanel, rightPanel, userModuleController);
-    userWindowModel = new UserWindowModel(mainTable, userModuleController);
+
+    userWindowModel = new UserWindowModel(mainTable, userModuleController, searchPanel,
+        sortColumnComboBox, pageNumberComboBox);
 
     addWindowListener(new WindowAdapter() {
       @Override
@@ -73,6 +75,7 @@ public class MainWindow extends JFrame {
       userWindowModel.updateSearchPanel(searchPanel);
       userWindowModel.updateSortAndPage(sortColumnComboBox, pageNumberComboBox);
       userWindowModel.updateRightPanel(rightPanel);
+      userWindowModel.addSortAndPageActions();
     });
 
     logoutButton.addActionListener(e -> {
