@@ -87,11 +87,11 @@ public class UserModuleControllerImpl implements UserModuleController {
     } else {
       if (availableLoginAttempts == 0) {
         throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
-            new ApplicationException("U33LV",
+            new ApplicationException("U34LV",
                 "Wykorzystano wszystkie próby logowania. Spróbuj ponownie później."));
       } else {
         throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
-            new ApplicationException("U34LV", "Błędne dane podczas logowania. Pozostało "
+            new ApplicationException("U35LV", "Błędne dane podczas logowania. Pozostało "
                 + availableLoginAttempts + " prób logowania."));
       }
     }
@@ -105,6 +105,12 @@ public class UserModuleControllerImpl implements UserModuleController {
   @Override
   public void resetLoginAttempts(String username) {
     userModuleApi.resetLoginAttempts(username);
+  }
+
+  @Override
+  public String getBlockedValue(UserDto user) {
+    User userObject = userMapper.dtoToDomain(user);
+    return userModuleApi.getBlockedValue(userObject);
   }
 
   @Override

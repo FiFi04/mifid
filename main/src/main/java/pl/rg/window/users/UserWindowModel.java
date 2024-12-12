@@ -26,8 +26,10 @@ import pl.rg.window.AbstractWindow;
 @Getter
 public class UserWindowModel extends AbstractWindow {
 
+  public static final String UNBLOCK_BUTTON = "Odblokuj";
+
   private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
-      "Resetuj hasło"};
+      "Resetuj hasło", UNBLOCK_BUTTON};
 
   private List<ActionListener> actions;
 
@@ -41,6 +43,8 @@ public class UserWindowModel extends AbstractWindow {
 
   private JComboBox<Integer> pageNumberComboBox;
 
+  private Object[] options = {"Tak", "Nie"};
+
   public UserWindowModel(JTable mainTable, UserModuleController userModuleController,
       JPanel searchPanel, JComboBox<String> sortColumnComboBox,
       JComboBox<Integer> pageNumberComboBox) {
@@ -49,6 +53,7 @@ public class UserWindowModel extends AbstractWindow {
     this.searchPanel = searchPanel;
     this.sortColumnComboBox = sortColumnComboBox;
     this.pageNumberComboBox = pageNumberComboBox;
+    addTableSelectionListener();
   }
 
   public DefaultTableModel loadUserData() {
@@ -96,9 +101,22 @@ public class UserWindowModel extends AbstractWindow {
         JOptionPane.showMessageDialog(new JFrame(), "Nie wybrano żadnego użytkownika do edycji");
         return;
       }
-      Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
-      userModuleController.deleteUser(id);
-      refreshTable();
+
+      int option = JOptionPane.showOptionDialog(
+          new JFrame(),
+          "Czy na pewno chcesz usunąć wybranego użytkownika?",
+          "Usunięcie użytkownika",
+          JOptionPane.YES_NO_OPTION,
+          JOptionPane.QUESTION_MESSAGE,
+          null,
+          options,
+          options[1]
+      );
+      if (option == JOptionPane.YES_OPTION) {
+        Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
+        userModuleController.deleteUser(id);
+        refreshTable();
+      }
     };
 
     ActionListener searchAction = e -> {
@@ -106,8 +124,26 @@ public class UserWindowModel extends AbstractWindow {
     };
 
     ActionListener resetPasswordAction = e -> {
-      UserResetWindow userWindow = new UserResetWindow(this);
-      userWindow.setVisible(true);
+    };
+
+    ActionListener unblockUser = e -> {
+      int selectedRow = mainTable.getSelectedRow();
+      int option = JOptionPane.showOptionDialog(
+          new JFrame(),
+          "Czy na pewno chcesz odblokować wybranego użytkownika?",
+          "Odbkolowanie użytkownika",
+          JOptionPane.YES_NO_OPTION,
+          JOptionPane.QUESTION_MESSAGE,
+          null,
+          options,
+          options[1]
+      );
+      if (option == JOptionPane.YES_OPTION) {
+        Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
+        String userName = userModuleController.getUser(id).get().getUserName();
+        getUserModuleController().resetLoginAttempts(userName);
+        refreshTable();
+      }
     };
 
     actions.add(addAction);
@@ -115,6 +151,7 @@ public class UserWindowModel extends AbstractWindow {
     actions.add(deleteAction);
     actions.add(searchAction);
     actions.add(resetPasswordAction);
+    actions.add(unblockUser);
 
     if (actions.size() != buttonNames.length) {
       throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
@@ -168,9 +205,24 @@ public class UserWindowModel extends AbstractWindow {
           user.getUserName(),
           user.getFirstName(),
           user.getLastName(),
-          user.getEmail()
+          user.getEmail(),
+          userModuleController.getBlockedValue(user)
       });
     }
     return tableModel;
+  }
+
+  private void addTableSelectionListener() {
+    mainTable.getSelectionModel().addListSelectionListener(e -> {
+      if (mainTable.getSelectedRow() != -1) {
+        updateUnblockButtonVisibility();
+      }
+    });
+  }
+
+  private void updateUnblockButtonVisibility() {
+    int selectedRow = mainTable.getSelectedRow();
+    String blockedStatus = (String) mainTable.getValueAt(selectedRow, 5);
+    buttons.get(UNBLOCK_BUTTON).setVisible("Tak".equalsIgnoreCase(blockedStatus));
   }
 }

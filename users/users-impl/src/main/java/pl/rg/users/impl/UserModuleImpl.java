@@ -95,13 +95,18 @@ public class UserModuleImpl implements UserModuleApi {
   @Override
   public int checkAvailableLoginAttempts(String username) {
     int maxLoginAttempts = 3;
-    UserModel userModel = userRepository.getByUsername(username).get();
-    int isBlocked = userModel.getBlocked();
-    if (isBlocked == 1) {
-      LocalDateTime blockedTime = userModel.getBlockedTime();
+    Optional<UserModel> byUsername = userRepository.getByUsername(username);
+    if (byUsername.isEmpty()) {
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
+          new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
+    }
+    UserModel userModel = byUsername.get();
+    LocalDateTime blockedTime = userModel.getBlockedTime();
+    if (blockedTime != null) {
       Duration blockedDuration = Duration.between(blockedTime, LocalDateTime.now());
       if (blockedDuration.toHours() >= 1) {
-        userModel.setLoginAttempts(0);
+        userModel.setLoginAttempts(3);
+        userModel.setBlockedTime(null);
       } else {
         return 0;
       }
@@ -123,10 +128,16 @@ public class UserModuleImpl implements UserModuleApi {
   @Override
   public void resetLoginAttempts(String username) {
     UserModel userModel = userRepository.getByUsername(username).get();
-    userModel.setBlocked(0);
+    userModel.setBlockedTime(null);
     userModel.setLoginAttempts(0);
     userRepository.save(userModel);
     logger.log(LogLevel.INFO, "Oblokowano użytkownika " + username);
+  }
+
+  @Override
+  public String getBlockedValue(User user) {
+    LocalDateTime blockedTime = user.getBlockedTime();
+    return blockedTime == null ? "NIE" : "TAK";
   }
 
   @Override
@@ -173,7 +184,6 @@ public class UserModuleImpl implements UserModuleApi {
 
   private void blockUser(UserModel userModel, int loginAttempts) {
     userModel.setLoginAttempts(loginAttempts);
-    userModel.setBlocked(1);
     userModel.setBlockedTime(LocalDateTime.now());
     userRepository.save(userModel);
   }

@@ -33,9 +33,6 @@ public class UserModel extends MifidGeneral<Integer> {
   public static final String LOGIN_ATTEMPTS = "login_attempts";
 
   @FieldCategory(dbColumn = true)
-  public static final String BLOCKED = "blocked";
-
-  @FieldCategory(dbColumn = true)
   public static final String BLOCKED_TIME = "blocked_time";
 
   public static final String TABLE_NAME = "user";
@@ -57,9 +54,6 @@ public class UserModel extends MifidGeneral<Integer> {
 
   @FieldCategory(dbField = true)
   private int loginAttempts;
-
-  @FieldCategory(dbField = true)
-  private int blocked;
 
   @FieldCategory(dbField = true)
   private LocalDateTime blockedTime;

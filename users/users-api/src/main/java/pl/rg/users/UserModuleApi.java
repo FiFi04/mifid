@@ -19,6 +19,8 @@ public interface UserModuleApi extends PageFilter<User> {
 
   void resetLoginAttempts(String username);
 
+  String getBlockedValue(User user);
+
   void startSession(String currentUser);
 
   void updateSession();

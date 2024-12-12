@@ -2,6 +2,7 @@ package pl.rg.window;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -13,12 +14,15 @@ import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
+import pl.rg.window.users.UserWindowModel;
 
 public abstract class AbstractWindow implements WindowUtils {
 
   public static int PAGE_SIZE = 10;
 
   public static int CURRENT_PAGES;
+
+  protected HashMap<String, JButton> buttons = new HashMap<>();
 
   public AbstractWindow() {
     createActions();
@@ -79,6 +83,10 @@ public abstract class AbstractWindow implements WindowUtils {
       jButton.setMaximumSize(buttonSize);
       rightPanel.add(button, jButton);
       jButton.addActionListener(getMethodByAction(button));
+      buttons.put(button, jButton);
+      if (button.equals(UserWindowModel.UNBLOCK_BUTTON)) {
+        jButton.setVisible(false);
+      }
     }
 
     rightPanel.revalidate();
