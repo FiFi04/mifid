@@ -86,9 +86,8 @@ public class UserModuleControllerImpl implements UserModuleController {
       return true;
     } else {
       if (availableLoginAttempts == 0) {
-        throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
-            new ApplicationException("U34LV",
-                "Wykorzystano wszystkie próby logowania. Spróbuj ponownie później."));
+        throw logger.logAndThrowRuntimeException(LogLevel.DEBUG, new ApplicationException("U34LV",
+            "Wykorzystano wszystkie próby logowania. Spróbuj ponownie później."));
       } else {
         throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
             new ApplicationException("U35LV", "Błędne dane podczas logowania. Pozostało "

@@ -95,17 +95,17 @@ public class UserModuleImpl implements UserModuleApi {
   @Override
   public int checkAvailableLoginAttempts(String username) {
     int maxLoginAttempts = 3;
-    Optional<UserModel> byUsername = userRepository.getByUsername(username);
-    if (byUsername.isEmpty()) {
+    Optional<UserModel> user = userRepository.getByUsername(username);
+    if (user.isEmpty()) {
       throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
           new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
     }
-    UserModel userModel = byUsername.get();
+    UserModel userModel = user.get();
     LocalDateTime blockedTime = userModel.getBlockedTime();
     if (blockedTime != null) {
       Duration blockedDuration = Duration.between(blockedTime, LocalDateTime.now());
       if (blockedDuration.toHours() >= 1) {
-        userModel.setLoginAttempts(3);
+        userModel.setLoginAttempts(0);
         userModel.setBlockedTime(null);
       } else {
         return 0;
