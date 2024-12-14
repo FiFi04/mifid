@@ -93,6 +93,54 @@ public class UserModuleImpl implements UserModuleApi {
   }
 
   @Override
+  public int checkAvailableLoginAttempts(String username) {
+    int maxLoginAttempts = 3;
+    Optional<UserModel> user = userRepository.getByUsername(username);
+    if (user.isEmpty()) {
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
+          new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
+    }
+    UserModel userModel = user.get();
+    LocalDateTime blockedTime = userModel.getBlockedTime();
+    if (blockedTime != null) {
+      Duration blockedDuration = Duration.between(blockedTime, LocalDateTime.now());
+      if (blockedDuration.toHours() >= 1) {
+        userModel.setLoginAttempts(0);
+        userModel.setBlockedTime(null);
+      } else {
+        return 0;
+      }
+    }
+    int loginAttempts = userModel.getLoginAttempts();
+    if (loginAttempts < maxLoginAttempts) {
+      loginAttempts++;
+      if (loginAttempts == maxLoginAttempts) {
+        blockUser(userModel, loginAttempts);
+      } else {
+        userModel.setLoginAttempts(loginAttempts);
+        userRepository.save(userModel);
+      }
+      return maxLoginAttempts - loginAttempts;
+    }
+    return 0;
+  }
+
+  @Override
+  public void resetLoginAttempts(String username) {
+    UserModel userModel = userRepository.getByUsername(username).get();
+    userModel.setBlockedTime(null);
+    userModel.setLoginAttempts(0);
+    userRepository.save(userModel);
+    logger.log(LogLevel.INFO, "Oblokowano użytkownika " + username);
+  }
+
+  @Override
+  public String getBlockedValue(User user) {
+    LocalDateTime blockedTime = user.getBlockedTime();
+    return blockedTime == null ? "NIE" : "TAK";
+  }
+
+  @Override
   public void startSession(String currentUser) {
     session.setStartTimeCounter(LocalTime.now());
     session.setActiveSession(
@@ -132,6 +180,12 @@ public class UserModuleImpl implements UserModuleApi {
   public MifidPage<User> getPage(List<Filter> filters, Page page) {
     MifidPage<UserModel> userModelPage = userRepository.findAll(filters, page);
     return userMapper.userModelPageToUserPage(userModelPage);
+  }
+
+  private void blockUser(UserModel userModel, int loginAttempts) {
+    userModel.setLoginAttempts(loginAttempts);
+    userModel.setBlockedTime(LocalDateTime.now());
+    userRepository.save(userModel);
   }
 
   private String generateUsername(String firstName, String lastName) {

@@ -461,7 +461,9 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
         throw logger.logAndThrowRepositoryException(LogLevel.ERROR,
             new RepositoryException(DB_ROLLBACK_EXCEPTION_MESSAGE));
       }
-      innerLevel--;
+      if (innerLevel > 0) {
+        innerLevel--;
+      }
     }
   }
 

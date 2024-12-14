@@ -1,5 +1,6 @@
 package pl.rg.users;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,8 @@ public class UserDto {
 
   @Validate(validatorCase = ValidatorCase.TEXT, message = "Nieprawidłowy format email", format = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")
   private String email;
+
+  private LocalDateTime blockedTime;
 
   public UserDto(String firstName, String lastName, String email) {
     this.firstName = firstName;

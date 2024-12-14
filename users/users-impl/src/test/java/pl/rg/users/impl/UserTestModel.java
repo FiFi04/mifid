@@ -23,16 +23,16 @@ public class UserTestModel {
 
   public List<User> returnUserList() {
     List<User> users = List.of(
-        new UserImpl(1, "jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com"),
-        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
+        new UserImpl(1, "jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com", null),
+        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com", null));
 
     return users;
   }
 
   public List<UserDto> returnUserDtoList() {
     List<UserDto> userDtos = List.of(
-        new UserDto(1, "jankow", "Jan", "Kowalski", "jan.kowalski@example.com"),
-        new UserDto(2, "tomnow", "Tomasz", "Nowak", "tomasz.nowak@example.com"));
+        new UserDto(1, "jankow", "Jan", "Kowalski", "jan.kowalski@example.com", null),
+        new UserDto(2, "tomnow", "Tomasz", "Nowak", "tomasz.nowak@example.com", null));
 
     return userDtos;
   }
