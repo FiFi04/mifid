@@ -136,13 +136,9 @@ public class UserModuleImpl implements UserModuleApi {
 
   private String generateUsername(String firstName, String lastName) {
     int userIndex = 1;
-    if (firstName.length() < 3) {
-      firstName = generateMinimalCharLength(firstName);
-    }
-    if (lastName.length() < 3) {
-      lastName = generateMinimalCharLength(lastName);
-    }
-    String username = (firstName.substring(0, 3) + lastName.substring(0, 3)).toLowerCase();
+    String firstPart = firstName.length() > 3 ? firstName.substring(0, 3) : firstName;
+    String secondPart = lastName.length() > 3 ? lastName.substring(0, 3) : lastName;
+    String username = (firstPart + secondPart).toLowerCase();
     while (userRepository.containsUsername(username)) {
       if (userIndex == 1) {
         username = username + userIndex;
@@ -152,14 +148,6 @@ public class UserModuleImpl implements UserModuleApi {
       userIndex++;
     }
     return username;
-  }
-
-  private String generateMinimalCharLength(String name) {
-    StringBuilder username = new StringBuilder(name);
-    while (username.length() < 3) {
-      username.append("x");
-    }
-    return username.toString();
   }
 
   private String generateToken() {
