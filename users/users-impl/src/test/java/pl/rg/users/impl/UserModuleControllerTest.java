@@ -1,7 +1,9 @@
 package pl.rg.users.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,10 +20,13 @@ import static pl.rg.users.model.UserModel.LAST_NAME;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,7 +37,9 @@ import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.UserDto;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
+import pl.rg.users.session.Session;
 import pl.rg.utils.db.DBConnector;
+import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.MifidPage;
@@ -78,7 +85,11 @@ public class UserModuleControllerTest {
     userTestModel = new UserTestModel();
     userModuleApi.getSession().setStartTimeCounter(LocalTime.now());
     userModuleController.setUserModuleApi(userModuleApi);
+  }
 
+  @AfterEach
+  public void tearDown() {
+    Session.getInstance().setActiveSession(null);
   }
 
   @Test
@@ -168,5 +179,145 @@ public class UserModuleControllerTest {
     assertEquals(2, usersPage.getTotalObjects());
     assertEquals(page.getTo() - page.getFrom(), usersPage.getLimitedObjects().size());
     assertEquals(userTestModel.returnUserDtoList(), usersPage.getLimitedObjects());
+  }
+
+  @Test
+  public void whenUpdateUserWithValidData_thenShouldUpdateUser() {
+    //given
+    UserDto userDto = userTestModel.returnUserDtoList().get(0);
+    when(validatorService.validateFields(userDto)).thenReturn(new HashMap<>());
+
+    //when
+    userModuleController.updateUser(userDto);
+
+    //then
+    verify(validatorService, times(1)).validateFields(userDto);
+    verify(userRepository, times(1)).save(any());
+  }
+
+  @Test
+  public void whenUpdateUserWithInvalidData_thenShouldThrowException() {
+    //given
+    UserDto userDto = userTestModel.returnUserDtoList().get(0);
+    Exception exceptionThrown = null;
+    Map<String, String> constraints = Map.of(
+        FIRST_NAME, "Niepoprawne imię, powinno zawierać tylko litery",
+        EMAIL, "Nieprawidłowy format email"
+    );
+    when(validatorService.validateFields(userDto)).thenReturn(constraints);
+    when(logger.logAndThrowRuntimeException(any(), any(RuntimeException.class))).thenReturn(
+        new ValidationException("Błędne dane podczas aktualizowania użytkownika: ", constraints));
+
+    //when
+    try {
+      userModuleController.updateUser(userDto);
+    } catch (ValidationException e) {
+      exceptionThrown = e;
+    }
+
+    //then
+    assertNotNull(exceptionThrown);
+    assertInstanceOf(ValidationException.class, exceptionThrown);
+    assertEquals("Błędne dane podczas aktualizowania użytkownika: " + constraints,
+        exceptionThrown.getMessage());
+    assertThrows(ValidationException.class,
+        () -> userModuleController.updateUser(userDto));
+  }
+
+  @Test
+  public void whenLoginWithValidData_thenShouldReturnTrue() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel();
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(securityModuleApi.decryptPassword(anyString())).thenReturn(
+        Optional.of(userModel.getPassword()));
+
+    //when
+    boolean login = userModuleController.logIn(userModel.getUserName(), userModel.getPassword());
+
+    //then
+    assertTrue(login);
+    assertNotNull(Session.getInstance().getActiveSession());
+    assertNull(userModel.getBlockedTime());
+    assertEquals(20, Session.getInstance().getActiveSession().getToken().length());
+    assertEquals(userModel.getUserName(), Session.getInstance().getActiveSession().getUser());
+    assertEquals(0, userModel.getLoginAttempts());
+  }
+
+  @Test
+  public void whenLoginWithInvalidDataAndNonAvailableAttempts_thenShouldThrowException() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel(3, null);
+    Exception exceptionThrown = null;
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(securityModuleApi.decryptPassword(anyString())).thenReturn(
+        Optional.of(userModel.getPassword()));
+    when(logger.logAndThrowRuntimeException(any(), any(RuntimeException.class))).thenReturn(
+        new ApplicationException("U34LV",
+            "Wykorzystano wszystkie próby logowania. Spróbuj ponownie później."));
+
+    // when
+    try {
+      userModuleController.logIn(userModel.getUserName(), anyString());
+    } catch (ApplicationException e) {
+      exceptionThrown = e;
+    }
+
+    //then
+    assertNotNull(exceptionThrown);
+    assertNull(Session.getInstance().getActiveSession());
+    assertInstanceOf(ApplicationException.class, exceptionThrown);
+    assertEquals("U34LV: Wykorzystano wszystkie próby logowania. Spróbuj ponownie później.",
+        exceptionThrown.getMessage());
+    assertThrows(ApplicationException.class,
+        () -> userModuleController.logIn(userModel.getUserName(), anyString()));
+  }
+
+  @Test
+  public void whenLoginWithInvalidDataAndAvailableAttempts_thenShouldThrowException() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel(0, null);
+    Exception exceptionThrown = null;
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(securityModuleApi.decryptPassword(anyString())).thenReturn(
+        Optional.of(userModel.getPassword()));
+    int availableLoginAttempts = userModuleApi.checkAvailableLoginAttempts(userModel.getUserName());
+    when(logger.logAndThrowRuntimeException(any(), any(RuntimeException.class))).thenReturn(
+        new ApplicationException("U35LV", "Błędne dane podczas logowania. Pozostało "
+            + availableLoginAttempts + " prób logowania."));
+
+    // when
+    try {
+      userModuleController.logIn(userModel.getUserName(), anyString());
+    } catch (ApplicationException e) {
+      exceptionThrown = e;
+    }
+
+    //then
+    assertNotNull(exceptionThrown);
+    assertNull(Session.getInstance().getActiveSession());
+    assertInstanceOf(ApplicationException.class, exceptionThrown);
+    assertEquals(2, availableLoginAttempts);
+    assertEquals("U35LV: Błędne dane podczas logowania. Pozostało " + availableLoginAttempts
+        + " prób logowania.", exceptionThrown.getMessage());
+    assertThrows(ApplicationException.class,
+        () -> userModuleController.logIn(userModel.getUserName(), anyString()));
+  }
+
+  @Test
+  public void whenResetLoginPasswordForValidUsername_thenShouldSetLoginAttemptsTo0() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel(3, LocalDateTime.now());
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+
+    // when
+    userModuleController.resetLoginAttempts(userModel.getUserName());
+
+    //then
+    assertNull(userModel.getBlockedTime());
+    assertEquals(0, userModel.getLoginAttempts());
+    verify(userRepository, times(1)).getByUsername(userModel.getUserName());
+    verify(userRepository, times(1)).save(userModel);
+    verify(logger, times(1)).log(any(), anyString());
   }
 }

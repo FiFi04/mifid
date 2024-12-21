@@ -1,5 +1,7 @@
 package pl.rg.users;
 
+import java.time.LocalDateTime;
+
 public interface User {
 
   Integer getId();
@@ -25,4 +27,8 @@ public interface User {
   String getEmail();
 
   void setEmail(String email);
+
+  LocalDateTime getBlockedTime();
+
+  void setBlockedTime(LocalDateTime blockedTime);
 }
