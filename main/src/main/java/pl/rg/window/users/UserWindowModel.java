@@ -102,16 +102,8 @@ public class UserWindowModel extends AbstractWindow {
         return;
       }
 
-      int option = JOptionPane.showOptionDialog(
-          new JFrame(),
-          "Czy na pewno chcesz usunąć wybranego użytkownika?",
-          "Usunięcie użytkownika",
-          JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE,
-          null,
-          options,
-          options[1]
-      );
+      int option = getOptionFromOptionDialog("Czy na pewno chcesz usunąć wybranego użytkownika?",
+          "Usunięcie użytkownika");
       if (option == JOptionPane.YES_OPTION) {
         Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
         userModuleController.deleteUser(id);
@@ -128,16 +120,8 @@ public class UserWindowModel extends AbstractWindow {
 
     ActionListener unblockUser = e -> {
       int selectedRow = mainTable.getSelectedRow();
-      int option = JOptionPane.showOptionDialog(
-          new JFrame(),
-          "Czy na pewno chcesz odblokować wybranego użytkownika?",
-          "Odbkolowanie użytkownika",
-          JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE,
-          null,
-          options,
-          options[1]
-      );
+      int option = getOptionFromOptionDialog(
+          "Czy na pewno chcesz odblokować wybranego użytkownika?", "Odbkolowanie użytkownika");
       if (option == JOptionPane.YES_OPTION) {
         Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
         String userName = userModuleController.getUser(id).get().getUserName();
@@ -206,7 +190,7 @@ public class UserWindowModel extends AbstractWindow {
           user.getFirstName(),
           user.getLastName(),
           user.getEmail(),
-          userModuleController.getBlockedValue(user)
+          user.getBlocked()
       });
     }
     return tableModel;

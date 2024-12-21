@@ -27,7 +27,7 @@ public class UserDto {
   @Validate(validatorCase = ValidatorCase.TEXT, message = "Nieprawidłowy format email", format = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")
   private String email;
 
-  private LocalDateTime blockedTime;
+  private String blocked;
 
   public UserDto(String firstName, String lastName, String email) {
     this.firstName = firstName;

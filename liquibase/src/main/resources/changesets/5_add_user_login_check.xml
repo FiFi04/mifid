@@ -18,6 +18,9 @@
     <addColumn tableName="user">
       <column name="blocked_time" type="datetime"/>
     </addColumn>
+    <sql>
+      ALTER TABLE user ADD CONSTRAINT check_login_attempts CHECK (login_attempts IN (0, 1, 2, 3));
+    </sql>
     <rollback>
       <dropColumn tableName="user" columnName="login_attempts"/>
       <dropColumn tableName="user" columnName="blocked_time"/>

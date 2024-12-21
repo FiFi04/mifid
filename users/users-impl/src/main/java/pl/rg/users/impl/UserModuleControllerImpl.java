@@ -107,12 +107,6 @@ public class UserModuleControllerImpl implements UserModuleController {
   }
 
   @Override
-  public String getBlockedValue(UserDto user) {
-    User userObject = userMapper.dtoToDomain(user);
-    return userModuleApi.getBlockedValue(userObject);
-  }
-
-  @Override
   public List<UserDto> getFiltered(List<Filter> filters) {
     return userModuleApi.getFiltered(filters).stream()
         .map(userMapper::domainToDto)

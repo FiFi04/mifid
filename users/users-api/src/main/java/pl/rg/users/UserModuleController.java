@@ -22,8 +22,6 @@ public interface UserModuleController {
 
   void resetLoginAttempts(String username);
 
-  String getBlockedValue(UserDto user);
-
   List<UserDto> getFiltered(List<Filter> filters);
 
   MifidPage getPage(List<Filter> filters, Page page);

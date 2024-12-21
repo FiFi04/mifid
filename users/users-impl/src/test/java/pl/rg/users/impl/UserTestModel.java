@@ -1,5 +1,6 @@
 package pl.rg.users.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import pl.rg.users.User;
 import pl.rg.users.UserDto;
@@ -31,8 +32,8 @@ public class UserTestModel {
 
   public List<UserDto> returnUserDtoList() {
     List<UserDto> userDtos = List.of(
-        new UserDto(1, "jankow", "Jan", "Kowalski", "jan.kowalski@example.com", null),
-        new UserDto(2, "tomnow", "Tomasz", "Nowak", "tomasz.nowak@example.com", null));
+        new UserDto(1, "jankow", "Jan", "Kowalski", "jan.kowalski@example.com", "NIE"),
+        new UserDto(2, "tomnow", "Tomasz", "Nowak", "tomasz.nowak@example.com", "NIE"));
 
     return userDtos;
   }
@@ -41,7 +42,15 @@ public class UserTestModel {
     UserModel userModel = new UserModel("jankow", ENCRYPTED_PASSWORD, "Jan",
         "Kowalski", "jan.kowalski@email.com");
     userModel.setId(1);
+    return userModel;
+  }
 
+  public UserModel returnUserModel(int loginAttempts, LocalDateTime blockedTime) {
+    UserModel userModel = new UserModel("jankow", ENCRYPTED_PASSWORD, "Jan",
+        "Kowalski", "jan.kowalski@email.com");
+    userModel.setId(1);
+    userModel.setLoginAttempts(loginAttempts);
+    userModel.setBlockedTime(blockedTime);
     return userModel;
   }
 

@@ -247,8 +247,7 @@ public class UserModuleControllerTest {
   @Test
   public void whenLoginWithInvalidDataAndNonAvailableAttempts_thenShouldThrowException() {
     //given
-    UserModel userModel = userTestModel.returnUserModel();
-    userModel.setLoginAttempts(3);
+    UserModel userModel = userTestModel.returnUserModel(3, null);
     Exception exceptionThrown = null;
     when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
     when(securityModuleApi.decryptPassword(anyString())).thenReturn(
@@ -277,8 +276,7 @@ public class UserModuleControllerTest {
   @Test
   public void whenLoginWithInvalidDataAndAvailableAttempts_thenShouldThrowException() {
     //given
-    UserModel userModel = userTestModel.returnUserModel();
-    userModel.setLoginAttempts(0);
+    UserModel userModel = userTestModel.returnUserModel(0, null);
     Exception exceptionThrown = null;
     when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
     when(securityModuleApi.decryptPassword(anyString())).thenReturn(
@@ -309,9 +307,7 @@ public class UserModuleControllerTest {
   @Test
   public void whenResetLoginPasswordForValidUsername_thenShouldSetLoginAttemptsTo0() {
     //given
-    UserModel userModel = userTestModel.returnUserModel();
-    userModel.setBlockedTime(LocalDateTime.now());
-    userModel.setLoginAttempts(3);
+    UserModel userModel = userTestModel.returnUserModel(3, LocalDateTime.now());
     when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     // when

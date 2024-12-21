@@ -249,8 +249,7 @@ class UserModuleImplTest {
   @Test
   public void whenLoginWithAvailableAttempts_thenShouldIncreaseAttempts() {
     //given
-    UserModel userModel = userTestModel.returnUserModel();
-    userModel.setLoginAttempts(0);
+    UserModel userModel = userTestModel.returnUserModel(0, null);
     when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     //when
@@ -267,8 +266,7 @@ class UserModuleImplTest {
   @Test
   public void whenLoginWithInvalidCredentialsAndLastLoginAttempt_thenShouldBlockUser() {
     //given
-    UserModel userModel = userTestModel.returnUserModel();
-    userModel.setLoginAttempts(2);
+    UserModel userModel = userTestModel.returnUserModel(2, null);
     when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     //when
@@ -285,9 +283,7 @@ class UserModuleImplTest {
   @Test
   public void whenLoginWithBlockedUserAfter1Hour_thenShouldUnblockUser() {
     //given
-    UserModel userModel = userTestModel.returnUserModel();
-    userModel.setLoginAttempts(0);
-    userModel.setBlockedTime(LocalDateTime.now().minusHours(2));
+    UserModel userModel = userTestModel.returnUserModel(0, LocalDateTime.now().minusHours(2));
     when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     //when

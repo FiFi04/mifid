@@ -101,28 +101,10 @@ public class UserModuleImpl implements UserModuleApi {
           new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
     }
     UserModel userModel = user.get();
-    LocalDateTime blockedTime = userModel.getBlockedTime();
-    if (blockedTime != null) {
-      Duration blockedDuration = Duration.between(blockedTime, LocalDateTime.now());
-      if (blockedDuration.toHours() >= 1) {
-        userModel.setLoginAttempts(0);
-        userModel.setBlockedTime(null);
-      } else {
-        return 0;
-      }
+    if (isBlockedUser(userModel)) {
+      return 0;
     }
-    int loginAttempts = userModel.getLoginAttempts();
-    if (loginAttempts < maxLoginAttempts) {
-      loginAttempts++;
-      if (loginAttempts == maxLoginAttempts) {
-        blockUser(userModel, loginAttempts);
-      } else {
-        userModel.setLoginAttempts(loginAttempts);
-        userRepository.save(userModel);
-      }
-      return maxLoginAttempts - loginAttempts;
-    }
-    return 0;
+    return maxLoginAttempts - getLoginAttempts(userModel, maxLoginAttempts);
   }
 
   @Override
@@ -132,12 +114,6 @@ public class UserModuleImpl implements UserModuleApi {
     userModel.setLoginAttempts(0);
     userRepository.save(userModel);
     logger.log(LogLevel.INFO, "Oblokowano użytkownika " + username);
-  }
-
-  @Override
-  public String getBlockedValue(User user) {
-    LocalDateTime blockedTime = user.getBlockedTime();
-    return blockedTime == null ? "NIE" : "TAK";
   }
 
   @Override
@@ -180,6 +156,36 @@ public class UserModuleImpl implements UserModuleApi {
   public MifidPage<User> getPage(List<Filter> filters, Page page) {
     MifidPage<UserModel> userModelPage = userRepository.findAll(filters, page);
     return userMapper.userModelPageToUserPage(userModelPage);
+  }
+
+  private boolean isBlockedUser(UserModel userModel) {
+    LocalDateTime blockedTime = userModel.getBlockedTime();
+    if (blockedTime != null) {
+      Duration blockedDuration = Duration.between(blockedTime, LocalDateTime.now());
+      if (blockedDuration.toHours() >= 1) {
+        userModel.setLoginAttempts(0);
+        userModel.setBlockedTime(null);
+        return false;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private int getLoginAttempts(UserModel userModel, int maxLoginAttempts) {
+    int loginAttempts = userModel.getLoginAttempts();
+    if (loginAttempts < maxLoginAttempts) {
+      loginAttempts++;
+      if (loginAttempts == maxLoginAttempts) {
+        blockUser(userModel, loginAttempts);
+      } else {
+        userModel.setLoginAttempts(loginAttempts);
+        userRepository.save(userModel);
+      }
+      return loginAttempts;
+    }
+    return maxLoginAttempts;
   }
 
   private void blockUser(UserModel userModel, int loginAttempts) {
