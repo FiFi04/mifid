@@ -46,9 +46,7 @@ public class UserTestModel {
   }
 
   public UserModel returnUserModel(int loginAttempts, LocalDateTime blockedTime) {
-    UserModel userModel = new UserModel("jankow", ENCRYPTED_PASSWORD, "Jan",
-        "Kowalski", "jan.kowalski@email.com");
-    userModel.setId(1);
+    UserModel userModel = returnUserModel();
     userModel.setLoginAttempts(loginAttempts);
     userModel.setBlockedTime(blockedTime);
     return userModel;

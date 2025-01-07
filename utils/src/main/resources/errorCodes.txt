@@ -4,6 +4,7 @@
 
 U - users module
 M - main module
+X - utils module
 
 U32GH - nie znaleziono uzytkownika po ID.
 U33SE - wylogowano z powodu zbyt długiego czasu nieaktywności
@@ -13,3 +14,5 @@ U36GH - nie znaleziono uzytkownika po loginie
 
 M23SD - brak implementacji wszystkich akcji
 M45FV - nie znaleziono akcji dla podanego przycisku
+
+X343D - błąd poprawnie property

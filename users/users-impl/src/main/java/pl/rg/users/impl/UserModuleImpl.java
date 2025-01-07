@@ -18,6 +18,7 @@ import pl.rg.users.repository.UserRepository;
 import pl.rg.users.session.Session;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
+import pl.rg.utils.db.PropertiesUtils;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
@@ -49,6 +50,7 @@ public class UserModuleImpl implements UserModuleApi {
   public void addUser(User user) {
     user.setUserName(generateUsername(user.getFirstName(), user.getLastName()));
     String generatePassword = securityModuleApi.generatePassword();
+    System.out.println("Login" + user.getUserName() + " Hasło: " + generatePassword);
     Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
@@ -94,7 +96,7 @@ public class UserModuleImpl implements UserModuleApi {
 
   @Override
   public int checkAvailableLoginAttempts(String username) {
-    int maxLoginAttempts = 3;
+    int maxLoginAttempts = PropertiesUtils.getIntProperty(PropertiesUtils.USER_MAX_LOGIN_ATTEMPTS);
     Optional<UserModel> user = userRepository.getByUsername(username);
     if (user.isEmpty()) {
       throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
@@ -160,9 +162,10 @@ public class UserModuleImpl implements UserModuleApi {
 
   private boolean isBlockedUser(UserModel userModel) {
     LocalDateTime blockedTime = userModel.getBlockedTime();
+    int blockedHours = PropertiesUtils.getIntProperty(PropertiesUtils.USER_BLOCKED_HOURS);
     if (blockedTime != null) {
       Duration blockedDuration = Duration.between(blockedTime, LocalDateTime.now());
-      if (blockedDuration.toHours() >= 1) {
+      if (blockedDuration.toHours() >= blockedHours) {
         userModel.setLoginAttempts(0);
         userModel.setBlockedTime(null);
         return false;
