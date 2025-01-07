@@ -1,5 +1,6 @@
 package pl.rg.utils.repository;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -577,8 +578,18 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     } else if (objectField.get(object) == null) {
       return null;
     } else {
+      if (objectField.getType().isArray()) {
+        return getArrayObjectsAsString(objectField, object);
+      }
       return objectField.get(object).toString();
     }
+  }
+
+  private String getArrayObjectsAsString(Field objectField, T object) throws IllegalAccessException {
+    Object[] array = (Object[]) objectField.get(object);
+    return Arrays.stream(array)
+        .map(Object::toString)
+        .collect(Collectors.joining("; "));
   }
 
   private T createInstance(Class<T> tClass)
@@ -653,12 +664,26 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
             field.set(mifidObject, date.toLocalDate());
             break;
           }
+          if (field.getType().isArray()) {
+            setArrayObjects(field, object, mifidObject);
+            break;
+          }
           field.set(mifidObject, object);
           break;
         }
       }
     }
     return mifidObject;
+  }
+
+  private void setArrayObjects(Field field, Object object, T mifidObject) throws IllegalAccessException {
+    String[] split = object.toString().split("; ");
+    Class<?> componentType = field.getType().getComponentType();
+    Object array = Array.newInstance(componentType, split.length);
+    for (int i = 0; i < split.length; i++) {
+      Array.set(array, i, (E) split[i]);
+    }
+    field.set(mifidObject, array);
   }
 
   private Object fetchObject(Field field, E object)
