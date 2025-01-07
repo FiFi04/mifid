@@ -28,7 +28,7 @@ public interface UserMapper extends MifidPageMapper {
   UserDto domainToDto(User userModel);
 
   @Named("dateToValue")
-  static String dateToValue(LocalDateTime blockedTime) {
+  default String dateToValue(LocalDateTime blockedTime) {
     return blockedTime == null ? "NIE" : "TAK";
   }
 
