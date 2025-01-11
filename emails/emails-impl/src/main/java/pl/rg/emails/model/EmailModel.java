@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import pl.rg.utils.enums.EmailStatus;
 import pl.rg.utils.annotation.FieldCategory;
 import pl.rg.utils.repository.MifidGeneral;
 
@@ -60,7 +61,7 @@ public class EmailModel extends MifidGeneral<Integer> {
   private String[] recipientCc;
 
   @FieldCategory(dbField = true)
-  private String status;
+  private EmailStatus status;
 
   @FieldCategory(dbField = true)
   private String errorMessage;
@@ -71,8 +72,8 @@ public class EmailModel extends MifidGeneral<Integer> {
   @FieldCategory(dbField = true)
   private LocalDateTime sentTime;
 
-  public EmailModel(String subject, String body, String sender, String[] recipient, String status,
-      String errorMessage, int sentAttempts, LocalDateTime sentTime) {
+  public EmailModel(String subject, String body, String sender, String[] recipient,
+      EmailStatus status,  String errorMessage, int sentAttempts, LocalDateTime sentTime) {
     this.subject = subject;
     this.body = body;
     this.sender = sender;
