@@ -23,6 +23,21 @@ public interface WindowUtils {
 
   Logger loggerInstance = LoggerImpl.getInstance();
 
+  Object[] options = {"Tak", "Nie"};
+
+  default int getOptionFromOptionDialog(String message, String title) {
+    return JOptionPane.showOptionDialog(
+        new JFrame(),
+        message,
+        title,
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        options,
+        options[1]
+    );
+  }
+
   default String getTextFieldValue(JPanel panel, String labelName) {
     for (int i = 0; i < panel.getComponentCount(); i++) {
       if (panel.getComponent(i) instanceof JLabel label && label.getText().equals(labelName)) {

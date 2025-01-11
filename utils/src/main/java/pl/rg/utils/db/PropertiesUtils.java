@@ -3,6 +3,10 @@ package pl.rg.utils.db;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.logger.LogLevel;
+import pl.rg.utils.logger.Logger;
+import pl.rg.utils.logger.LoggerImpl;
 
 public class PropertiesUtils {
 
@@ -16,7 +20,13 @@ public class PropertiesUtils {
 
   public static final String LOG_SQL = "log.sql";
 
+  public static final String USER_MAX_LOGIN_ATTEMPTS = "user.maxLoginAttempts";
+
+  public static final String USER_BLOCKED_HOURS = "user.blockedHours";
+
   private static final String PROPERTIES_FILE = "app.properties";
+
+  private static Logger logger = LoggerImpl.getInstance();
 
   public static String getProperty(String key) {
     Properties properties = new Properties();
@@ -27,5 +37,15 @@ public class PropertiesUtils {
       throw new RuntimeException(e);
     }
     return properties.getProperty(key);
+  }
+
+  public static int getIntProperty(String key){
+    String property = getProperty(key);
+    try {
+      return Integer.parseInt(property);
+    } catch (NumberFormatException e) {
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG, new ApplicationException("X343D",
+          "Błąd pobrania parametru " + property + ". Brak parametru lub błędny format."));
+    }
   }
 }

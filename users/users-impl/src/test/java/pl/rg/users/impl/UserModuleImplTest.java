@@ -1,12 +1,16 @@
 package pl.rg.users.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +20,8 @@ import static pl.rg.users.impl.UserTestModel.GENERATED_PASSWORD;
 import static pl.rg.users.model.UserModel.FIRST_NAME;
 import static pl.rg.users.model.UserModel.LAST_NAME;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,8 +32,12 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
+import pl.rg.users.model.SessionModel;
+import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
+import pl.rg.users.session.Session;
 import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
@@ -47,6 +57,9 @@ class UserModuleImplTest {
 
   @Mock
   private LoggerImpl logger;
+
+  @Mock
+  private Session session;
 
   @InjectMocks
   UserModuleImpl userModule;
@@ -174,5 +187,163 @@ class UserModuleImplTest {
     assertEquals(2, usersPage.getTotalObjects());
     assertEquals(page.getTo() - page.getFrom(), usersPage.getLimitedObjects().size());
     assertEquals(userTestModel.returnUserList(), usersPage.getLimitedObjects());
+  }
+
+  @Test
+  public void whenLoginWithValidCredentials_thenShouldReturnTrue() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel();
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(securityModuleApi.decryptPassword(anyString())).thenReturn(
+        Optional.of(userModel.getPassword()));
+
+    //when
+    boolean loginStatus = userModule.validateLogInData(userModel.getUserName(),
+        userModel.getPassword());
+
+    //then
+    assertTrue(loginStatus);
+    verify(userRepository, times(1)).getByUsername(userModel.getUserName());
+    verify(securityModuleApi, times(1)).decryptPassword(anyString());
+  }
+
+  @Test
+  public void whenLoginWithInvalidUsername_thenShouldReturnFalse() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel();
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.empty());
+
+    //when
+    boolean loginStatus = userModule.validateLogInData(anyString(), userModel.getPassword());
+
+    //then
+    assertFalse(loginStatus);
+    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(securityModuleApi, times(0)).decryptPassword(anyString());
+  }
+
+  @Test
+  public void whenLoginWithInvalidUsername_thenShouldThrowApplicationException() {
+    //given
+    Exception exceptionThrown = null;
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.empty());
+    when(logger.logAndThrowRuntimeException(any(), any(RuntimeException.class))).thenReturn(
+        new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
+
+    // when
+    try {
+      userModule.checkAvailableLoginAttempts(anyString());
+    } catch (ApplicationException e) {
+      exceptionThrown = e;
+    }
+
+    // then
+    assertNotNull(exceptionThrown);
+    assertInstanceOf(ApplicationException.class, exceptionThrown);
+    assertEquals("U36GH: Nie znaleziono użytownika o podanym loginie",
+        exceptionThrown.getMessage());
+    assertThrows(ApplicationException.class,
+        () -> userModule.checkAvailableLoginAttempts(anyString()));
+  }
+
+  @Test
+  public void whenLoginWithAvailableAttempts_thenShouldIncreaseAttempts() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel(0, null);
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+
+    //when
+    int availableLoginAttempts = userModule.checkAvailableLoginAttempts(userModel.getUserName());
+
+    //then
+    assertEquals(2, availableLoginAttempts);
+    assertEquals(1, userModel.getLoginAttempts());
+    assertNull(userModel.getBlockedTime());
+    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).save(any());
+  }
+
+  @Test
+  public void whenLoginWithInvalidCredentialsAndLastLoginAttempt_thenShouldBlockUser() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel(2, null);
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+
+    //when
+    int availableLoginAttempts = userModule.checkAvailableLoginAttempts(userModel.getUserName());
+
+    //then
+    assertEquals(0, availableLoginAttempts);
+    assertEquals(3, userModel.getLoginAttempts());
+    assertNotNull(userModel.getBlockedTime());
+    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).save(any());
+  }
+
+  @Test
+  public void whenLoginWithBlockedUserAfter1Hour_thenShouldUnblockUser() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel(0, LocalDateTime.now().minusHours(2));
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+
+    //when
+    int availableLoginAttempts = userModule.checkAvailableLoginAttempts(userModel.getUserName());
+
+    //then
+    assertEquals(2, availableLoginAttempts);
+    assertEquals(1, userModel.getLoginAttempts());
+    assertNull(userModel.getBlockedTime());
+    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).save(any());
+  }
+
+  @Test
+  public void whenResetLoginPasswordForValidUsername_thenShouldSetLoginAttemptsTo0() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel();
+    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+
+    //when
+    userModule.resetLoginAttempts(userModel.getUserName());
+
+    //then
+    assertEquals(0, userModel.getLoginAttempts());
+    assertNull(userModel.getBlockedTime());
+    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).save(any());
+    verify(logger, times(1)).log(LogLevel.INFO,
+        "Oblokowano użytkownika " + userModel.getUserName());
+  }
+
+  @Test
+  public void whenLoginWithValidData_thenShouldStartSession() {
+    //given
+    UserModel userModel = userTestModel.returnUserModel();
+    try (MockedStatic<Session> sessionMockedStatic = mockStatic(Session.class)) {
+      sessionMockedStatic.when(Session::getInstance).thenReturn(session);
+
+      doAnswer(invocation -> {
+        LocalTime startTime = invocation.getArgument(0);
+        when(session.getStartTimeCounter()).thenReturn(startTime);
+        return null;
+      }).when(session).setStartTimeCounter(any(LocalTime.class));
+
+      doAnswer(invocation -> {
+        SessionModel sessionModel = invocation.getArgument(0);
+        when(session.getActiveSession()).thenReturn(sessionModel);
+        return null;
+      }).when(session).setActiveSession(any(SessionModel.class));
+
+      //when
+      userModule.startSession(userModel.getUserName());
+
+      //then
+      assertNotNull(session.getActiveSession());
+      assertNotNull(session.getStartTimeCounter());
+      assertNull(session.getActiveSession().getLogoutTime());
+      assertEquals(userModel.getUserName(), session.getActiveSession().getUser());
+      assertEquals(20, session.getActiveSession().getToken().length());
+      verify(logger, times(1)).log(any(), anyString());
+    }
   }
 }

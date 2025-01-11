@@ -1,5 +1,6 @@
 package pl.rg.users.impl;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,8 @@ public class UserImpl implements User {
   private String lastName;
 
   private String email;
+
+  private LocalDateTime blockedTime;
 
   public UserImpl(String userName, String password, String firstName, String lastName,
       String email) {
