@@ -18,6 +18,7 @@ import pl.rg.users.repository.UserRepository;
 import pl.rg.users.session.Session;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
+import pl.rg.utils.db.PropertiesUtils;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
@@ -49,6 +50,7 @@ public class UserModuleImpl implements UserModuleApi {
   public void addUser(User user) {
     user.setUserName(generateUsername(user.getFirstName(), user.getLastName()));
     String generatePassword = securityModuleApi.generatePassword();
+    System.out.println("Login" + user.getUserName() + " Hasło: " + generatePassword);
     Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
@@ -93,6 +95,30 @@ public class UserModuleImpl implements UserModuleApi {
   }
 
   @Override
+  public int checkAvailableLoginAttempts(String username) {
+    int maxLoginAttempts = PropertiesUtils.getIntProperty(PropertiesUtils.USER_MAX_LOGIN_ATTEMPTS);
+    Optional<UserModel> user = userRepository.getByUsername(username);
+    if (user.isEmpty()) {
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
+          new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
+    }
+    UserModel userModel = user.get();
+    if (isBlockedUser(userModel)) {
+      return 0;
+    }
+    return maxLoginAttempts - getLoginAttempts(userModel, maxLoginAttempts);
+  }
+
+  @Override
+  public void resetLoginAttempts(String username) {
+    UserModel userModel = userRepository.getByUsername(username).get();
+    userModel.setBlockedTime(null);
+    userModel.setLoginAttempts(0);
+    userRepository.save(userModel);
+    logger.log(LogLevel.INFO, "Oblokowano użytkownika " + username);
+  }
+
+  @Override
   public void startSession(String currentUser) {
     session.setStartTimeCounter(LocalTime.now());
     session.setActiveSession(
@@ -134,9 +160,48 @@ public class UserModuleImpl implements UserModuleApi {
     return userMapper.userModelPageToUserPage(userModelPage);
   }
 
+  private boolean isBlockedUser(UserModel userModel) {
+    LocalDateTime blockedTime = userModel.getBlockedTime();
+    int blockedHours = PropertiesUtils.getIntProperty(PropertiesUtils.USER_BLOCKED_HOURS);
+    if (blockedTime != null) {
+      Duration blockedDuration = Duration.between(blockedTime, LocalDateTime.now());
+      if (blockedDuration.toHours() >= blockedHours) {
+        userModel.setLoginAttempts(0);
+        userModel.setBlockedTime(null);
+        return false;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private int getLoginAttempts(UserModel userModel, int maxLoginAttempts) {
+    int loginAttempts = userModel.getLoginAttempts();
+    if (loginAttempts < maxLoginAttempts) {
+      loginAttempts++;
+      if (loginAttempts == maxLoginAttempts) {
+        blockUser(userModel, loginAttempts);
+      } else {
+        userModel.setLoginAttempts(loginAttempts);
+        userRepository.save(userModel);
+      }
+      return loginAttempts;
+    }
+    return maxLoginAttempts;
+  }
+
+  private void blockUser(UserModel userModel, int loginAttempts) {
+    userModel.setLoginAttempts(loginAttempts);
+    userModel.setBlockedTime(LocalDateTime.now());
+    userRepository.save(userModel);
+  }
+
   private String generateUsername(String firstName, String lastName) {
     int userIndex = 1;
-    String username = (firstName.substring(0, 3) + lastName.substring(0, 3)).toLowerCase();
+    String firstPart = firstName.length() > 3 ? firstName.substring(0, 3) : firstName;
+    String secondPart = lastName.length() > 3 ? lastName.substring(0, 3) : lastName;
+    String username = (firstPart + secondPart).toLowerCase();
     while (userRepository.containsUsername(username)) {
       if (userIndex == 1) {
         username = username + userIndex;

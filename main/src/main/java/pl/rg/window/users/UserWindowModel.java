@@ -22,12 +22,15 @@ import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
+import pl.rg.window.DataEnumColumn;
 
 @Getter
 public class UserWindowModel extends AbstractWindow {
 
+  public static final String UNBLOCK_BUTTON = "Odblokuj";
+
   private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
-      "Resetuj hasło"};
+      "Resetuj hasło", UNBLOCK_BUTTON};
 
   private List<ActionListener> actions;
 
@@ -41,6 +44,8 @@ public class UserWindowModel extends AbstractWindow {
 
   private JComboBox<Integer> pageNumberComboBox;
 
+  private Object[] options = {"Tak", "Nie"};
+
   public UserWindowModel(JTable mainTable, UserModuleController userModuleController,
       JPanel searchPanel, JComboBox<String> sortColumnComboBox,
       JComboBox<Integer> pageNumberComboBox) {
@@ -49,6 +54,7 @@ public class UserWindowModel extends AbstractWindow {
     this.searchPanel = searchPanel;
     this.sortColumnComboBox = sortColumnComboBox;
     this.pageNumberComboBox = pageNumberComboBox;
+    addTableSelectionListener();
   }
 
   public DefaultTableModel loadUserData() {
@@ -96,9 +102,14 @@ public class UserWindowModel extends AbstractWindow {
         JOptionPane.showMessageDialog(new JFrame(), "Nie wybrano żadnego użytkownika do edycji");
         return;
       }
-      Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
-      userModuleController.deleteUser(id);
-      refreshTable();
+
+      int option = getOptionFromOptionDialog("Czy na pewno chcesz usunąć wybranego użytkownika?",
+          "Usunięcie użytkownika");
+      if (option == JOptionPane.YES_OPTION) {
+        Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
+        userModuleController.deleteUser(id);
+        refreshTable();
+      }
     };
 
     ActionListener searchAction = e -> {
@@ -106,7 +117,18 @@ public class UserWindowModel extends AbstractWindow {
     };
 
     ActionListener resetPasswordAction = e -> {
-      // todo
+    };
+
+    ActionListener unblockUser = e -> {
+      int selectedRow = mainTable.getSelectedRow();
+      int option = getOptionFromOptionDialog(
+          "Czy na pewno chcesz odblokować wybranego użytkownika?", "Odbkolowanie użytkownika");
+      if (option == JOptionPane.YES_OPTION) {
+        Integer id = (Integer) mainTable.getValueAt(selectedRow, 0);
+        String userName = userModuleController.getUser(id).get().getUserName();
+        getUserModuleController().resetLoginAttempts(userName);
+        refreshTable();
+      }
     };
 
     actions.add(addAction);
@@ -114,6 +136,7 @@ public class UserWindowModel extends AbstractWindow {
     actions.add(deleteAction);
     actions.add(searchAction);
     actions.add(resetPasswordAction);
+    actions.add(unblockUser);
 
     if (actions.size() != buttonNames.length) {
       throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
@@ -138,7 +161,7 @@ public class UserWindowModel extends AbstractWindow {
 
   @Override
   public String[] getColumnNames() {
-    return UserColumn.getColumnNames();
+    return DataEnumColumn.getColumnNames(UserColumn.values());
   }
 
   private void updateTable() {
@@ -150,7 +173,8 @@ public class UserWindowModel extends AbstractWindow {
     page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
     page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
     page.setOrders(
-        List.of(new Order(UserColumn.getDbColumnByName(sortColumn).get(), OrderType.ASC)));
+        List.of(new Order(DataEnumColumn.getDbColumnByName(sortColumn, UserColumn.values()).get(),
+            OrderType.ASC)));
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
   }
@@ -167,9 +191,24 @@ public class UserWindowModel extends AbstractWindow {
           user.getUserName(),
           user.getFirstName(),
           user.getLastName(),
-          user.getEmail()
+          user.getEmail(),
+          user.getBlocked()
       });
     }
     return tableModel;
+  }
+
+  private void addTableSelectionListener() {
+    mainTable.getSelectionModel().addListSelectionListener(e -> {
+      if (mainTable.getSelectedRow() != -1) {
+        updateUnblockButtonVisibility();
+      }
+    });
+  }
+
+  private void updateUnblockButtonVisibility() {
+    int selectedRow = mainTable.getSelectedRow();
+    String blockedStatus = (String) mainTable.getValueAt(selectedRow, 5);
+    buttons.get(UNBLOCK_BUTTON).setVisible("Tak".equalsIgnoreCase(blockedStatus));
   }
 }

@@ -1,6 +1,9 @@
 package pl.rg.users.mapper;
 
+import java.time.LocalDateTime;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.factory.Mappers;
 import pl.rg.users.User;
@@ -21,7 +24,13 @@ public interface UserMapper extends MifidPageMapper {
 
   User dtoToDomain(UserDto userDto);
 
+  @Mapping(source = "blockedTime", target = "blocked", qualifiedByName = "dateToValue")
   UserDto domainToDto(User userModel);
+
+  @Named("dateToValue")
+  default String dateToValue(LocalDateTime blockedTime) {
+    return blockedTime == null ? "NIE" : "TAK";
+  }
 
   @ObjectFactory
   default User createUserImpl() {
