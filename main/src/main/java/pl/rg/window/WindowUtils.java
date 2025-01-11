@@ -55,7 +55,8 @@ public interface WindowUtils {
     String[] messageSplited = e.getMessage().split(":");
     Map<String, String> constraintsMap = e.getConstraintsMap();
     String message = constraintsMap.entrySet().stream().map(c -> {
-      String nameColumnName = UserColumn.getNameByJavaAttribute(c.getKey());
+      String nameColumnName = DataEnumColumn.getNameByJavaAttribute(c.getKey(),
+          UserColumn.values());
       return "Pole " + nameColumnName + ": " + c.getValue();
     }).collect(Collectors.joining("\n"));
 
@@ -66,7 +67,7 @@ public interface WindowUtils {
   default HashMap<String, String> getFieldsValues(JPanel searchPanel, AbstractWindow window) {
     return Arrays.stream(window.getColumnNames())
         .collect(Collectors.toMap(
-            columnName -> UserColumn.getDbColumnByName(columnName).get(),
+            columnName -> DataEnumColumn.getDbColumnByName(columnName, UserColumn.values()).get(),
             columnName -> getTextFieldValue(searchPanel, columnName),
             (existing, newValue) -> existing,
             HashMap::new

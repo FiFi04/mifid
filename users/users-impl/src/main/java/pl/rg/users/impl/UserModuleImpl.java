@@ -199,7 +199,9 @@ public class UserModuleImpl implements UserModuleApi {
 
   private String generateUsername(String firstName, String lastName) {
     int userIndex = 1;
-    String username = (firstName.substring(0, 3) + lastName.substring(0, 3)).toLowerCase();
+    String firstPart = firstName.length() > 3 ? firstName.substring(0, 3) : firstName;
+    String secondPart = lastName.length() > 3 ? lastName.substring(0, 3) : lastName;
+    String username = (firstPart + secondPart).toLowerCase();
     while (userRepository.containsUsername(username)) {
       if (userIndex == 1) {
         username = username + userIndex;
