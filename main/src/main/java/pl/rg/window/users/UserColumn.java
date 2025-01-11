@@ -14,7 +14,8 @@ public enum UserColumn implements DataEnumColumn {
   LOGIN("Login", UserModel.USER_NAME, false, "userName"),
   NAME("Imię", UserModel.FIRST_NAME, true, "firstName"),
   SURNAME("Nazwisko", UserModel.LAST_NAME, true, "lastName"),
-  EMAIL("Email", UserModel.EMAIL, true, "email");
+  EMAIL("Email", UserModel.EMAIL, true, "email"),
+  BLOCKED_STATUS("Zablokowany", UserModel.BLOCKED_TIME, false, "blockedTime");
 
   private String name;
 
