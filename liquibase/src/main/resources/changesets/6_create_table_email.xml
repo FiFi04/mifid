@@ -19,8 +19,7 @@
       <column name="body" type="longtext">
         <constraints nullable="false"/>
       </column>
-      <column name="sender" type="varchar(10)">
-      </column>
+      <column name="sender" type="varchar(10)"/>
       <column name="recipient" type="varchar(1000)">
         <constraints nullable="false"/>
       </column>
