@@ -3,51 +3,28 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="17" author="rg" failOnError="true" context="dev, prod">
+  <changeSet id="8" author="rg" failOnError="true" context="dev, prod">
     <preConditions onFail="MARK_RAN">
       <not>
-        <columnExists tableName="email_template" columnName="id"/>
+        <tableExists tableName="email_template"/>
       </not>
     </preConditions>
     <createTable tableName="email_template">
       <column name="id" type="int" autoIncrement="true">
         <constraints primaryKey="true"/>
       </column>
-    </createTable>
-    <rollback>
-      <dropColumn tableName="email_template" columnName="id"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="18" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email_template" columnName="title"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email_template">
-      <column name="title" type="varchar(100)">
+      <column name="name" type="varchar(100)">
         <constraints nullable="false" unique="true"/>
       </column>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email_template" columnName="title"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="19" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email_template" columnName="body"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email_template">
-      <column name="body" type="varchar(10000)">
+      <column name="subject" type="varchar(100)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="template_body" type="longtext">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
+    </createTable>
     <rollback>
-      <dropColumn tableName="email_template" columnName="body"/>
+      <dropTable tableName="email_template"/>
     </rollback>
   </changeSet>
 </databaseChangeLog>

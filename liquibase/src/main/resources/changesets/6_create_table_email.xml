@@ -6,157 +6,40 @@
   <changeSet id="6" author="rg" failOnError="true" context="dev, prod">
     <preConditions onFail="MARK_RAN">
       <not>
-        <columnExists tableName="email" columnName="id"/>
+        <tableExists tableName="email"/>
       </not>
     </preConditions>
     <createTable tableName="email">
       <column name="id" type="int" autoIncrement="true">
         <constraints primaryKey="true"/>
       </column>
-    </createTable>
-    <rollback>
-      <dropColumn tableName="email" columnName="id"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="8" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="subject"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="subject" type="varchar(100)">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="subject"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="9" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="body"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
-      <column name="body" type="varchar(10000)">
+      <column name="body" type="longtext">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="body"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="10" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="sender"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="sender" type="varchar(10)">
         <constraints nullable="false" foreignKeyName="fk_email_user" referencedTableName="user"
           referencedColumnNames="user_name"/>
       </column>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="sender"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="11" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="recipient"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="recipient" type="varchar(1000)">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="recipient"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="12" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="recipient_cc"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="recipient_cc" type="varchar(1000)"/>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="recipient_cc"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="13" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="status"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="status" type="varchar(20)">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="status"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="14" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="error_message"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="error_message" type="varchar(100)"/>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="error_message"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="15" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="sent_attempts"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="sent_attempts" type="int" defaultValue="0">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
-    <rollback>
-      <dropColumn tableName="email" columnName="sent_attempts"/>
-    </rollback>
-  </changeSet>
-
-  <changeSet id="16" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <columnExists tableName="email" columnName="sent_time"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="email">
       <column name="sent_time" type="datetime">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
+    </createTable>
     <rollback>
-      <dropColumn tableName="email" columnName="sent_time"/>
+      <dropTable tableName="email"/>
     </rollback>
   </changeSet>
 </databaseChangeLog>

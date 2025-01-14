@@ -23,7 +23,6 @@
     <module>utils</module>
     <module>security/security-api</module>
     <module>security/security-impl</module>
-<!--    <module>emails/emails-api</module>-->
     <module>emails/emails-impl</module>
   </modules>
   <profiles>

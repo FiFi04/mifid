@@ -8,5 +8,6 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum EmailStatus {
   SENT,
+  RESENT,
   ERROR;
 }
