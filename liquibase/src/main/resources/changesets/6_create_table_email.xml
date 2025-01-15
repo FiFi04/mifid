@@ -19,7 +19,10 @@
       <column name="body" type="longtext">
         <constraints nullable="false"/>
       </column>
-      <column name="sender" type="varchar(10)"/>
+      <column name="sender" type="varchar(10)">
+        <constraints nullable="false" foreignKeyName="fk_email_user" referencedTableName="user"
+          referencedColumnNames="user_name"/>
+      </column>
       <column name="recipient" type="varchar(1000)">
         <constraints nullable="false"/>
       </column>
