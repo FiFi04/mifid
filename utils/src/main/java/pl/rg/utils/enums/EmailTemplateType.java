@@ -9,5 +9,5 @@ public enum EmailTemplateType {
   NEW_ACCOUNT ("Dodanie konta"),
   RESET_PASSWORD ("Reset hasła");
 
-  private String name;
+  private String windowColumnName;
 }

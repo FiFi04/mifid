@@ -24,4 +24,6 @@ public interface UserModuleApi extends PageFilter<User> {
   void updateSession();
 
   void endSession();
+
+  UserSession getCurrentUserSession();
 }

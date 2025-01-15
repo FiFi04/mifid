@@ -1,5 +1,6 @@
 package pl.rg.utils.validator.impl;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -15,6 +16,7 @@ import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
 import pl.rg.utils.validator.api.ValidatorService;
+import pl.rg.utils.validator.enums.PossibleNull;
 import pl.rg.utils.validator.enums.ValidatorCase;
 
 @Service
@@ -44,6 +46,10 @@ public class ValidatorServiceImpl implements ValidatorService {
         .toArray(Field[]::new);
     Arrays.stream(allFields)
         .filter(field -> field.isAnnotationPresent(Validate.class))
+        .filter(field -> {
+          Validate annotation = field.getAnnotation(Validate.class);
+          return annotation.possibleNull().equals(PossibleNull.NO);
+        })
         .forEach(field -> {
           field.setAccessible(true);
           try {
@@ -86,7 +92,22 @@ public class ValidatorServiceImpl implements ValidatorService {
   private boolean isValid(Object object, Field field)
       throws IllegalAccessException, ClassNotFoundException,
       InstantiationException, InvocationTargetException, NoSuchMethodException {
+    if (field.getType().isArray()) {
+      Object array = field.get(object);
+      for (int i = 0; i < Array.getLength(array); i++) {
+        Object arrayElement = Array.get(array, i);
+        if (!isValidElement(arrayElement, field)) {
+          return false;
+        }
+      }
+      return true;
+    }
     Object fieldValue = field.get(object);
+    return isValidElement(fieldValue, field);
+  }
+
+  private boolean isValidElement(Object fieldValue, Field field)
+      throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     ValidatorCase validatorCase = field.getAnnotation(Validate.class).validatorCase();
     Class<?> cls = Class.forName(classNameResolver.get(validatorCase));
     Constructor<?> clsConstructor = cls.getConstructors()[0];

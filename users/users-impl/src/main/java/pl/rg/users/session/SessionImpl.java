@@ -3,14 +3,15 @@ package pl.rg.users.session;
 import java.time.LocalTime;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
+import pl.rg.users.UserSession;
 import pl.rg.users.model.SessionModel;
 import pl.rg.utils.db.PropertiesUtils;
 
 @Data
 @SuperBuilder
-public class Session {
+public class SessionImpl implements UserSession {
 
-  private static Session session;
+  private static SessionImpl session;
 
   private SessionModel activeSession;
 
@@ -19,13 +20,18 @@ public class Session {
   private final int sessionMaxTimeInSeconds = Integer.parseInt(
       PropertiesUtils.getProperty("session.maxTime"));
 
-  private Session() {
+  private SessionImpl() {
   }
 
-  public static Session getInstance() {
+  public static SessionImpl getInstance() {
     if (session == null) {
-      session = new Session();
+      session = new SessionImpl();
     }
     return session;
+  }
+
+  @Override
+  public String getCurrentSessionUsername() {
+    return activeSession.getUser();
   }
 }

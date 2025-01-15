@@ -28,7 +28,7 @@ public class UserRepository extends MifidRepository<UserModel, Integer> {
     }
   }
 
-  public Optional<UserModel> getByUsername(String username) {
+  public Optional<UserModel> findByUsername(String username) {
     String query = "SELECT id " + "FROM %s WHERE %s = '" + username + "'";
     try (Statement statement = getDBConnector().getConnection().createStatement()) {
       String completeQuery = String.format(query, UserModel.TABLE_NAME, UserModel.USER_NAME);
