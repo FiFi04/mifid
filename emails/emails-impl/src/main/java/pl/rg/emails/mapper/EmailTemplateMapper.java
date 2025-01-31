@@ -5,7 +5,7 @@ import org.mapstruct.ObjectFactory;
 import org.mapstruct.factory.Mappers;
 import pl.rg.EmailTemplate;
 import pl.rg.EmailTemplateDto;
-import pl.rg.emails.impl.EmailTemplateDomain;
+import pl.rg.emails.impl.EmailTemplateImpl;
 import pl.rg.emails.model.EmailTemplateModel;
 
 @Mapper
@@ -21,6 +21,6 @@ public interface EmailTemplateMapper {
 
   @ObjectFactory
   default EmailTemplate createEmailTemplate() {
-    return new EmailTemplateDomain();
+    return new EmailTemplateImpl();
   }
 }

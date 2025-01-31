@@ -9,7 +9,7 @@ import org.mapstruct.ObjectFactory;
 import org.mapstruct.factory.Mappers;
 import pl.rg.Email;
 import pl.rg.EmailDto;
-import pl.rg.emails.impl.EmailDomain;
+import pl.rg.emails.impl.EmailImpl;
 import pl.rg.emails.model.EmailModel;
 import pl.rg.utils.pageAndSort.MifidPageMapper;
 import pl.rg.utils.repository.MifidPage;
@@ -41,7 +41,7 @@ public interface EmailMapper extends MifidPageMapper {
 
   @ObjectFactory
   default Email createEmail() {
-    return new EmailDomain();
+    return new EmailImpl();
   }
 
   MifidPage<Email> emailModelPageToEmailPage(MifidPage<EmailModel> emailModelPage);

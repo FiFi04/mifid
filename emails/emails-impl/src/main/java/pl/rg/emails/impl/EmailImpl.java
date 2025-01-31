@@ -12,7 +12,7 @@ import pl.rg.utils.enums.EmailStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class EmailDomain implements Email {
+public class EmailImpl implements Email {
 
   private Integer id;
 
@@ -34,7 +34,7 @@ public class EmailDomain implements Email {
 
   private LocalDateTime sentTime;
 
-  public EmailDomain(String subject, String body, String sender, String[] recipient,
+  public EmailImpl(String subject, String body, String sender, String[] recipient,
       String[] recipientCc, EmailStatus status, String errorMessage, int sentAttempts,
       LocalDateTime sentTime) {
     this.subject = subject;
@@ -48,13 +48,13 @@ public class EmailDomain implements Email {
     this.sentTime = sentTime;
   }
 
-  public EmailDomain(String subject, String body, String[] recipient) {
+  public EmailImpl(String subject, String body, String[] recipient) {
     this.subject = subject;
     this.body = body;
     this.recipient = recipient;
   }
 
-  public EmailDomain(String subject, String body, String[] recipient, String[] recipientCc) {
+  public EmailImpl(String subject, String body, String[] recipient, String[] recipientCc) {
     this.subject = subject;
     this.body = body;
     this.recipient = recipient;

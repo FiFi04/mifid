@@ -1,6 +1,5 @@
 package pl.rg;
 
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,8 +34,6 @@ public class EmailDto {
   private String errorMessage;
 
   private int sentAttempts;
-
-  private LocalDateTime sentTime;
 
   private String recipientAsText;
 

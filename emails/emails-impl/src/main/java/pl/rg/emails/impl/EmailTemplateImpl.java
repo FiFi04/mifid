@@ -11,7 +11,7 @@ import pl.rg.utils.enums.EmailTemplateType;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class EmailTemplateDomain implements EmailTemplate {
+public class EmailTemplateImpl implements EmailTemplate {
 
   private Integer id;
 
@@ -21,7 +21,7 @@ public class EmailTemplateDomain implements EmailTemplate {
 
   private String templateBody;
 
-  public EmailTemplateDomain(EmailTemplateType name, String title, String templateBody) {
+  public EmailTemplateImpl(EmailTemplateType name, String title, String templateBody) {
     this.name = name;
     this.title = title;
     this.templateBody = templateBody;

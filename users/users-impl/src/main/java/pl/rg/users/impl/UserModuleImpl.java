@@ -45,7 +45,7 @@ public class UserModuleImpl implements UserModuleApi {
   private SessionRepository sessionRepository;
 
   @Autowire
-  EmailModuleApi emailModuleApi;
+  private EmailModuleApi emailModuleApi;
 
   private Logger logger = LoggerImpl.getInstance();
 
