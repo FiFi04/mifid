@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,12 +31,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
+import pl.rg.EmailModuleApi;
 import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
 import pl.rg.users.model.SessionModel;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.users.session.Session;
+import pl.rg.users.session.SessionImpl;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.LoggerImpl;
@@ -59,7 +61,10 @@ class UserModuleImplTest {
   private LoggerImpl logger;
 
   @Mock
-  private Session session;
+  private SessionImpl session;
+
+  @Mock
+  private EmailModuleApi emailModuleApi;
 
   @InjectMocks
   UserModuleImpl userModule;
@@ -87,6 +92,7 @@ class UserModuleImplTest {
       when(securityModuleApi.generatePassword()).thenReturn(GENERATED_PASSWORD);
       when(securityModuleApi.encryptPassword(GENERATED_PASSWORD)).thenReturn(
           Optional.of(ENCRYPTED_PASSWORD));
+      doNothing().when(emailModuleApi).sendNotification(any(), any(), any());
 
       //when
       userModule.addUser(user);
@@ -193,7 +199,7 @@ class UserModuleImplTest {
   public void whenLoginWithValidCredentials_thenShouldReturnTrue() {
     //given
     UserModel userModel = userTestModel.returnUserModel();
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
     when(securityModuleApi.decryptPassword(anyString())).thenReturn(
         Optional.of(userModel.getPassword()));
 
@@ -203,7 +209,7 @@ class UserModuleImplTest {
 
     //then
     assertTrue(loginStatus);
-    verify(userRepository, times(1)).getByUsername(userModel.getUserName());
+    verify(userRepository, times(1)).findByUsername(userModel.getUserName());
     verify(securityModuleApi, times(1)).decryptPassword(anyString());
   }
 
@@ -211,14 +217,14 @@ class UserModuleImplTest {
   public void whenLoginWithInvalidUsername_thenShouldReturnFalse() {
     //given
     UserModel userModel = userTestModel.returnUserModel();
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.empty());
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
     //when
     boolean loginStatus = userModule.validateLogInData(anyString(), userModel.getPassword());
 
     //then
     assertFalse(loginStatus);
-    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).findByUsername(anyString());
     verify(securityModuleApi, times(0)).decryptPassword(anyString());
   }
 
@@ -226,7 +232,7 @@ class UserModuleImplTest {
   public void whenLoginWithInvalidUsername_thenShouldThrowApplicationException() {
     //given
     Exception exceptionThrown = null;
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.empty());
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
     when(logger.logAndThrowRuntimeException(any(), any(RuntimeException.class))).thenReturn(
         new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
 
@@ -250,7 +256,7 @@ class UserModuleImplTest {
   public void whenLoginWithAvailableAttempts_thenShouldIncreaseAttempts() {
     //given
     UserModel userModel = userTestModel.returnUserModel(0, null);
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     //when
     int availableLoginAttempts = userModule.checkAvailableLoginAttempts(userModel.getUserName());
@@ -259,7 +265,7 @@ class UserModuleImplTest {
     assertEquals(2, availableLoginAttempts);
     assertEquals(1, userModel.getLoginAttempts());
     assertNull(userModel.getBlockedTime());
-    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).findByUsername(anyString());
     verify(userRepository, times(1)).save(any());
   }
 
@@ -267,7 +273,7 @@ class UserModuleImplTest {
   public void whenLoginWithInvalidCredentialsAndLastLoginAttempt_thenShouldBlockUser() {
     //given
     UserModel userModel = userTestModel.returnUserModel(2, null);
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     //when
     int availableLoginAttempts = userModule.checkAvailableLoginAttempts(userModel.getUserName());
@@ -276,7 +282,7 @@ class UserModuleImplTest {
     assertEquals(0, availableLoginAttempts);
     assertEquals(3, userModel.getLoginAttempts());
     assertNotNull(userModel.getBlockedTime());
-    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).findByUsername(anyString());
     verify(userRepository, times(1)).save(any());
   }
 
@@ -284,7 +290,7 @@ class UserModuleImplTest {
   public void whenLoginWithBlockedUserAfter1Hour_thenShouldUnblockUser() {
     //given
     UserModel userModel = userTestModel.returnUserModel(0, LocalDateTime.now().minusHours(2));
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     //when
     int availableLoginAttempts = userModule.checkAvailableLoginAttempts(userModel.getUserName());
@@ -293,7 +299,7 @@ class UserModuleImplTest {
     assertEquals(2, availableLoginAttempts);
     assertEquals(1, userModel.getLoginAttempts());
     assertNull(userModel.getBlockedTime());
-    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).findByUsername(anyString());
     verify(userRepository, times(1)).save(any());
   }
 
@@ -301,7 +307,7 @@ class UserModuleImplTest {
   public void whenResetLoginPasswordForValidUsername_thenShouldSetLoginAttemptsTo0() {
     //given
     UserModel userModel = userTestModel.returnUserModel();
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     //when
     userModule.resetLoginAttempts(userModel.getUserName());
@@ -309,7 +315,7 @@ class UserModuleImplTest {
     //then
     assertEquals(0, userModel.getLoginAttempts());
     assertNull(userModel.getBlockedTime());
-    verify(userRepository, times(1)).getByUsername(anyString());
+    verify(userRepository, times(1)).findByUsername(anyString());
     verify(userRepository, times(1)).save(any());
     verify(logger, times(1)).log(LogLevel.INFO,
         "Oblokowano użytkownika " + userModel.getUserName());
@@ -319,8 +325,8 @@ class UserModuleImplTest {
   public void whenLoginWithValidData_thenShouldStartSession() {
     //given
     UserModel userModel = userTestModel.returnUserModel();
-    try (MockedStatic<Session> sessionMockedStatic = mockStatic(Session.class)) {
-      sessionMockedStatic.when(Session::getInstance).thenReturn(session);
+    try (MockedStatic<SessionImpl> sessionMockedStatic = mockStatic(SessionImpl.class)) {
+      sessionMockedStatic.when(SessionImpl::getInstance).thenReturn(session);
 
       doAnswer(invocation -> {
         LocalTime startTime = invocation.getArgument(0);

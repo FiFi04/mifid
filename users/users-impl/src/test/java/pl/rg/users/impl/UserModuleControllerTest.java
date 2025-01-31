@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,11 +34,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
+import pl.rg.EmailModuleApi;
 import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.UserDto;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.users.session.Session;
+import pl.rg.users.session.SessionImpl;
 import pl.rg.utils.db.DBConnector;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.ValidationException;
@@ -71,6 +73,9 @@ public class UserModuleControllerTest {
   @Mock
   private SecurityModuleApi securityModuleApi;
 
+  @Mock
+  private EmailModuleApi emailModuleApi;
+
   @InjectMocks
   private UserModuleControllerImpl userModuleController;
 
@@ -89,7 +94,7 @@ public class UserModuleControllerTest {
 
   @AfterEach
   public void tearDown() {
-    Session.getInstance().setActiveSession(null);
+    SessionImpl.getInstance().setActiveSession(null);
   }
 
   @Test
@@ -106,6 +111,7 @@ public class UserModuleControllerTest {
       when(securityModuleApi.generatePassword()).thenReturn(GENERATED_PASSWORD);
       when(securityModuleApi.encryptPassword(anyString())).thenReturn(
           Optional.of(ENCRYPTED_PASSWORD));
+      doNothing().when(emailModuleApi).sendNotification(any(), any(), any());
     }
 
     //when
@@ -228,7 +234,7 @@ public class UserModuleControllerTest {
   public void whenLoginWithValidData_thenShouldReturnTrue() {
     //given
     UserModel userModel = userTestModel.returnUserModel();
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
     when(securityModuleApi.decryptPassword(anyString())).thenReturn(
         Optional.of(userModel.getPassword()));
 
@@ -237,10 +243,10 @@ public class UserModuleControllerTest {
 
     //then
     assertTrue(login);
-    assertNotNull(Session.getInstance().getActiveSession());
+    assertNotNull(SessionImpl.getInstance().getActiveSession());
     assertNull(userModel.getBlockedTime());
-    assertEquals(20, Session.getInstance().getActiveSession().getToken().length());
-    assertEquals(userModel.getUserName(), Session.getInstance().getActiveSession().getUser());
+    assertEquals(20, SessionImpl.getInstance().getActiveSession().getToken().length());
+    assertEquals(userModel.getUserName(), SessionImpl.getInstance().getActiveSession().getUser());
     assertEquals(0, userModel.getLoginAttempts());
   }
 
@@ -249,7 +255,7 @@ public class UserModuleControllerTest {
     //given
     UserModel userModel = userTestModel.returnUserModel(3, null);
     Exception exceptionThrown = null;
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
     when(securityModuleApi.decryptPassword(anyString())).thenReturn(
         Optional.of(userModel.getPassword()));
     when(logger.logAndThrowRuntimeException(any(), any(RuntimeException.class))).thenReturn(
@@ -265,7 +271,7 @@ public class UserModuleControllerTest {
 
     //then
     assertNotNull(exceptionThrown);
-    assertNull(Session.getInstance().getActiveSession());
+    assertNull(SessionImpl.getInstance().getActiveSession());
     assertInstanceOf(ApplicationException.class, exceptionThrown);
     assertEquals("U34LV: Wykorzystano wszystkie próby logowania. Spróbuj ponownie później.",
         exceptionThrown.getMessage());
@@ -278,7 +284,7 @@ public class UserModuleControllerTest {
     //given
     UserModel userModel = userTestModel.returnUserModel(0, null);
     Exception exceptionThrown = null;
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
     when(securityModuleApi.decryptPassword(anyString())).thenReturn(
         Optional.of(userModel.getPassword()));
     int availableLoginAttempts = userModuleApi.checkAvailableLoginAttempts(userModel.getUserName());
@@ -295,7 +301,7 @@ public class UserModuleControllerTest {
 
     //then
     assertNotNull(exceptionThrown);
-    assertNull(Session.getInstance().getActiveSession());
+    assertNull(SessionImpl.getInstance().getActiveSession());
     assertInstanceOf(ApplicationException.class, exceptionThrown);
     assertEquals(2, availableLoginAttempts);
     assertEquals("U35LV: Błędne dane podczas logowania. Pozostało " + availableLoginAttempts
@@ -308,7 +314,7 @@ public class UserModuleControllerTest {
   public void whenResetLoginPasswordForValidUsername_thenShouldSetLoginAttemptsTo0() {
     //given
     UserModel userModel = userTestModel.returnUserModel(3, LocalDateTime.now());
-    when(userRepository.getByUsername(anyString())).thenReturn(Optional.of(userModel));
+    when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userModel));
 
     // when
     userModuleController.resetLoginAttempts(userModel.getUserName());
@@ -316,7 +322,7 @@ public class UserModuleControllerTest {
     //then
     assertNull(userModel.getBlockedTime());
     assertEquals(0, userModel.getLoginAttempts());
-    verify(userRepository, times(1)).getByUsername(userModel.getUserName());
+    verify(userRepository, times(1)).findByUsername(userModel.getUserName());
     verify(userRepository, times(1)).save(userModel);
     verify(logger, times(1)).log(any(), anyString());
   }

@@ -24,6 +24,18 @@ public class PropertiesUtils {
 
   public static final String USER_BLOCKED_HOURS = "user.blockedHours";
 
+  public static final String EMAIL_SERVER = "email.server";
+
+  public static final String EMAIL_USERNAME = "email.username";
+
+  public static final String EMAIL_PASSWORD = "email.password";
+
+  public static final String EMAIL_PORT = "email.port";
+
+  public static final String EMAIL_AUTH = "email.authentication";
+
+  public static final String EMAIL_STARTTLS = "email.starttls";
+
   private static final String PROPERTIES_FILE = "app.properties";
 
   private static Logger logger = LoggerImpl.getInstance();

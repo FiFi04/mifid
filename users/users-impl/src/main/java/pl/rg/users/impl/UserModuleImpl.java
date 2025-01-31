@@ -3,10 +3,13 @@ package pl.rg.users.impl;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import lombok.Data;
+import pl.rg.EmailModuleApi;
 import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
 import pl.rg.users.UserModuleApi;
@@ -15,10 +18,11 @@ import pl.rg.users.model.SessionModel;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.SessionRepository;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.users.session.Session;
+import pl.rg.users.session.SessionImpl;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.db.PropertiesUtils;
+import pl.rg.utils.enums.EmailTemplateType;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
@@ -40,22 +44,25 @@ public class UserModuleImpl implements UserModuleApi {
   @Autowire
   private SessionRepository sessionRepository;
 
+  @Autowire
+  private EmailModuleApi emailModuleApi;
+
   private Logger logger = LoggerImpl.getInstance();
 
   private UserMapper userMapper = UserMapper.INSTANCE;
 
-  private Session session = Session.getInstance();
+  private SessionImpl session = SessionImpl.getInstance();
 
   @Override
   public void addUser(User user) {
     user.setUserName(generateUsername(user.getFirstName(), user.getLastName()));
-    String generatePassword = securityModuleApi.generatePassword();
-    System.out.println("Login" + user.getUserName() + " Hasło: " + generatePassword);
-    Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatePassword);
+    String generatedPassword = securityModuleApi.generatePassword();
+    Optional<String> encryptedPassword = securityModuleApi.encryptPassword(generatedPassword);
     user.setPassword(encryptedPassword.get());
     UserModel userModel = userMapper.domainToUserModel(user);
     logger.log(LogLevel.INFO, "Add new user with login {}", user.getUserName());
     userRepository.save(userModel);
+    sendEmailNotification(EmailTemplateType.NEW_ACCOUNT, user, generatedPassword);
   }
 
   @Override
@@ -83,7 +90,7 @@ public class UserModuleImpl implements UserModuleApi {
 
   @Override
   public boolean validateLogInData(String username, String password) {
-    Optional<UserModel> userModel = userRepository.getByUsername(username);
+    Optional<UserModel> userModel = userRepository.findByUsername(username);
     if (userModel.isEmpty()) {
       return false;
     } else {
@@ -97,7 +104,7 @@ public class UserModuleImpl implements UserModuleApi {
   @Override
   public int checkAvailableLoginAttempts(String username) {
     int maxLoginAttempts = PropertiesUtils.getIntProperty(PropertiesUtils.USER_MAX_LOGIN_ATTEMPTS);
-    Optional<UserModel> user = userRepository.getByUsername(username);
+    Optional<UserModel> user = userRepository.findByUsername(username);
     if (user.isEmpty()) {
       throw logger.logAndThrowRuntimeException(LogLevel.DEBUG,
           new ApplicationException("U36GH", "Nie znaleziono użytownika o podanym loginie"));
@@ -111,7 +118,7 @@ public class UserModuleImpl implements UserModuleApi {
 
   @Override
   public void resetLoginAttempts(String username) {
-    UserModel userModel = userRepository.getByUsername(username).get();
+    UserModel userModel = userRepository.findByUsername(username).get();
     userModel.setBlockedTime(null);
     userModel.setLoginAttempts(0);
     userRepository.save(userModel);
@@ -145,6 +152,11 @@ public class UserModuleImpl implements UserModuleApi {
     sessionRepository.save(session.getActiveSession());
     logger.log(LogLevel.INFO, "Zakończono sesję " + session.getActiveSession().getToken());
     session.setActiveSession(null);
+  }
+
+  @Override
+  public SessionImpl getCurrentUserSession() {
+    return session;
   }
 
   @Override
@@ -195,6 +207,19 @@ public class UserModuleImpl implements UserModuleApi {
     userModel.setLoginAttempts(loginAttempts);
     userModel.setBlockedTime(LocalDateTime.now());
     userRepository.save(userModel);
+  }
+
+  private void sendEmailNotification(EmailTemplateType emailTemplateType, User user,
+      String generatedPassword) {
+    Map<String, String> placeholders = new HashMap<>();
+    placeholders.put("$firstName", user.getFirstName());
+    placeholders.put("$lastName", user.getLastName());
+    placeholders.put("$username", user.getUserName());
+    placeholders.put("$password", generatedPassword);
+    emailModuleApi.sendNotification(emailTemplateType.getWindowColumnName(), user.getEmail(),
+        placeholders);
+    logger.log(LogLevel.INFO,
+        "Wiadomość o utworzeniu użytkownika została wysłana do " + user.getEmail());
   }
 
   private String generateUsername(String firstName, String lastName) {

@@ -21,7 +21,7 @@ public class EmailTemplateModel extends MifidGeneral<Integer> {
   public static final String SUBJECT = "subject";
 
   @FieldCategory(dbColumn = true)
-  public static final String TEMPLATE_BODY = "templateBody";
+  public static final String TEMPLATE_BODY = "template_body";
 
   public static final String TABLE_NAME = "email_template";
 

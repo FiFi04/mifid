@@ -59,8 +59,10 @@ public class AppContainer {
 
   private static void initializeContainer(Set<Class<?>> annotatedClasses,
       Map<String, Object> container) {
+    Class<?> aClass = null;
     try {
       for (Class<?> annotatedClass : annotatedClasses) {
+        aClass = annotatedClass;
         String className = annotatedClass.getSimpleName();
         Class<?>[] implementedInterfaces = annotatedClass.getInterfaces();
         if (implementedInterfaces.length > 0) {
@@ -73,7 +75,7 @@ public class AppContainer {
       }
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-          new RepositoryException("Błąd wywołania metody"));
+          new RepositoryException("Błąd wywołania metody: " + aClass));
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException("Brak metody o podanej sygnaturze"));

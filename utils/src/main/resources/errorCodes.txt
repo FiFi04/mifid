@@ -5,6 +5,7 @@
 U - users module
 M - main module
 X - utils module
+E - email module
 
 U32GH - nie znaleziono uzytkownika po ID.
 U33SE - wylogowano z powodu zbyt długiego czasu nieaktywności
@@ -16,3 +17,7 @@ M23SD - brak implementacji wszystkich akcji
 M45FV - nie znaleziono akcji dla podanego przycisku
 
 X343D - błąd poprawnie property
+
+E10SE - nieprawidłowy adres email
+E11NF - email o podanym id nie został odnaleziony
+E12NS - email nie został wysłany
