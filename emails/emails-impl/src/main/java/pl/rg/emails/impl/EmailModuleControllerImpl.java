@@ -22,10 +22,10 @@ import pl.rg.utils.validator.api.ValidatorService;
 public class EmailModuleControllerImpl implements EmailModuleController {
 
   @Autowire
-  EmailModuleApi emailModuleApi;
+  private EmailModuleApi emailModuleApi;
 
   @Autowire
-  ValidatorService validatorService;
+  private ValidatorService validatorService;
 
   private EmailMapper emailMapper = EmailMapper.INSTANCE;
 
