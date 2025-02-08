@@ -2,8 +2,11 @@ package pl.rg.window.users;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -13,8 +16,8 @@ import javax.swing.table.DefaultTableModel;
 import lombok.Getter;
 import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleController;
-import pl.rg.users.model.UserModel;
 import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
@@ -22,7 +25,6 @@ import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
-import pl.rg.window.DataEnumColumn;
 
 @Getter
 public class UserWindowModel extends AbstractWindow {
@@ -32,17 +34,7 @@ public class UserWindowModel extends AbstractWindow {
   private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
       "Resetuj hasło", UNBLOCK_BUTTON};
 
-  private List<ActionListener> actions;
-
-  private JTable mainTable;
-
   private UserModuleController userModuleController;
-
-  private JPanel searchPanel;
-
-  private JComboBox<String> sortColumnComboBox;
-
-  private JComboBox<Integer> pageNumberComboBox;
 
   private Object[] options = {"Tak", "Nie"};
 
@@ -54,21 +46,6 @@ public class UserWindowModel extends AbstractWindow {
     this.searchPanel = searchPanel;
     this.sortColumnComboBox = sortColumnComboBox;
     this.pageNumberComboBox = pageNumberComboBox;
-    addTableSelectionListener();
-  }
-
-  public DefaultTableModel loadUserData() {
-    Page page = new Page();
-    page.setFrom(0);
-    page.setTo(AbstractWindow.PAGE_SIZE);
-    page.setOrders(List.of(new Order(UserModel.ID, OrderType.ASC)));
-    updateSortAndPage(sortColumnComboBox, pageNumberComboBox);
-    return getUpdatedTable(null, page);
-  }
-
-  public void refreshTable() {
-    DefaultTableModel userData = loadUserData();
-    mainTable.setModel(userData);
   }
 
   @Override
@@ -155,13 +132,13 @@ public class UserWindowModel extends AbstractWindow {
   }
 
   @Override
-  protected List<ActionListener> getActions() {
-    return actions;
+  public String[] getSearchColumns() {
+    return UserColumn.getSearchColumns();
   }
 
   @Override
   public String[] getColumnNames() {
-    return DataEnumColumn.getColumnNames(UserColumn.values());
+    return UserColumn.getColumnNames();
   }
 
   private void updateTable() {
@@ -173,13 +150,35 @@ public class UserWindowModel extends AbstractWindow {
     page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
     page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
     page.setOrders(
-        List.of(new Order(DataEnumColumn.getDbColumnByName(sortColumn, UserColumn.values()).get(),
-            OrderType.ASC)));
+        List.of(new Order(UserColumn.getDbColumnByName(sortColumn).get(), OrderType.ASC)));
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
   }
 
-  private DefaultTableModel getUpdatedTable(List<Filter> filters, Page page) {
+  public HashMap<String, String> getFieldsValues(JPanel searchPanel, AbstractWindow window) {
+    return Arrays.stream(window.getSearchColumns())
+        .collect(Collectors.toMap(
+            columnName -> UserColumn.getDbColumnByName(columnName).get(),
+            columnName -> getTextFieldValue(searchPanel, columnName),
+            (existing, newValue) -> existing,
+            HashMap::new
+        ));
+  }
+
+  public void showValidationMessage(ValidationException e) {
+    String[] messageSplited = e.getMessage().split(":");
+    Map<String, String> constraintsMap = e.getConstraintsMap();
+    String message = constraintsMap.entrySet().stream().map(c -> {
+      String nameColumnName = UserColumn.getNameByJavaAttribute(c.getKey());
+      return "Pole " + nameColumnName + ": " + c.getValue();
+    }).collect(Collectors.joining("\n"));
+
+    JOptionPane.showMessageDialog(new JFrame(), message, messageSplited[0],
+        JOptionPane.WARNING_MESSAGE);
+  }
+
+  @Override
+  protected DefaultTableModel getUpdatedTable(List<Filter> filters, Page page) {
     DefaultTableModel tableModel = new DefaultTableModel(getColumnNames(), 0);
     tableModel.setRowCount(0);
     MifidPage<UserDto> mifidPage = userModuleController.getPage(filters, page);
@@ -196,19 +195,5 @@ public class UserWindowModel extends AbstractWindow {
       });
     }
     return tableModel;
-  }
-
-  private void addTableSelectionListener() {
-    mainTable.getSelectionModel().addListSelectionListener(e -> {
-      if (mainTable.getSelectedRow() != -1) {
-        updateUnblockButtonVisibility();
-      }
-    });
-  }
-
-  private void updateUnblockButtonVisibility() {
-    int selectedRow = mainTable.getSelectedRow();
-    String blockedStatus = (String) mainTable.getValueAt(selectedRow, 5);
-    buttons.get(UNBLOCK_BUTTON).setVisible("Tak".equalsIgnoreCase(blockedStatus));
   }
 }
