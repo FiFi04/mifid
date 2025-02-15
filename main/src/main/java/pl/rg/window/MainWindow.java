@@ -83,31 +83,27 @@ public class MainWindow extends JFrame {
 
   private void addButtonActions(JPanel searchPanel, JPanel rightPanel, JPanel sortPagePanel,
       UserModuleController userModuleController) {
-    usersButton.addActionListener(e -> {
-      DefaultTableModel userModel = userWindowModel.loadData();
-      mainTable.setModel(userModel);
-      userWindowModel.updateSearchPanel(searchPanel);
-      userWindowModel.updateSortAndPage(sortPagePanel);
-      userWindowModel.updateRightPanel(rightPanel);
-      userWindowModel.addSortAndPageActions();
-      currentTableWindow = userWindowModel;
-    });
+    usersButton.addActionListener(
+        e -> loadView(userWindowModel, searchPanel, rightPanel, sortPagePanel));
 
-    emailsButton.addActionListener(e -> {
-      DefaultTableModel emailModel = emailWindowModel.loadData();
-      mainTable.setModel(emailModel);
-      emailWindowModel.updateSearchPanel(searchPanel);
-      emailWindowModel.updateSortAndPage(sortPagePanel);
-      emailWindowModel.updateRightPanel(rightPanel);
-      emailWindowModel.addSortAndPageActions();
-      currentTableWindow = emailWindowModel;
-
-    });
+    emailsButton.addActionListener(
+        e -> loadView(emailWindowModel, searchPanel, rightPanel, sortPagePanel));
 
     logoutButton.addActionListener(e -> {
       userModuleController.logOut();
       dispose();
     });
+  }
+
+  private void loadView(AbstractWindow window, JPanel searchPanel, JPanel rightPanel,
+      JPanel sortPagePanel) {
+    DefaultTableModel windowModel = window.loadData();
+    mainTable.setModel(windowModel);
+    window.updateSearchPanel(searchPanel);
+    window.updateSortAndPage(sortPagePanel);
+    window.updateRightPanel(rightPanel);
+    window.addSortAndPageActions();
+    currentTableWindow = window;
   }
 
   private JPanel sortPagePanel() {

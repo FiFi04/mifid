@@ -2,11 +2,8 @@ package pl.rg.window.emails;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -17,7 +14,6 @@ import lombok.Getter;
 import pl.rg.EmailDto;
 import pl.rg.EmailModuleController;
 import pl.rg.utils.exception.ApplicationException;
-import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
@@ -25,6 +21,7 @@ import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
+import pl.rg.window.DataEnumColumn;
 
 @Getter
 public class EmailWindowModel extends AbstractWindow {
@@ -102,6 +99,7 @@ public class EmailWindowModel extends AbstractWindow {
     }
   }
 
+  @Override
   public void addSortAndPageActions() {
     this.sortColumnComboBox.addActionListener(e -> {
       updateTable();
@@ -112,39 +110,10 @@ public class EmailWindowModel extends AbstractWindow {
     });
   }
 
-  HashMap<String, String> getFieldsValues(JPanel searchPanel, AbstractWindow window) {
-    return Arrays.stream(window.getSearchColumns())
-        .collect(Collectors.toMap(
-            columnName -> EmailColumn.getDbColumnByName(columnName).get(),
-            columnName -> getTextFieldValue(searchPanel, columnName),
-            (existing, newValue) -> existing,
-            HashMap::new
-        ));
-  }
-
-  void showValidationMessage(ValidationException e) {
-    String[] messageSplited = e.getMessage().split(":");
-    Map<String, String> constraintsMap = e.getConstraintsMap();
-    String message = constraintsMap.entrySet().stream().map(c -> {
-      String nameColumnName = EmailColumn.getNameByJavaAttribute(c.getKey());
-      return "Pole " + nameColumnName + ": " + c.getValue();
-    }).collect(Collectors.joining("\n"));
-
-    JOptionPane.showMessageDialog(new JFrame(), message, messageSplited[0],
-        JOptionPane.WARNING_MESSAGE);
-
-  }
-
   private void updateTable() {
-    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this);
+    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this, EmailColumn.class);
     List<Filter> filters = getFilters(fieldValues);
-    String sortColumn = (String) sortColumnComboBox.getSelectedItem();
-    int pageNumber = (int) pageNumberComboBox.getSelectedItem();
-    Page page = new Page();
-    page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
-    page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
-    page.setOrders(
-        List.of(new Order(EmailColumn.getDbColumnByName(sortColumn).get(), OrderType.ASC)));
+    Page page = getPage(EmailColumn.class);
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
   }

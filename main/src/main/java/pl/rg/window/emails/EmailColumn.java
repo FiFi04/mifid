@@ -1,15 +1,15 @@
 package pl.rg.window.emails;
 
 import java.util.Arrays;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import pl.rg.emails.model.EmailModel;
+import pl.rg.window.DataEnumColumn;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum EmailColumn {
+public enum EmailColumn implements DataEnumColumn {
 
   ID("Id", EmailModel.ID, false, true, "id"),
   SUBJECT("Temat", EmailModel.SUBJECT, true, true, "subject"),
@@ -42,18 +42,5 @@ public enum EmailColumn {
     return Arrays.stream(values())
         .map(u -> u.getName())
         .toArray(size -> new String[size]);
-  }
-
-  public static String getNameByJavaAttribute(String javaAttribute) {
-    return Arrays.stream(values())
-        .filter(v -> v.getJavaAttribute().equals(javaAttribute))
-        .findFirst().get().getName();
-  }
-
-  public static Optional<String> getDbColumnByName(String name) {
-    return Arrays.stream(values())
-        .filter(column -> column.name.equals(name))
-        .map(EmailColumn::getDbColumn)
-        .findFirst();
   }
 }

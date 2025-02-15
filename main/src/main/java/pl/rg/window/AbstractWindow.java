@@ -2,17 +2,23 @@ package pl.rg.window;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import pl.rg.utils.exception.ApplicationException;
+import pl.rg.utils.exception.ValidationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
@@ -20,6 +26,7 @@ import pl.rg.utils.repository.filter.Filter;
 import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
+import pl.rg.window.emails.EmailColumn;
 import pl.rg.window.emails.EmailWindowModel;
 import pl.rg.window.users.UserWindowModel;
 
@@ -54,6 +61,8 @@ public abstract class AbstractWindow implements WindowUtils {
   public abstract String[] getColumnNames();
 
   protected abstract String[] getButtonNames();
+
+  public abstract void addSortAndPageActions();
 
   protected abstract void createActions();
 
@@ -139,5 +148,42 @@ public abstract class AbstractWindow implements WindowUtils {
 
     rightPanel.revalidate();
     rightPanel.repaint();
+  }
+
+  public <T extends Enum<T> & DataEnumColumn> void showValidationMessage(ValidationException e,
+      Class<T> dataEnumColumn) {
+    String[] messageSplited = e.getMessage().split(":");
+    Map<String, String> constraintsMap = e.getConstraintsMap();
+    String message = constraintsMap.entrySet().stream().map(c -> {
+      String nameColumnName = DataEnumColumn.getNameByJavaAttribute(dataEnumColumn, c.getKey())
+          .get();
+      return "Pole " + nameColumnName + ": " + c.getValue();
+    }).collect(Collectors.joining("\n"));
+
+    JOptionPane.showMessageDialog(new JFrame(), message, messageSplited[0],
+        JOptionPane.WARNING_MESSAGE);
+  }
+
+  public <T extends Enum<T> & DataEnumColumn> HashMap<String, String> getFieldsValues(
+      JPanel searchPanel, AbstractWindow window, Class<T> dataEnumColumn) {
+    return Arrays.stream(window.getSearchColumns())
+        .collect(Collectors.toMap(
+            columnName -> DataEnumColumn.getDbColumnByName(dataEnumColumn, columnName).get(),
+            columnName -> getTextFieldValue(searchPanel, columnName),
+            (existing, newValue) -> existing,
+            HashMap::new
+        ));
+  }
+
+  public <T extends Enum<T> & DataEnumColumn> Page getPage(Class<T> dataEnumColumn) {
+    String sortColumn = (String) sortColumnComboBox.getSelectedItem();
+    int pageNumber = (int) pageNumberComboBox.getSelectedItem();
+    Page page = new Page();
+    page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
+    page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
+    page.setOrders(
+        List.of(new Order(DataEnumColumn.getDbColumnByName(dataEnumColumn, sortColumn).get(),
+            OrderType.ASC)));
+    return page;
   }
 }
