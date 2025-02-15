@@ -5,27 +5,25 @@ import java.util.Optional;
 
 public interface DataEnumColumn {
 
-  static String[] getColumnNames(DataEnumColumn[] values) {
-    return Arrays.stream(values)
+  String getJavaAttribute();
+
+  String getName();
+
+  String getDbColumn();
+
+  static <E extends Enum<E> & DataEnumColumn> Optional<String> getNameByJavaAttribute(
+      Class<E> enumType, String javaAttribute) {
+    return Arrays.stream(enumType.getEnumConstants())
+        .filter(e -> e.getJavaAttribute().equals(javaAttribute))
         .map(DataEnumColumn::getName)
-        .toArray(String[]::new);
+        .findFirst();
   }
 
-  static String getNameByJavaAttribute(String javaAttribute, DataEnumColumn[] values) {
-    return Arrays.stream(values)
-        .filter(v -> v.getJavaAttribute().equals(javaAttribute))
-        .findFirst().get().getName();
-  }
-
-  static Optional<String> getDbColumnByName(String name, DataEnumColumn[] values) {
-    return Arrays.stream(values)
+  static <E extends Enum<E> & DataEnumColumn> Optional<String> getDbColumnByName(
+      Class<E> enumType, String name) {
+    return Arrays.stream(enumType.getEnumConstants())
         .filter(column -> column.getName().equals(name))
         .map(DataEnumColumn::getDbColumn)
         .findFirst();
   }
-
-  String getName();
-  boolean isVisibility();
-  String getDbColumn();
-  String getJavaAttribute();
 }
