@@ -23,7 +23,10 @@ public class UserWindow extends JFrame implements WindowUtils {
 
   private UserDto userDto;
 
+  private UserWindowModel userWindowModel;
+
   public UserWindow(UserWindowModel userWindowModel, boolean edit, Integer userId) {
+    this.userWindowModel = userWindowModel;
     setTitle("Dane użytkownika");
     setSize(300, 200);
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -96,7 +99,7 @@ public class UserWindow extends JFrame implements WindowUtils {
       JOptionPane.showMessageDialog(this, "Dane użytkownika zaktualizowane");
       dispose();
     } catch (ValidationException ex) {
-      showValidationMessage(ex);
+      userWindowModel.showValidationMessage(ex, UserColumn::getNameByJavaAttribute);
     } catch (RepositoryException ex1) {
       JOptionPane.showMessageDialog(this, "Błąd aktualizacji w bazie danych", "Błąd!",
           JOptionPane.ERROR_MESSAGE);
@@ -116,9 +119,9 @@ public class UserWindow extends JFrame implements WindowUtils {
         dispose();
       }
     } catch (ValidationException ex) {
-      showValidationMessage(ex);
+      userWindowModel.showValidationMessage(ex, UserColumn::getNameByJavaAttribute);
     } catch (RepositoryException ex) {
-      JOptionPane.showMessageDialog(this, "Nie zapisu do bazy danych!", "Błąd!",
+      JOptionPane.showMessageDialog(this, "Błąd zapisu do bazy danych!", "Błąd!",
           JOptionPane.ERROR_MESSAGE);
     }
   }

@@ -18,21 +18,29 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import pl.rg.EmailModuleController;
 import pl.rg.main.AppContainer;
 import pl.rg.users.UserModuleController;
+import pl.rg.utils.enums.EmailStatus;
+import pl.rg.window.emails.EmailWindowModel;
 import pl.rg.window.users.UserWindowModel;
 
 public class MainWindow extends JFrame {
 
   private JButton usersButton;
+  private JButton emailsButton;
   private JButton logoutButton;
   private JTable mainTable;
+
+  private AbstractWindow currentTableWindow;
 
   private JComboBox<String> sortColumnComboBox;
 
   private JComboBox<Integer> pageNumberComboBox;
 
   private UserWindowModel userWindowModel;
+
+  private EmailWindowModel emailWindowModel;
 
   private MainWindow() {
     setTitle("Ankieta Mifid");
@@ -43,6 +51,8 @@ public class MainWindow extends JFrame {
 
     UserModuleController userModuleController = (UserModuleController) AppContainer.getContainer()
         .get("userModuleController");
+    EmailModuleController emailModuleController = (EmailModuleController) AppContainer.getContainer()
+        .get("emailModuleController");
 
     add(createLeftPanel(), BorderLayout.WEST);
     JPanel centerPanel = createCenterPanel();
@@ -53,9 +63,13 @@ public class MainWindow extends JFrame {
     add(sortPagePanel, BorderLayout.SOUTH);
     JPanel rightPanel = createRightPanel();
     add(rightPanel, BorderLayout.EAST);
-    addButtonActions(searchPanel, rightPanel, userModuleController);
+    addButtonActions(searchPanel, rightPanel, sortPagePanel, userModuleController);
+    addTableSelectionListener();
 
     userWindowModel = new UserWindowModel(mainTable, userModuleController, searchPanel,
+        sortColumnComboBox, pageNumberComboBox);
+
+    emailWindowModel = new EmailWindowModel(mainTable, emailModuleController, searchPanel,
         sortColumnComboBox, pageNumberComboBox);
 
     addWindowListener(new WindowAdapter() {
@@ -67,21 +81,29 @@ public class MainWindow extends JFrame {
     });
   }
 
-  private void addButtonActions(JPanel searchPanel, JPanel rightPanel,
+  private void addButtonActions(JPanel searchPanel, JPanel rightPanel, JPanel sortPagePanel,
       UserModuleController userModuleController) {
-    usersButton.addActionListener(e -> {
-      DefaultTableModel userModel = userWindowModel.loadUserData();
-      mainTable.setModel(userModel);
-      userWindowModel.updateSearchPanel(searchPanel);
-      userWindowModel.updateSortAndPage(sortColumnComboBox, pageNumberComboBox);
-      userWindowModel.updateRightPanel(rightPanel);
-      userWindowModel.addSortAndPageActions();
-    });
+    usersButton.addActionListener(
+        e -> loadView(userWindowModel, searchPanel, rightPanel, sortPagePanel));
+
+    emailsButton.addActionListener(
+        e -> loadView(emailWindowModel, searchPanel, rightPanel, sortPagePanel));
 
     logoutButton.addActionListener(e -> {
       userModuleController.logOut();
       dispose();
     });
+  }
+
+  private void loadView(AbstractWindow window, JPanel searchPanel, JPanel rightPanel,
+      JPanel sortPagePanel) {
+    DefaultTableModel windowModel = window.loadData();
+    mainTable.setModel(windowModel);
+    window.updateSearchPanel(searchPanel);
+    window.updateSortAndPage(sortPagePanel);
+    window.updateRightPanel(rightPanel);
+    window.addSortAndPageActions();
+    currentTableWindow = window;
   }
 
   private JPanel sortPagePanel() {
@@ -155,14 +177,18 @@ public class MainWindow extends JFrame {
         BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
     usersButton = new JButton("Użytkownicy");
+    emailsButton = new JButton("Maile");
     logoutButton = new JButton("Wyloguj");
 
     Dimension buttonSize = new Dimension(120, 25);
     usersButton.setMaximumSize(buttonSize);
+    emailsButton.setMaximumSize(buttonSize);
     logoutButton.setMaximumSize(buttonSize);
 
     leftPanel.add(Box.createVerticalStrut(10));
     leftPanel.add(usersButton);
+    leftPanel.add(Box.createVerticalStrut(10));
+    leftPanel.add(emailsButton);
     leftPanel.add(Box.createVerticalStrut(10));
     leftPanel.add(logoutButton);
     leftPanel.add(Box.createVerticalGlue());
@@ -174,6 +200,21 @@ public class MainWindow extends JFrame {
     SwingUtilities.invokeLater(() -> {
       MainWindow window = new MainWindow();
       window.setVisible(true);
+    });
+  }
+
+  private void addTableSelectionListener() {
+    mainTable.getSelectionModel().addListSelectionListener(e -> {
+      int selectedRow = mainTable.getSelectedRow();
+      if (selectedRow != -1 && currentTableWindow instanceof UserWindowModel) {
+        String blockedStatus = (String) mainTable.getValueAt(selectedRow, 5);
+        userWindowModel.changeButtonVisibility(UserWindowModel.UNBLOCK_BUTTON,
+            "Tak".equalsIgnoreCase(blockedStatus));
+      } else if (selectedRow != -1 && currentTableWindow instanceof EmailWindowModel) {
+        String sentStatus = mainTable.getValueAt(selectedRow, 6).toString();
+        emailWindowModel.changeButtonVisibility(EmailWindowModel.RESEND_BUTTON,
+            EmailStatus.ERROR.toString().equalsIgnoreCase(sentStatus));
+      }
     });
   }
 }

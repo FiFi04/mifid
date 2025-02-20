@@ -13,36 +13,22 @@ import javax.swing.table.DefaultTableModel;
 import lombok.Getter;
 import pl.rg.users.UserDto;
 import pl.rg.users.UserModuleController;
-import pl.rg.users.model.UserModel;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
-import pl.rg.utils.repository.paging.Order;
-import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
-import pl.rg.window.DataEnumColumn;
 
 @Getter
 public class UserWindowModel extends AbstractWindow {
 
   public static final String UNBLOCK_BUTTON = "Odblokuj";
 
-  private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
+  private final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
       "Resetuj hasło", UNBLOCK_BUTTON};
 
-  private List<ActionListener> actions;
-
-  private JTable mainTable;
-
   private UserModuleController userModuleController;
-
-  private JPanel searchPanel;
-
-  private JComboBox<String> sortColumnComboBox;
-
-  private JComboBox<Integer> pageNumberComboBox;
 
   private Object[] options = {"Tak", "Nie"};
 
@@ -54,21 +40,7 @@ public class UserWindowModel extends AbstractWindow {
     this.searchPanel = searchPanel;
     this.sortColumnComboBox = sortColumnComboBox;
     this.pageNumberComboBox = pageNumberComboBox;
-    addTableSelectionListener();
-  }
-
-  public DefaultTableModel loadUserData() {
-    Page page = new Page();
-    page.setFrom(0);
-    page.setTo(AbstractWindow.PAGE_SIZE);
-    page.setOrders(List.of(new Order(UserModel.ID, OrderType.ASC)));
-    updateSortAndPage(sortColumnComboBox, pageNumberComboBox);
-    return getUpdatedTable(null, page);
-  }
-
-  public void refreshTable() {
-    DefaultTableModel userData = loadUserData();
-    mainTable.setModel(userData);
+    createActions();
   }
 
   @Override
@@ -144,6 +116,7 @@ public class UserWindowModel extends AbstractWindow {
     }
   }
 
+  @Override
   public void addSortAndPageActions() {
     this.sortColumnComboBox.addActionListener(e -> {
       updateTable();
@@ -155,31 +128,26 @@ public class UserWindowModel extends AbstractWindow {
   }
 
   @Override
-  protected List<ActionListener> getActions() {
-    return actions;
+  public String[] getSearchColumns() {
+    return UserColumn.getSearchColumns();
   }
 
   @Override
   public String[] getColumnNames() {
-    return DataEnumColumn.getColumnNames(UserColumn.values());
+    return UserColumn.getColumnNames();
   }
 
   private void updateTable() {
-    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this);
+    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this,
+        UserColumn::getDbColumnByName);
     List<Filter> filters = getFilters(fieldValues);
-    String sortColumn = (String) sortColumnComboBox.getSelectedItem();
-    int pageNumber = (int) pageNumberComboBox.getSelectedItem();
-    Page page = new Page();
-    page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
-    page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
-    page.setOrders(
-        List.of(new Order(DataEnumColumn.getDbColumnByName(sortColumn, UserColumn.values()).get(),
-            OrderType.ASC)));
+    Page page = getPage(UserColumn::getDbColumnByName);
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
   }
 
-  private DefaultTableModel getUpdatedTable(List<Filter> filters, Page page) {
+  @Override
+  protected DefaultTableModel getUpdatedTable(List<Filter> filters, Page page) {
     DefaultTableModel tableModel = new DefaultTableModel(getColumnNames(), 0);
     tableModel.setRowCount(0);
     MifidPage<UserDto> mifidPage = userModuleController.getPage(filters, page);
@@ -196,19 +164,5 @@ public class UserWindowModel extends AbstractWindow {
       });
     }
     return tableModel;
-  }
-
-  private void addTableSelectionListener() {
-    mainTable.getSelectionModel().addListSelectionListener(e -> {
-      if (mainTable.getSelectedRow() != -1) {
-        updateUnblockButtonVisibility();
-      }
-    });
-  }
-
-  private void updateUnblockButtonVisibility() {
-    int selectedRow = mainTable.getSelectedRow();
-    String blockedStatus = (String) mainTable.getValueAt(selectedRow, 5);
-    buttons.get(UNBLOCK_BUTTON).setVisible("Tak".equalsIgnoreCase(blockedStatus));
   }
 }
