@@ -36,7 +36,7 @@ public abstract class AbstractWindow implements WindowUtils {
 
   public static int CURRENT_PAGES;
 
-  protected HashMap<String, JButton> buttons = new HashMap<>();
+  protected Map<String, JButton> buttons = new HashMap<>();
 
   protected List<ActionListener> actions;
 
