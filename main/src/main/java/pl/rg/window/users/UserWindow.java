@@ -99,7 +99,7 @@ public class UserWindow extends JFrame implements WindowUtils {
       JOptionPane.showMessageDialog(this, "Dane użytkownika zaktualizowane");
       dispose();
     } catch (ValidationException ex) {
-      userWindowModel.showValidationMessage(ex, UserColumn.class);
+      userWindowModel.showValidationMessage(ex, UserColumn::getNameByJavaAttribute);
     } catch (RepositoryException ex1) {
       JOptionPane.showMessageDialog(this, "Błąd aktualizacji w bazie danych", "Błąd!",
           JOptionPane.ERROR_MESSAGE);
@@ -119,7 +119,7 @@ public class UserWindow extends JFrame implements WindowUtils {
         dispose();
       }
     } catch (ValidationException ex) {
-      userWindowModel.showValidationMessage(ex, UserColumn.class);
+      userWindowModel.showValidationMessage(ex, UserColumn::getNameByJavaAttribute);
     } catch (RepositoryException ex) {
       JOptionPane.showMessageDialog(this, "Błąd zapisu do bazy danych!", "Błąd!",
           JOptionPane.ERROR_MESSAGE);

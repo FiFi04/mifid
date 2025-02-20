@@ -17,18 +17,15 @@ import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.repository.MifidPage;
 import pl.rg.utils.repository.filter.Filter;
-import pl.rg.utils.repository.paging.Order;
-import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.window.AbstractWindow;
-import pl.rg.window.DataEnumColumn;
 
 @Getter
 public class EmailWindowModel extends AbstractWindow {
 
   public static final String RESEND_BUTTON = "Wyślij ponownie";
 
-  private static final String[] buttonNames = {"Wyślij nowego maila", "Szablony", "Szukaj",
+  private final String[] buttonNames = {"Wyślij nowego maila", "Szablony", "Szukaj",
       RESEND_BUTTON};
 
   private EmailModuleController emailModuleController;
@@ -41,6 +38,7 @@ public class EmailWindowModel extends AbstractWindow {
     this.searchPanel = searchPanel;
     this.sortColumnComboBox = sortColumnComboBox;
     this.pageNumberComboBox = pageNumberComboBox;
+    createActions();
   }
 
   @Override
@@ -111,9 +109,10 @@ public class EmailWindowModel extends AbstractWindow {
   }
 
   private void updateTable() {
-    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this, EmailColumn.class);
+    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this,
+        EmailColumn::getDbColumnByName);
     List<Filter> filters = getFilters(fieldValues);
-    Page page = getPage(EmailColumn.class);
+    Page page = getPage(EmailColumn::getDbColumnByName);
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
   }

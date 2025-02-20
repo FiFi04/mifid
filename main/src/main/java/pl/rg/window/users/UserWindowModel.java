@@ -25,7 +25,7 @@ public class UserWindowModel extends AbstractWindow {
 
   public static final String UNBLOCK_BUTTON = "Odblokuj";
 
-  private static final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
+  private final String[] buttonNames = {"Dodaj", "Edytuj", "Usuń", "Szukaj",
       "Resetuj hasło", UNBLOCK_BUTTON};
 
   private UserModuleController userModuleController;
@@ -40,6 +40,7 @@ public class UserWindowModel extends AbstractWindow {
     this.searchPanel = searchPanel;
     this.sortColumnComboBox = sortColumnComboBox;
     this.pageNumberComboBox = pageNumberComboBox;
+    createActions();
   }
 
   @Override
@@ -137,9 +138,10 @@ public class UserWindowModel extends AbstractWindow {
   }
 
   private void updateTable() {
-    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this, UserColumn.class);
+    HashMap<String, String> fieldValues = getFieldsValues(searchPanel, this,
+        UserColumn::getDbColumnByName);
     List<Filter> filters = getFilters(fieldValues);
-    Page page = getPage(UserColumn.class);
+    Page page = getPage(UserColumn::getDbColumnByName);
     DefaultTableModel tableUpdate = getUpdatedTable(filters, page);
     mainTable.setModel(tableUpdate);
   }

@@ -5,11 +5,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import pl.rg.users.model.UserModel;
-import pl.rg.window.DataEnumColumn;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum UserColumn implements DataEnumColumn {
+public enum UserColumn {
 
   ID("Id", UserModel.ID, false, true, "id"),
   LOGIN("Login", UserModel.USER_NAME, false, true, "userName"),
@@ -28,16 +27,29 @@ public enum UserColumn implements DataEnumColumn {
 
   private String javaAttribute;
 
-  public static String[] getSearchColumns() {
+  static String[] getSearchColumns() {
     return Arrays.stream(values())
         .filter(u -> u.activeSearch)
-        .map(u -> u.getName())
-        .toArray(size -> new String[size]);
+        .map(UserColumn::getName)
+        .toArray(String[]::new);
   }
 
-  public static String[] getColumnNames() {
+  static String[] getColumnNames() {
     return Arrays.stream(values())
-        .map(u -> u.getName())
-        .toArray(size -> new String[size]);
+        .map(UserColumn::getName)
+        .toArray(String[]::new);
+  }
+
+  static String getNameByJavaAttribute(String javaAttribute) {
+    return Arrays.stream(values())
+        .filter(v -> v.getJavaAttribute().equals(javaAttribute))
+        .findFirst().get().getName();
+  }
+
+  static String getDbColumnByName(String name) {
+    return Arrays.stream(values())
+        .filter(column -> column.getName().equals(name))
+        .map(UserColumn::getDbColumn)
+        .findFirst().get();
   }
 }

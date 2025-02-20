@@ -113,11 +113,10 @@ public class EmailWindow extends JFrame implements WindowUtils {
         emailWindowModel.getEmailModuleController()
             .sendEmail(subject, body, recipient, recipientCc);
       }
-
       JOptionPane.showMessageDialog(this, "Email został wysłany");
       dispose();
     } catch (ValidationException ex) {
-      emailWindowModel.showValidationMessage(ex, EmailColumn.class);
+      emailWindowModel.showValidationMessage(ex, EmailColumn::getNameByJavaAttribute);
     } catch (RuntimeException ex) {
       JOptionPane.showMessageDialog(this, "Błąd podczas wysyłki maila. Mail nie został wysłany.",
           "Błąd wysyłki", JOptionPane.ERROR_MESSAGE);

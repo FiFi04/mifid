@@ -205,26 +205,16 @@ public class MainWindow extends JFrame {
 
   private void addTableSelectionListener() {
     mainTable.getSelectionModel().addListSelectionListener(e -> {
-      if (mainTable.getSelectedRow() != -1 && currentTableWindow instanceof UserWindowModel) {
-        updateUnblockButtonVisibility();
-      } else if (mainTable.getSelectedRow() != -1
-          && currentTableWindow instanceof EmailWindowModel) {
-        updateResendButtonVisibility();
+      int selectedRow = mainTable.getSelectedRow();
+      if (selectedRow != -1 && currentTableWindow instanceof UserWindowModel) {
+        String blockedStatus = (String) mainTable.getValueAt(selectedRow, 5);
+        userWindowModel.changeButtonVisibility(UserWindowModel.UNBLOCK_BUTTON,
+            "Tak".equalsIgnoreCase(blockedStatus));
+      } else if (selectedRow != -1 && currentTableWindow instanceof EmailWindowModel) {
+        String sentStatus = mainTable.getValueAt(selectedRow, 6).toString();
+        emailWindowModel.changeButtonVisibility(EmailWindowModel.RESEND_BUTTON,
+            EmailStatus.ERROR.toString().equalsIgnoreCase(sentStatus));
       }
     });
-  }
-
-  private void updateResendButtonVisibility() {
-    int selectedRow = mainTable.getSelectedRow();
-    String sentStatus = mainTable.getValueAt(selectedRow, 6).toString();
-    AbstractWindow.buttons.get(EmailWindowModel.RESEND_BUTTON)
-        .setVisible(EmailStatus.ERROR.toString().equalsIgnoreCase(sentStatus));
-  }
-
-  private void updateUnblockButtonVisibility() {
-    int selectedRow = mainTable.getSelectedRow();
-    String blockedStatus = (String) mainTable.getValueAt(selectedRow, 5);
-    AbstractWindow.buttons.get(UserWindowModel.UNBLOCK_BUTTON)
-        .setVisible("Tak".equalsIgnoreCase(blockedStatus));
   }
 }

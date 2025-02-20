@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -26,7 +27,6 @@ import pl.rg.utils.repository.filter.Filter;
 import pl.rg.utils.repository.paging.Order;
 import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
-import pl.rg.window.emails.EmailColumn;
 import pl.rg.window.emails.EmailWindowModel;
 import pl.rg.window.users.UserWindowModel;
 
@@ -36,9 +36,7 @@ public abstract class AbstractWindow implements WindowUtils {
 
   public static int CURRENT_PAGES;
 
-  public static HashMap<String, JButton> buttons = new HashMap<>();
-
-  protected String[] buttonNames;
+  protected HashMap<String, JButton> buttons = new HashMap<>();
 
   protected List<ActionListener> actions;
 
@@ -49,10 +47,6 @@ public abstract class AbstractWindow implements WindowUtils {
   protected JComboBox<String> sortColumnComboBox;
 
   protected JComboBox<Integer> pageNumberComboBox;
-
-  public AbstractWindow() {
-    createActions();
-  }
 
   protected Logger logger = LoggerImpl.getInstance();
 
@@ -85,7 +79,12 @@ public abstract class AbstractWindow implements WindowUtils {
     return actions;
   }
 
+  public void changeButtonVisibility(String buttonName, boolean visibility) {
+    buttons.get(buttonName).setVisible(visibility);
+  }
+
   public ActionListener getMethodByAction(String action) {
+    String[] buttonNames = getButtonNames();
     for (int i = 0; i < buttonNames.length; i++) {
       if (buttonNames[i].equals(action)) {
         return getActions().get(i);
@@ -129,9 +128,8 @@ public abstract class AbstractWindow implements WindowUtils {
 
   public void updateRightPanel(JPanel rightPanel) {
     rightPanel.removeAll();
-    buttonNames = getButtonNames();
     Dimension buttonSize = new Dimension(120, 25);
-    for (String button : buttonNames) {
+    for (String button : getButtonNames()) {
       rightPanel.add(Box.createVerticalStrut(10));
       JButton jButton = new JButton(button);
       jButton.setMaximumSize(buttonSize);
@@ -150,40 +148,35 @@ public abstract class AbstractWindow implements WindowUtils {
     rightPanel.repaint();
   }
 
-  public <T extends Enum<T> & DataEnumColumn> void showValidationMessage(ValidationException e,
-      Class<T> dataEnumColumn) {
+  public void showValidationMessage(ValidationException e, Function<String, String> nameResolver) {
     String[] messageSplited = e.getMessage().split(":");
     Map<String, String> constraintsMap = e.getConstraintsMap();
-    String message = constraintsMap.entrySet().stream().map(c -> {
-      String nameColumnName = DataEnumColumn.getNameByJavaAttribute(dataEnumColumn, c.getKey())
-          .get();
-      return "Pole " + nameColumnName + ": " + c.getValue();
-    }).collect(Collectors.joining("\n"));
-
+    String message = constraintsMap.entrySet().stream()
+        .map(c -> "Pole " + nameResolver.apply(c.getKey()) + ": " + c.getValue())
+        .collect(Collectors.joining("\n"));
     JOptionPane.showMessageDialog(new JFrame(), message, messageSplited[0],
         JOptionPane.WARNING_MESSAGE);
   }
 
-  public <T extends Enum<T> & DataEnumColumn> HashMap<String, String> getFieldsValues(
-      JPanel searchPanel, AbstractWindow window, Class<T> dataEnumColumn) {
+  public HashMap<String, String> getFieldsValues(JPanel searchPanel, AbstractWindow window,
+      Function<String, String> nameResolver) {
     return Arrays.stream(window.getSearchColumns())
         .collect(Collectors.toMap(
-            columnName -> DataEnumColumn.getDbColumnByName(dataEnumColumn, columnName).get(),
+            nameResolver::apply,
             columnName -> getTextFieldValue(searchPanel, columnName),
             (existing, newValue) -> existing,
             HashMap::new
         ));
   }
 
-  public <T extends Enum<T> & DataEnumColumn> Page getPage(Class<T> dataEnumColumn) {
+  public Page getPage(Function<String, String> nameResolver) {
     String sortColumn = (String) sortColumnComboBox.getSelectedItem();
     int pageNumber = (int) pageNumberComboBox.getSelectedItem();
     Page page = new Page();
     page.setFrom((pageNumber - 1) * AbstractWindow.PAGE_SIZE);
     page.setTo(pageNumber * AbstractWindow.PAGE_SIZE);
     page.setOrders(
-        List.of(new Order(DataEnumColumn.getDbColumnByName(dataEnumColumn, sortColumn).get(),
-            OrderType.ASC)));
+        List.of(new Order(nameResolver.apply(sortColumn), OrderType.ASC)));
     return page;
   }
 }
