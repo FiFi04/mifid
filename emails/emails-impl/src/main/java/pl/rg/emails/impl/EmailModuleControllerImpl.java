@@ -2,6 +2,7 @@ package pl.rg.emails.impl;
 
 import java.util.List;
 import java.util.Map;
+import lombok.Data;
 import pl.rg.Email;
 import pl.rg.EmailDto;
 import pl.rg.EmailModuleApi;
@@ -19,6 +20,7 @@ import pl.rg.utils.repository.paging.Page;
 import pl.rg.utils.validator.api.ValidatorService;
 
 @Controller
+@Data
 public class EmailModuleControllerImpl implements EmailModuleController {
 
   @Autowire
@@ -44,6 +46,7 @@ public class EmailModuleControllerImpl implements EmailModuleController {
     }
   }
 
+  @Override
   public void resendEmail(int emailID) {
     emailModuleApi.resendEmail(emailID);
   }
