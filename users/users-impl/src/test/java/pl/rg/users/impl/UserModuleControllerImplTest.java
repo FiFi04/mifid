@@ -53,7 +53,7 @@ import pl.rg.utils.repository.paging.OrderType;
 import pl.rg.utils.repository.paging.Page;
 import pl.rg.utils.validator.api.ValidatorService;
 
-public class UserModuleControllerTest {
+public class UserModuleControllerImplTest {
 
   @Mock
   private DBConnector dbConnector;
@@ -245,8 +245,8 @@ public class UserModuleControllerTest {
     assertTrue(login);
     assertNotNull(SessionImpl.getInstance().getActiveSession());
     assertNull(userModel.getBlockedTime());
-    assertEquals(20, SessionImpl.getInstance().getActiveSession().getToken().length());
-    assertEquals(userModel.getUserName(), SessionImpl.getInstance().getActiveSession().getUser());
+    assertEquals(20, SessionImpl.getInstance().getActiveSessionToken().length());
+    assertEquals(userModel.getUserName(), SessionImpl.getInstance().getActiveSessionUsername());
     assertEquals(0, userModel.getLoginAttempts());
   }
 
