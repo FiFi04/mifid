@@ -38,6 +38,8 @@ public class PropertiesUtils {
 
   public static final String SESSION_MAXTIME = "session.maxTime";
 
+  public static final String EMAIL_MOCK = "email.mock";
+
   private static final String PROPERTIES_FILE = "app.properties";
 
   private static Logger logger = LoggerImpl.getInstance();

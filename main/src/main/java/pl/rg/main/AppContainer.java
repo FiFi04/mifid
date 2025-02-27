@@ -3,9 +3,9 @@ package pl.rg.main;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,9 +27,17 @@ import pl.rg.utils.logger.LoggerImpl;
 
 public class AppContainer {
 
-  static Logger logger = LoggerImpl.getInstance();
+  private static Logger logger = LoggerImpl.getInstance();
 
-  static Map<String, Object> container;
+  private static Map<String, Object> container;
+
+  private static Map<String, String> multipleInstances = new HashMap<>();
+
+  private static final String ILLEGAL_ACCESS = "Brak dostepu do metody";
+
+  private static final String NO_SUCH_METHOD = "Brak metody o podanej sygnaturze";
+
+  private static final String INVOCATION_EXCEPTION = "Błąd wywołania metody: ";
 
   static {
     container = getContainer();
@@ -59,6 +67,10 @@ public class AppContainer {
 
   private static void initializeContainer(Set<Class<?>> annotatedClasses,
       Map<String, Object> container) {
+    Reflections reflections = new Reflections(new ConfigurationBuilder()
+        .setUrls(ClasspathHelper.forPackage("pl.rg"))
+        .setScanners(Scanners.SubTypes)
+    );
     Class<?> aClass = null;
     try {
       for (Class<?> annotatedClass : annotatedClasses) {
@@ -72,35 +84,68 @@ public class AppContainer {
         Constructor<?> constructor = annotatedClass.getConstructor();
         Object instance = constructor.newInstance();
         container.put(lowerCase, instance);
+        if (className.toLowerCase().contains("api")) {
+          Set<Class<?>> subTypesOf = (Set<Class<?>>) reflections.getSubTypesOf(
+              Class.forName(implementedInterfaces[0].getName()));
+          if (subTypesOf.size() > 1) {
+            String factory = lowerCase.replace("Api", "Factory");
+            multipleInstances.put(lowerCase, factory);
+          }
+        }
       }
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-          new RepositoryException("Błąd wywołania metody: " + aClass));
+          new RepositoryException(INVOCATION_EXCEPTION + aClass));
     } catch (NoSuchMethodException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-          new RepositoryException("Brak metody o podanej sygnaturze"));
+          new RepositoryException(NO_SUCH_METHOD));
     } catch (InstantiationException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException("Nie można utworzyć obiektu"));
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(ILLEGAL_ACCESS));
+    } catch (ClassNotFoundException e) {
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+          new RepositoryException("Nie odnaleziono podanej metody"));
+    }
+  }
+
+  private static void updateContainerValue() {
+    Method createMethod = null;
+    for (Entry<String, String> entry : multipleInstances.entrySet()) {
+      String interfaceName = entry.getKey();
+      String factoryName = entry.getValue();
+      Object factoryInstance = container.get(factoryName);
+      try {
+        createMethod = factoryInstance.getClass().getMethod("createModule");
+        Object createdInstance = createMethod.invoke(factoryInstance);
+        container.put(interfaceName, createdInstance);
+      } catch (NoSuchMethodException e) {
+        throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+            new RepositoryException(NO_SUCH_METHOD));
+      } catch (InvocationTargetException e) {
+        throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+            new RepositoryException(INVOCATION_EXCEPTION + createMethod));
+      } catch (IllegalAccessException e) {
+        throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+            new RepositoryException(ILLEGAL_ACCESS));
+      }
     }
   }
 
   private static void initializeFields(Map<String, Object> container) {
+    updateContainerValue();
     try {
       for (Object classInstance : container.values()) {
         List<Field> fields = Arrays.stream(classInstance.getClass().getDeclaredFields())
             .filter(field -> field.isAnnotationPresent(Autowire.class))
             .toList();
         for (Field field : fields) {
-          Iterator<Entry<String, Object>> iterator = container.entrySet().iterator();
-          while (iterator.hasNext()) {
-            field.setAccessible(true);
-            Entry<String, Object> next = iterator.next();
-            String currentKey = next.getKey();
-            Object currentValue = next.getValue();
+          field.setAccessible(true);
+          for (Entry<String, Object> entry : container.entrySet()) {
+            String currentKey = entry.getKey();
+            Object currentValue = entry.getValue();
             if (field.getType().isAssignableFrom(currentValue.getClass())) {
               field.set(classInstance, container.get(currentKey));
             }
@@ -109,7 +154,7 @@ public class AppContainer {
       }
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-          new RepositoryException("Brak dostepu do metody"));
+          new RepositoryException(ILLEGAL_ACCESS));
     }
   }
 }
