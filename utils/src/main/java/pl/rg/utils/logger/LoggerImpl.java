@@ -28,6 +28,8 @@ public class LoggerImpl implements Logger {
 
   private static LoggerImpl loggerImpl;
 
+  private final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
   private String logDirectory;
 
   private LogType logType;
@@ -35,8 +37,6 @@ public class LoggerImpl implements Logger {
   private BufferedWriter writer;
 
   private File logFile;
-
-  private final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
   private LogLevel logLevel;
 

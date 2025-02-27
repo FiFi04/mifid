@@ -58,11 +58,6 @@ public class UserModel extends MifidGeneral<Integer> {
   @FieldCategory(dbField = true)
   private LocalDateTime blockedTime;
 
-  @Override
-  public String getTableName() {
-    return TABLE_NAME;
-  }
-
   public UserModel(String userName, String password, String firstName, String lastName,
       String email) {
     this.userName = userName;
@@ -70,5 +65,10 @@ public class UserModel extends MifidGeneral<Integer> {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
+  }
+
+  @Override
+  public String getTableName() {
+    return TABLE_NAME;
   }
 }

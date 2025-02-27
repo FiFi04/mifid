@@ -17,6 +17,7 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import lombok.Data;
 import pl.rg.Email;
 import pl.rg.EmailModuleApi;
 import pl.rg.emails.mapper.EmailMapper;
@@ -38,7 +39,10 @@ import pl.rg.utils.repository.filter.Filter;
 import pl.rg.utils.repository.paging.Page;
 
 @Service
+@Data
 public class EmailModuleImpl implements EmailModuleApi {
+
+  public static final String EMAIL_MESSAGE_EXCEPTION = "Błąd podczas wysyłki maila. Wiadomość nie została wysłana";
 
   @Autowire
   private UserModuleApi userModuleApi;
@@ -48,8 +52,6 @@ public class EmailModuleImpl implements EmailModuleApi {
 
   @Autowire
   private EmailTemplateRepository emailTemplateRepository;
-
-  private static final String EMAIL_MESSAGE_EXCEPTION = "Błąd podczas wysyłki maila. Wiadomość nie została wysłana";
 
   private EmailMapper emailMapper = EmailMapper.INSTANCE;
 
@@ -157,7 +159,7 @@ public class EmailModuleImpl implements EmailModuleApi {
   }
 
   private void saveEmailToDB(Email email) {
-    String currentUser = userModuleApi.getCurrentUserSession().getCurrentSessionUsername();
+    String currentUser = userModuleApi.getCurrentUserSession().getActiveSessionUsername();
     email.setSender(currentUser);
     email.setSentAttempts(1);
     email.setSentTime(LocalDateTime.now());

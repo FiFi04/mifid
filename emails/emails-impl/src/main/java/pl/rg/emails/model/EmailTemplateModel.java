@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pl.rg.utils.enums.EmailTemplateType;
 import pl.rg.utils.annotation.FieldCategory;
+import pl.rg.utils.enums.EmailTemplateType;
 import pl.rg.utils.repository.MifidGeneral;
 
 @Data

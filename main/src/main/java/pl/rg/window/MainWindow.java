@@ -81,6 +81,13 @@ public class MainWindow extends JFrame {
     });
   }
 
+  public static void display() {
+    SwingUtilities.invokeLater(() -> {
+      MainWindow window = new MainWindow();
+      window.setVisible(true);
+    });
+  }
+
   private void addButtonActions(JPanel searchPanel, JPanel rightPanel, JPanel sortPagePanel,
       UserModuleController userModuleController) {
     usersButton.addActionListener(
@@ -194,13 +201,6 @@ public class MainWindow extends JFrame {
     leftPanel.add(Box.createVerticalGlue());
 
     return leftPanel;
-  }
-
-  public static void display() {
-    SwingUtilities.invokeLater(() -> {
-      MainWindow window = new MainWindow();
-      window.setVisible(true);
-    });
   }
 
   private void addTableSelectionListener() {

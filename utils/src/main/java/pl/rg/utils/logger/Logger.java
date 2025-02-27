@@ -8,7 +8,8 @@ public interface Logger {
 
   void logSql(LogLevel logLevel, String message);
 
-  void logAnException(LogLevel logLevel, Throwable exception, String message, Object... additionalArguments);
+  void logAnException(LogLevel logLevel, Throwable exception, String message,
+      Object... additionalArguments);
 
   <T extends RepositoryException> T logAndThrowRepositoryException(LogLevel logLevel, T exception);
 

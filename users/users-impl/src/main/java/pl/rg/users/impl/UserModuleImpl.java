@@ -13,12 +13,13 @@ import pl.rg.EmailModuleApi;
 import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.User;
 import pl.rg.users.UserModuleApi;
+import pl.rg.users.UserSession;
 import pl.rg.users.mapper.UserMapper;
 import pl.rg.users.model.SessionModel;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.SessionRepository;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.users.session.SessionImpl;
+import pl.rg.users.session.UserSessionImpl;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.db.PropertiesUtils;
@@ -51,7 +52,7 @@ public class UserModuleImpl implements UserModuleApi {
 
   private UserMapper userMapper = UserMapper.INSTANCE;
 
-  private SessionImpl session = SessionImpl.getInstance();
+  private UserSession session = UserSessionImpl.getInstance();
 
   @Override
   public void addUser(User user) {
@@ -130,7 +131,7 @@ public class UserModuleImpl implements UserModuleApi {
     session.setStartTimeCounter(LocalTime.now());
     session.setActiveSession(
         new SessionModel(currentUser, generateToken(), LocalDateTime.now(), null));
-    logger.log(LogLevel.INFO, "Rozpoczęto sesję " + session.getActiveSession().getToken());
+    logger.log(LogLevel.INFO, "Rozpoczęto sesję " + session.getActiveSessionToken());
   }
 
   @Override
@@ -148,14 +149,14 @@ public class UserModuleImpl implements UserModuleApi {
 
   @Override
   public void endSession() {
-    session.getActiveSession().setLogoutTime(LocalDateTime.now());
-    sessionRepository.save(session.getActiveSession());
-    logger.log(LogLevel.INFO, "Zakończono sesję " + session.getActiveSession().getToken());
+    session.setActiveSessionLogoutTime(LocalDateTime.now());
+    sessionRepository.save((SessionModel) session.getActiveSession());
+    logger.log(LogLevel.INFO, "Zakończono sesję " + session.getActiveSessionToken());
     session.setActiveSession(null);
   }
 
   @Override
-  public SessionImpl getCurrentUserSession() {
+  public UserSession getCurrentUserSession() {
     return session;
   }
 

@@ -34,6 +34,8 @@ import pl.rg.utils.repository.paging.Page;
 @Data
 public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements Repository<T, E> {
 
+  protected Logger logger = LoggerImpl.getInstance();
+  
   private T t;
 
   private E lastSavedObjectId;
@@ -41,8 +43,6 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
   private boolean rollback = false;
 
   private int innerLevel = 0;
-
-  protected Logger logger = LoggerImpl.getInstance();
 
   @Override
   public MifidPage<T> findAll(List<Filter> filters, Page page) {
@@ -587,7 +587,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     }
   }
 
-  private String getArrayObjectsAsString(Field objectField, T object) throws IllegalAccessException {
+  private String getArrayObjectsAsString(Field objectField, T object)
+      throws IllegalAccessException {
     Object[] array = (Object[]) objectField.get(object);
     return Arrays.stream(array)
         .map(Object::toString)
@@ -678,7 +679,8 @@ public abstract class MifidRepository<T extends MifidGeneral<E>, E> implements R
     return mifidObject;
   }
 
-  private void setArrayObjects(Field field, Object object, T mifidObject) throws IllegalAccessException {
+  private void setArrayObjects(Field field, Object object, T mifidObject)
+      throws IllegalAccessException {
     String[] split = object.toString().split("; ");
     Class<?> componentType = field.getType().getComponentType();
     Object array = Array.newInstance(componentType, split.length);

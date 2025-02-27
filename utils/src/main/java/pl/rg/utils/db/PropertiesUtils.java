@@ -36,6 +36,8 @@ public class PropertiesUtils {
 
   public static final String EMAIL_STARTTLS = "email.starttls";
 
+  public static final String SESSION_MAXTIME = "session.maxTime";
+
   private static final String PROPERTIES_FILE = "app.properties";
 
   private static Logger logger = LoggerImpl.getInstance();
@@ -51,7 +53,7 @@ public class PropertiesUtils {
     return properties.getProperty(key);
   }
 
-  public static int getIntProperty(String key){
+  public static int getIntProperty(String key) {
     String property = getProperty(key);
     try {
       return Integer.parseInt(property);

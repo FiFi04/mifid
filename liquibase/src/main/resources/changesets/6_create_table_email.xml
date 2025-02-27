@@ -1,16 +1,11 @@
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="6" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <tableExists tableName="email"/>
-      </not>
-    </preConditions>
+  <changeSet author="rg" context="dev, prod" failOnError="true" id="6">
     <createTable tableName="email">
-      <column name="id" type="int" autoIncrement="true">
+      <column autoIncrement="true" name="id" type="int">
         <constraints primaryKey="true"/>
       </column>
       <column name="subject" type="varchar(100)">
@@ -20,8 +15,8 @@
         <constraints nullable="false"/>
       </column>
       <column name="sender" type="varchar(10)">
-        <constraints nullable="false" foreignKeyName="fk_email_user" referencedTableName="user"
-          referencedColumnNames="user_name"/>
+        <constraints foreignKeyName="fk_email_user" nullable="false" referencedColumnNames="user_name"
+          referencedTableName="user"/>
       </column>
       <column name="recipient" type="varchar(1000)">
         <constraints nullable="false"/>
@@ -31,13 +26,18 @@
         <constraints nullable="false"/>
       </column>
       <column name="error_message" type="varchar(100)"/>
-      <column name="sent_attempts" type="int" defaultValue="0">
+      <column defaultValue="0" name="sent_attempts" type="int">
         <constraints nullable="false"/>
       </column>
       <column name="sent_time" type="datetime">
         <constraints nullable="false"/>
       </column>
     </createTable>
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="email"/>
+      </not>
+    </preConditions>
     <rollback>
       <dropTable tableName="email"/>
     </rollback>

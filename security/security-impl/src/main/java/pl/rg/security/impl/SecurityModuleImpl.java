@@ -34,10 +34,10 @@ import pl.rg.utils.validator.impl.BaseValidator;
 @Service
 public class SecurityModuleImpl implements SecurityModuleApi {
 
+  public static final String ALGORITHM_TYPE = "RSA";
+
   @Autowire
   private PublicKeyHashRepository publicKeyHashRepository;
-
-  public static final String ALGORITHM_TYPE = "RSA";
 
   public Logger getLogger() {
     return LoggerImpl.getInstance();

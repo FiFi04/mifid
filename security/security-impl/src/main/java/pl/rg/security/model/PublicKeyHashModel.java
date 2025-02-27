@@ -16,10 +16,10 @@ public class PublicKeyHashModel extends MifidGeneral<Integer> {
   @FieldCategory(dbColumn = true)
   public static final String KEY_HASH = "key_hash";
 
+  public static final String TABLE_NAME = "public_key_hash";
+
   @FieldCategory(dbField = true)
   private String keyHash;
-
-  public static final String TABLE_NAME = "public_key_hash";
 
   public PublicKeyHashModel(Integer id, String keyHash) {
     super(id);

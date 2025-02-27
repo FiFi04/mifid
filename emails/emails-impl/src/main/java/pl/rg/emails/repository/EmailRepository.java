@@ -6,4 +6,5 @@ import pl.rg.utils.repository.MifidRepository;
 
 @Repository
 public class EmailRepository extends MifidRepository<EmailModel, Integer> {
+
 }

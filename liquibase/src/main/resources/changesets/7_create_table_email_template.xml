@@ -1,16 +1,11 @@
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="8" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <tableExists tableName="email_template"/>
-      </not>
-    </preConditions>
+  <changeSet author="rg" context="dev, prod" failOnError="true" id="8">
     <createTable tableName="email_template">
-      <column name="id" type="int" autoIncrement="true">
+      <column autoIncrement="true" name="id" type="int">
         <constraints primaryKey="true"/>
       </column>
       <column name="name" type="varchar(100)">
@@ -23,6 +18,11 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="email_template"/>
+      </not>
+    </preConditions>
     <rollback>
       <dropTable tableName="email_template"/>
     </rollback>
