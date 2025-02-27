@@ -19,7 +19,7 @@ import pl.rg.users.model.SessionModel;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.SessionRepository;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.users.session.SessionImpl;
+import pl.rg.users.session.UserSessionImpl;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.db.PropertiesUtils;
@@ -52,7 +52,7 @@ public class UserModuleImpl implements UserModuleApi {
 
   private UserMapper userMapper = UserMapper.INSTANCE;
 
-  private UserSession session = SessionImpl.getInstance();
+  private UserSession session = UserSessionImpl.getInstance();
 
   @Override
   public void addUser(User user) {

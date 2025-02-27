@@ -1,6 +1,6 @@
 package pl.rg.utils.exception;
 
-public class ApplicationException extends RuntimeException{
+public class ApplicationException extends RuntimeException {
 
   public ApplicationException() {
   }

@@ -25,7 +25,8 @@ public class UserTestModel {
   public List<User> returnUserList() {
     List<User> users = List.of(
         new UserImpl(1, "jankow", "password1", "Jan", "Kowalski", "jan.kowalski@example.com", null),
-        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com", null));
+        new UserImpl(2, "tomnow", "password2", "Tomasz", "Nowak", "tomasz.nowak@example.com",
+            null));
 
     return users;
   }

@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum EmailTemplateType {
-  NEW_ACCOUNT ("Dodanie konta"),
-  RESET_PASSWORD ("Reset hasła");
+  NEW_ACCOUNT("Dodanie konta"),
+  RESET_PASSWORD("Reset hasła");
 
   private String windowColumnName;
 }

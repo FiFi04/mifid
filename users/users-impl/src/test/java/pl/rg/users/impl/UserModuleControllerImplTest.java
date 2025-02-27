@@ -39,7 +39,7 @@ import pl.rg.security.SecurityModuleApi;
 import pl.rg.users.UserDto;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.users.session.SessionImpl;
+import pl.rg.users.session.UserSessionImpl;
 import pl.rg.utils.db.DBConnector;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.exception.ValidationException;
@@ -94,7 +94,7 @@ public class UserModuleControllerImplTest {
 
   @AfterEach
   public void tearDown() {
-    SessionImpl.getInstance().setActiveSession(null);
+    UserSessionImpl.getInstance().setActiveSession(null);
   }
 
   @Test
@@ -243,10 +243,10 @@ public class UserModuleControllerImplTest {
 
     //then
     assertTrue(login);
-    assertNotNull(SessionImpl.getInstance().getActiveSession());
+    assertNotNull(UserSessionImpl.getInstance().getActiveSession());
     assertNull(userModel.getBlockedTime());
-    assertEquals(20, SessionImpl.getInstance().getActiveSessionToken().length());
-    assertEquals(userModel.getUserName(), SessionImpl.getInstance().getActiveSessionUsername());
+    assertEquals(20, UserSessionImpl.getInstance().getActiveSessionToken().length());
+    assertEquals(userModel.getUserName(), UserSessionImpl.getInstance().getActiveSessionUsername());
     assertEquals(0, userModel.getLoginAttempts());
   }
 
@@ -271,7 +271,7 @@ public class UserModuleControllerImplTest {
 
     //then
     assertNotNull(exceptionThrown);
-    assertNull(SessionImpl.getInstance().getActiveSession());
+    assertNull(UserSessionImpl.getInstance().getActiveSession());
     assertInstanceOf(ApplicationException.class, exceptionThrown);
     assertEquals("U34LV: Wykorzystano wszystkie próby logowania. Spróbuj ponownie później.",
         exceptionThrown.getMessage());
@@ -301,7 +301,7 @@ public class UserModuleControllerImplTest {
 
     //then
     assertNotNull(exceptionThrown);
-    assertNull(SessionImpl.getInstance().getActiveSession());
+    assertNull(UserSessionImpl.getInstance().getActiveSession());
     assertInstanceOf(ApplicationException.class, exceptionThrown);
     assertEquals(2, availableLoginAttempts);
     assertEquals("U35LV: Błędne dane podczas logowania. Pozostało " + availableLoginAttempts

@@ -24,8 +24,6 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   public static final Map<ValidatorCase, String> classNameResolver = new HashMap<>();
 
-  private Logger logger = LoggerImpl.getInstance();
-
   static {
     classNameResolver.put(ValidatorCase.TEXT, "pl.rg.utils.validator.impl.TextValidator");
     classNameResolver.put(ValidatorCase.IDENTIFICATION_NUMBER,
@@ -35,6 +33,8 @@ public class ValidatorServiceImpl implements ValidatorService {
     classNameResolver.put(ValidatorCase.PASSWORD,
         "pl.rg.security.validator.PasswordValidator");
   }
+
+  private Logger logger = LoggerImpl.getInstance();
 
   public Map<String, String> validateFields(Object object) {
     Map<String, String> constraints = new HashMap<>();

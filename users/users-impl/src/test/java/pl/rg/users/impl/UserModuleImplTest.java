@@ -37,7 +37,7 @@ import pl.rg.users.User;
 import pl.rg.users.model.SessionModel;
 import pl.rg.users.model.UserModel;
 import pl.rg.users.repository.UserRepository;
-import pl.rg.users.session.SessionImpl;
+import pl.rg.users.session.UserSessionImpl;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.LoggerImpl;
@@ -54,6 +54,9 @@ class UserModuleImplTest {
   @Mock
   UserRepository userRepository;
 
+  @InjectMocks
+  UserModuleImpl userModule;
+
   @Mock
   private SecurityModuleApi securityModuleApi;
 
@@ -61,13 +64,10 @@ class UserModuleImplTest {
   private LoggerImpl logger;
 
   @Mock
-  private SessionImpl session;
+  private UserSessionImpl session;
 
   @Mock
   private EmailModuleApi emailModuleApi;
-
-  @InjectMocks
-  UserModuleImpl userModule;
 
   private UserTestModel userTestModel;
 
@@ -325,8 +325,8 @@ class UserModuleImplTest {
   public void whenLoginWithValidData_thenShouldStartSession() {
     //given
     UserModel userModel = userTestModel.returnUserModel();
-    try (MockedStatic<SessionImpl> sessionMockedStatic = mockStatic(SessionImpl.class)) {
-      sessionMockedStatic.when(SessionImpl::getInstance).thenReturn(session);
+    try (MockedStatic<UserSessionImpl> sessionMockedStatic = mockStatic(UserSessionImpl.class)) {
+      sessionMockedStatic.when(UserSessionImpl::getInstance).thenReturn(session);
 
       doAnswer(invocation -> {
         LocalTime startTime = invocation.getArgument(0);

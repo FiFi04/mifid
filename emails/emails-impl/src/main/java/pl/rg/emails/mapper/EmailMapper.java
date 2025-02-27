@@ -15,22 +15,12 @@ import pl.rg.utils.pageAndSort.MifidPageMapper;
 import pl.rg.utils.repository.MifidPage;
 
 @Mapper
-public interface EmailMapper extends MifidPageMapper {
+public abstract class EmailMapper implements MifidPageMapper {
 
-  EmailMapper INSTANCE = Mappers.getMapper(EmailMapper.class);
-
-  EmailModel domainToEmailModel(Email email);
-
-  Email emailModelToDomain(EmailModel emailModel);
-
-  Email dtoToDomain(EmailDto emailDto);
-
-  @Mapping(source = "recipient", target = "recipientAsText", qualifiedByName = "recipientArrayToText")
-  @Mapping(source = "recipientCc", target = "recipientCcAsText", qualifiedByName = "recipientArrayToText")
-  EmailDto domainToDto(Email emailModel);
+  public static final EmailMapper INSTANCE = Mappers.getMapper(EmailMapper.class);
 
   @Named("recipientArrayToText")
-  static String recipientArrayToText(String[] recipient) {
+  String recipientArrayToText(String[] recipient) {
     if (recipient == null) {
       return "";
     }
@@ -39,12 +29,22 @@ public interface EmailMapper extends MifidPageMapper {
         .collect(Collectors.joining("; "));
   }
 
+  public abstract EmailModel domainToEmailModel(Email email);
+
+  public abstract Email emailModelToDomain(EmailModel emailModel);
+
+  public abstract Email dtoToDomain(EmailDto emailDto);
+
+  @Mapping(source = "recipient", target = "recipientAsText", qualifiedByName = "recipientArrayToText")
+  @Mapping(source = "recipientCc", target = "recipientCcAsText", qualifiedByName = "recipientArrayToText")
+  public abstract EmailDto domainToDto(Email emailModel);
+
   @ObjectFactory
-  default Email createEmail() {
+  public Email createEmail() {
     return new EmailImpl();
   }
 
-  MifidPage<Email> emailModelPageToEmailPage(MifidPage<EmailModel> emailModelPage);
+  public abstract MifidPage<Email> emailModelPageToEmailPage(MifidPage<EmailModel> emailModelPage);
 
-  MifidPage<EmailDto> emailPageToEmailDtoPage(MifidPage<Email> emailPage);
+  public abstract MifidPage<EmailDto> emailPageToEmailDtoPage(MifidPage<Email> emailPage);
 }

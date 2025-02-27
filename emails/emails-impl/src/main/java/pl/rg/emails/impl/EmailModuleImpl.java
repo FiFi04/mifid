@@ -42,6 +42,8 @@ import pl.rg.utils.repository.paging.Page;
 @Data
 public class EmailModuleImpl implements EmailModuleApi {
 
+  public static final String EMAIL_MESSAGE_EXCEPTION = "Błąd podczas wysyłki maila. Wiadomość nie została wysłana";
+
   @Autowire
   private UserModuleApi userModuleApi;
 
@@ -50,8 +52,6 @@ public class EmailModuleImpl implements EmailModuleApi {
 
   @Autowire
   private EmailTemplateRepository emailTemplateRepository;
-
-  public static final String EMAIL_MESSAGE_EXCEPTION = "Błąd podczas wysyłki maila. Wiadomość nie została wysłana";
 
   private EmailMapper emailMapper = EmailMapper.INSTANCE;
 

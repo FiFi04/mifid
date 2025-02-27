@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>pl.rg</groupId>
-        <artifactId>mifid</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>liquibase</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <configuration>
+          <propertyFile>liquibase.properties</propertyFile>
+          <searchPath>src/main/resources</searchPath>
+        </configuration>
+        <groupId>org.liquibase</groupId>
+        <version>4.28.0</version>
+      </plugin>
+    </plugins>
+  </build>
 
-    <artifactId>liquibase</artifactId>
+  <dependencies>
+    <dependency>
+      <artifactId>liquibase-core</artifactId>
+      <groupId>org.liquibase</groupId>
+      <version>4.28.0</version>
+    </dependency>
+  </dependencies>
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-            <version>4.28.0</version>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-maven-plugin</artifactId>
-                <version>4.28.0</version>
-                <configuration>
-                    <propertyFile>liquibase.properties</propertyFile>
-                    <searchPath>src/main/resources</searchPath>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>mifid</artifactId>
+    <groupId>pl.rg</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 </project>

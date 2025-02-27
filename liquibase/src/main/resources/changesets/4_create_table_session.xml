@@ -1,21 +1,16 @@
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="4" author="rg" failOnError="true" context="dev, prod">
-    <preConditions onFail="MARK_RAN">
-      <not>
-        <tableExists tableName="session"/>
-      </not>
-    </preConditions>
+  <changeSet author="rg" context="dev, prod" failOnError="true" id="4">
     <createTable tableName="session">
-      <column name="id" type="int" autoIncrement="true">
+      <column autoIncrement="true" name="id" type="int">
         <constraints primaryKey="true"/>
       </column>
       <column name="user" type="varchar(10)">
-        <constraints nullable="false" foreignKeyName="fk_session_user" referencedTableName="user"
-          referencedColumnNames="user_name"/>
+        <constraints foreignKeyName="fk_session_user" nullable="false" referencedColumnNames="user_name"
+          referencedTableName="user"/>
       </column>
       <column name="token" type="varchar(20)">
         <constraints nullable="false" unique="true"/>
@@ -27,6 +22,11 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="session"/>
+      </not>
+    </preConditions>
     <rollback>
       <dropTable tableName="session"/>
     </rollback>
