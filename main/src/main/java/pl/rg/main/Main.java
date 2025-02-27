@@ -2,6 +2,7 @@ package pl.rg.main;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import pl.rg.emails.impl.EmailModuleImpl;
 import pl.rg.users.UserModuleApi;
 import pl.rg.users.UserModuleController;
 import pl.rg.utils.logger.Logger;
@@ -34,8 +35,11 @@ public class Main {
     UserModuleController userControllerImpl = (UserModuleController) container.get(
         "userModuleController");
 
-//    userControllerImpl.logIn("jankow", "adsadfsa");
-    userControllerImpl.resetLoginAttempts("jankow");
+    EmailModuleImpl emi = (EmailModuleImpl) container.get("emailModuleImpl");
+    userModuleApiImpl.startSession("jankow");
+//    emi.sendEmail("Test", "Test body email", new String[]{"mifid.project@gmail.com","rafaello04@onet.pl"}, "mifid.project@gmail.com");
+//    emi.resendEmail(16);
+    System.out.println("EMAIL WYSLANY");
 
 //    Filter filter = new Filter("first_name", new Object[]{"Jan"}, FilterSearchType.MATCH);
 //    Filter filter2 = new Filter("last_name", new Object[]{"Nowak"},

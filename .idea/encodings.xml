@@ -5,6 +5,8 @@
     <file url="file://$PROJECT_DIR$/clients/clients-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/clients/clients-impl/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/clients/clients-impl/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/emails/emails-impl/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/emails/emails-impl/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eventLog/eventLog-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eventLog/eventLog-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eventLog/eventLog-impl/src/main/java" charset="UTF-8" />
