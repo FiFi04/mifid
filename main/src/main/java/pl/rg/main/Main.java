@@ -29,17 +29,17 @@ public class Main {
 //    System.out.println(encryptedPassword.get());
 //    Optional<String> decryptedPassword = securityModule.decryptPassword(encryptedPassword.get());
 //    System.ou  t.println(decryptedPassword.get());
-
-    UserModuleApi userModuleApiImpl = (UserModuleApi) container.get(
-        "userModuleApi");
-    UserModuleController userControllerImpl = (UserModuleController) container.get(
-        "userModuleController");
-
-    EmailModuleImpl emi = (EmailModuleImpl) container.get("emailModuleImpl");
-    userModuleApiImpl.startSession("jankow");
+//
+//    UserModuleApi userModuleApiImpl = (UserModuleApi) container.get(
+//        "userModuleApi");
+//    UserModuleController userControllerImpl = (UserModuleController) container.get(
+//        "userModuleController");
+//
+//    EmailModuleImpl emi = (EmailModuleImpl) container.get("emailModuleImpl");
+//    userModuleApiImpl.startSession("jankow");
 //    emi.sendEmail("Test", "Test body email", new String[]{"mifid.project@gmail.com","rafaello04@onet.pl"}, "mifid.project@gmail.com");
 //    emi.resendEmail(16);
-    System.out.println("EMAIL WYSLANY");
+//    System.out.println("EMAIL WYSLANY");
 
 //    Filter filter = new Filter("first_name", new Object[]{"Jan"}, FilterSearchType.MATCH);
 //    Filter filter2 = new Filter("last_name", new Object[]{"Nowak"},
