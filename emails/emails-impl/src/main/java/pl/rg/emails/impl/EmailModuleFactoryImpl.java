@@ -1,8 +1,7 @@
-package pl.rg.main.EmailModuleFactory;
+package pl.rg.emails.impl;
 
 import pl.rg.EmailModuleApi;
-import pl.rg.emails.impl.EmailModuleImpl;
-import pl.rg.emails.impl.EmailModuleMockImpl;
+import pl.rg.EmailModuleFactory;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.db.PropertiesUtils;
@@ -16,12 +15,9 @@ public class EmailModuleFactoryImpl implements EmailModuleFactory {
   @Autowire
   private EmailModuleImpl emailModule;
 
-  private boolean emailMock;
-
   @Override
   public EmailModuleApi getInstance() {
-    emailMock = Boolean.parseBoolean(
-        PropertiesUtils.getProperty(PropertiesUtils.EMAIL_MOCK).toLowerCase());
+    boolean emailMock = PropertiesUtils.getBooleanProperty(PropertiesUtils.EMAIL_MOCK);
     if (emailMock) {
       return emailModuleMock;
     } else {

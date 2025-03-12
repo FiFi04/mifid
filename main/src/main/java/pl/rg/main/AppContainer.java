@@ -19,7 +19,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
-import pl.rg.main.EmailModuleFactory.EmailModuleFactory;
+import pl.rg.EmailModuleFactory;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
 import pl.rg.utils.annotation.Repository;

@@ -3,6 +3,7 @@ package pl.rg.window;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionListener;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -62,5 +63,10 @@ public class LoginWindow extends JFrame {
           (UserModuleController) AppContainer.getContainer().get("userModuleController"));
       loginWindow.setVisible(true);
     });
+    Map<String, Object> container = AppContainer.getContainer();
+
+    for (Map.Entry<String, Object> entry : container.entrySet()) {
+      System.out.println(entry.getKey() + ":" + entry.getValue());
+    }
   }
 }
