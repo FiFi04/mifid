@@ -5,13 +5,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,15 +28,12 @@ import pl.rg.utils.exception.RepositoryException;
 import pl.rg.utils.logger.LogLevel;
 import pl.rg.utils.logger.Logger;
 import pl.rg.utils.logger.LoggerImpl;
-import pl.rg.utils.repository.MifidRepository;
 
 public class AppContainer {
 
   private static Logger logger = LoggerImpl.getInstance();
 
   private static Map<String, Object> container;
-
-  private static Map<String, String> multipleInstances = new HashMap<>();
 
   private static final String ILLEGAL_ACCESS = "Brak dostepu do metody";
 
@@ -72,43 +69,75 @@ public class AppContainer {
 
   private static void initializeContainer(Set<Class<?>> annotatedClasses,
       Map<String, Object> container) {
-    Reflections reflections = new Reflections(new ConfigurationBuilder()
-        .setUrls(ClasspathHelper.forPackage("pl.rg"))
-        .setScanners(Scanners.SubTypes)
-    );
     for (Class<?> annotatedClass : annotatedClasses) {
-      Class<?>[] inheritedInterfaces = getApiInterface(annotatedClass);
-      for (Class<?> implementedInterface : inheritedInterfaces) {
-        addToContainer(container, annotatedClass, reflections, implementedInterface);
-      }
-      Class<?>[] directInterfaces = annotatedClass.getInterfaces();
-      if (directInterfaces.length > 0) {
-        for (Class<?> directInterface : directInterfaces) {
-          addToContainer(container, annotatedClass, reflections, directInterface);
+      Class<?>[] interfaces = getInterfaces(annotatedClass);
+      List<Class<?>[]> implementations = getImplementations(interfaces);
+      for (Class<?>[] implementationClasses : implementations) {
+        for (Class<?> aClass : implementationClasses) {
+//          String annotationName = getAnnotationName(aClass);
+//          if (annotationName.isBlank() && implementationClasses.length > 1
+//              && !pl.rg.utils.repository.Repository.class.isAssignableFrom(annotatedClass)) {
+//            throw new ValidationException(
+//                "Interfejsy posiadające więcej niż 1 implementację powinny posiadać nazwy tych implementacji: "
+//                    + aClass);
+//          }
+          if (interfaces.length > 0) {
+            addToContainer(container, annotatedClass, interfaces[0]);
+          }
+          if (!aClass.getSimpleName().equals(annotatedClass.getSimpleName())) {
+            addToContainer(container, annotatedClass, null);
+          }
         }
-      } else {
-        addToContainer(container, annotatedClass, reflections, null);
       }
     }
-    sortContainer(container);
+  }
+// todo Adnotacje nad klasami service, controller, repository nie są brane pod uwagę w tej chwili
+//  private static String getAnnotationName(Class<?> aClass) {
+//    Annotation[] annotations = aClass.getAnnotations();
+//    for (Annotation annotation : annotations) {
+//      if (annotation.annotationType().equals(Controller.class)) {
+//        return ((Controller) annotation).name();
+//      } else if (annotation.annotationType().equals(Service.class)) {
+//        return ((Service) annotation).name();
+//      } else if (annotation.annotationType().equals(Repository.class)) {
+//        return ((Repository) annotation).name();
+//      }
+//    }
+//    return "";
+//  }
+
+  private static List<Class<?>[]> getImplementations(Class<?>[] interfaces) {
+    Set<Class<?>> allClasses = getAllAnnotatedClasses();
+    return Arrays.stream(interfaces)
+        .map(aInterface -> allClasses.stream()
+            .filter(aInterface::isAssignableFrom)
+            .toArray(Class<?>[]::new))
+        .collect(Collectors.toList());
+  }
+
+  private static Class<?>[] getInterfaces(Class<?> annotatedClass) {
+    Class<?>[] implementedInterfaces = annotatedClass.getInterfaces();
+    Class<?> superclass = annotatedClass.getSuperclass();
+    List<Class<?>> allInterfaces = new ArrayList<>();
+    if (implementedInterfaces.length > 0) {
+      return implementedInterfaces;
+    } else if (Modifier.isAbstract(superclass.getModifiers())) {
+      allInterfaces.addAll(List.of(getInterfaces(superclass)));
+    }
+    return allInterfaces.toArray(new Class<?>[0]);
   }
 
   private static void addToContainer(Map<String, Object> container, Class<?> annotatedClass,
-      Reflections reflections, Class<?> implementedInterface) {
+      Class<?> implementedInterface) {
     try {
-      String className = (implementedInterface != null) ? implementedInterface.getSimpleName()
-          : annotatedClass.getSimpleName();
-      String lowerCase = Character.toLowerCase(className.charAt(0)) + className.substring(1);
+      String className = Optional.ofNullable(implementedInterface)
+          .map(Class::getSimpleName)
+          .orElse(annotatedClass.getSimpleName());
+      String lowerCase =
+          Character.toLowerCase(className.charAt(0)) + className.substring(1);
       Constructor<?> constructor = annotatedClass.getConstructor();
       Object instance = constructor.newInstance();
       container.put(lowerCase, instance);
-      if (className.toLowerCase().contains("api")) {
-        Set<Class<?>> subTypesOf = (Set<Class<?>>) reflections.getSubTypesOf(implementedInterface);
-        if (subTypesOf.size() > 1) {
-          String factory = lowerCase.replace("Api", "Factory");
-          multipleInstances.put(lowerCase, factory);
-        }
-      }
     } catch (InvocationTargetException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
           new RepositoryException(INVOCATION_EXCEPTION + annotatedClass));
@@ -124,30 +153,8 @@ public class AppContainer {
     }
   }
 
-  private static Class<?>[] getApiInterface(Class<?> annotatedClass) {
-    Class<?>[] implementedInterfaces = annotatedClass.getInterfaces();
-    Class<?> superclass = annotatedClass.getSuperclass();
-    if (implementedInterfaces.length > 0) {
-      return implementedInterfaces;
-    } else if (Modifier.isAbstract(superclass.getModifiers()) && !superclass.isAssignableFrom(
-        MifidRepository.class)) {
-      implementedInterfaces = getApiInterface(superclass);
-    }
-    return implementedInterfaces;
-  }
-
-  private static void sortContainer(Map<String, Object> appContainer) {
-    container = appContainer.entrySet().stream()
-        .sorted(Comparator.comparing(entry -> !entry.getKey().toLowerCase().contains("factory")))
-        .collect(Collectors.toMap(
-            Entry::getKey,
-            Entry::getValue,
-            (oldValue, newValue) -> oldValue,
-            LinkedHashMap::new
-        ));
-  }
-
   private static void initializeFields(Map<String, Object> container) {
+    Object currentValue = null;
     try {
       for (Object classInstance : container.values()) {
         Class<?> currentClass = classInstance.getClass();
@@ -156,9 +163,18 @@ public class AppContainer {
               .filter(field -> field.isAnnotationPresent(Autowire.class))
               .toList();
           for (Field field : fields) {
-            field.setAccessible(true);
-            for (Entry<String, Object> entry : container.entrySet()) {
-              Object currentValue = entry.getValue();
+            String autowireName = field.getAnnotation(Autowire.class).name();
+            for (Entry<String, Object> nextObject : container.entrySet()) {
+              field.setAccessible(true);
+              String key = nextObject.getKey();
+              currentValue = nextObject.getValue();
+              if (autowireName.equals(key)) {
+                Method instanceMethod = currentValue.getClass()
+                    .getMethod(EmailModuleFactory.INSTANCE_METHOD_NAME);
+                Object createdInstance = instanceMethod.invoke(currentValue);
+                field.set(classInstance, createdInstance);
+                break;
+              }
               if (field.getType().isAssignableFrom(currentValue.getClass())) {
                 field.set(classInstance, currentValue);
                 break;
@@ -167,37 +183,16 @@ public class AppContainer {
           }
           currentClass = currentClass.getSuperclass();
         }
-        if (!classInstance.toString().toLowerCase().contains("factory")) {
-          updateContainerValue();
-        }
       }
     } catch (IllegalAccessException e) {
       throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-          new RepositoryException(ILLEGAL_ACCESS));
-    }
-  }
-
-  private static void updateContainerValue() {
-    Method createMethod = null;
-    for (Entry<String, String> entry : multipleInstances.entrySet()) {
-      String interfaceName = entry.getKey();
-      String factoryName = entry.getValue();
-      Object factoryInstance = container.get(factoryName);
-      try {
-        createMethod = factoryInstance.getClass()
-            .getMethod(EmailModuleFactory.INSTANCE_METHOD_NAME);
-        Object createdInstance = createMethod.invoke(factoryInstance);
-        container.put(interfaceName, createdInstance);
-      } catch (NoSuchMethodException e) {
-        throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-            new RepositoryException(NO_SUCH_METHOD));
-      } catch (InvocationTargetException e) {
-        throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-            new RepositoryException(INVOCATION_EXCEPTION + createMethod));
-      } catch (IllegalAccessException e) {
-        throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
-            new RepositoryException(ILLEGAL_ACCESS));
-      }
+          new RepositoryException("Brak dostepu do metody"));
+    } catch (InvocationTargetException e) {
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+          new RepositoryException(INVOCATION_EXCEPTION + currentValue));
+    } catch (NoSuchMethodException e) {
+      throw logger.logAndThrowRepositoryException(LogLevel.DEBUG,
+          new RepositoryException(NO_SUCH_METHOD));
     }
   }
 }
