@@ -175,7 +175,8 @@ public class AppContainer {
                 field.set(classInstance, createdInstance);
                 break;
               }
-              if (field.getType().isAssignableFrom(currentValue.getClass())) {
+              if (field.getType().isAssignableFrom(currentValue.getClass())
+                  && autowireName.isBlank()) {
                 field.set(classInstance, currentValue);
                 break;
               }
