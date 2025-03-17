@@ -7,6 +7,7 @@ import pl.rg.Email;
 import pl.rg.EmailDto;
 import pl.rg.EmailModuleApi;
 import pl.rg.EmailModuleController;
+import pl.rg.EmailModuleFactory;
 import pl.rg.emails.mapper.EmailMapper;
 import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Controller;
@@ -23,7 +24,7 @@ import pl.rg.utils.validator.api.ValidatorService;
 @Data
 public class EmailModuleControllerImpl implements EmailModuleController {
 
-  @Autowire
+  @Autowire(name = EmailModuleFactory.FACTORY_NAME)
   private EmailModuleApi emailModuleApi;
 
   @Autowire

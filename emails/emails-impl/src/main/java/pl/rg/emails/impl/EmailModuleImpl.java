@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import javax.mail.Authenticator;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -19,47 +18,17 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import lombok.Data;
 import pl.rg.Email;
-import pl.rg.EmailModuleApi;
-import pl.rg.emails.mapper.EmailMapper;
 import pl.rg.emails.model.EmailModel;
 import pl.rg.emails.model.EmailTemplateModel;
-import pl.rg.emails.repository.EmailRepository;
-import pl.rg.emails.repository.EmailTemplateRepository;
-import pl.rg.users.UserModuleApi;
-import pl.rg.utils.annotation.Autowire;
 import pl.rg.utils.annotation.Service;
 import pl.rg.utils.db.PropertiesUtils;
 import pl.rg.utils.enums.EmailStatus;
 import pl.rg.utils.exception.ApplicationException;
 import pl.rg.utils.logger.LogLevel;
-import pl.rg.utils.logger.Logger;
-import pl.rg.utils.logger.LoggerImpl;
-import pl.rg.utils.repository.MifidPage;
-import pl.rg.utils.repository.filter.Filter;
-import pl.rg.utils.repository.paging.Page;
 
-@Service
 @Data
-public class EmailModuleImpl implements EmailModuleApi {
-
-  public static final String EMAIL_MESSAGE_EXCEPTION = "Błąd podczas wysyłki maila. Wiadomość nie została wysłana";
-
-  @Autowire
-  private UserModuleApi userModuleApi;
-
-  @Autowire
-  private EmailRepository emailRepository;
-
-  @Autowire
-  private EmailTemplateRepository emailTemplateRepository;
-
-  private EmailMapper emailMapper = EmailMapper.INSTANCE;
-
-  private Logger logger = LoggerImpl.getInstance();
-
-  private String errorMessageDB;
-
-  private Map<String, String> templates;
+@Service
+public class EmailModuleImpl extends EmailModule {
 
   @Override
   public void sendEmail(Email email) {
@@ -126,35 +95,6 @@ public class EmailModuleImpl implements EmailModuleApi {
           placeholders);
       Email email = new EmailImpl(template.getSubject(), templateBody, new String[]{recipient});
       sendEmail(email);
-    }
-  }
-
-  @Override
-  public Map<String, String> loadTemplates() {
-    return templates = emailTemplateRepository.findAll().stream()
-        .collect(Collectors.toMap(
-            templateModel -> templateModel.getName().getWindowColumnName(),
-            EmailTemplateModel::getTemplateBody
-        ));
-  }
-
-  @Override
-  public void updateTemplate(String newTemplateText, String templateName) {
-    templates = loadTemplates();
-    if (templates.containsKey(templateName)) {
-      List<EmailTemplateModel> templatesList = emailTemplateRepository.findAll();
-      Optional<EmailTemplateModel> templateDB = templatesList.stream()
-          .filter(template -> template.getName().getWindowColumnName().equals(templateName))
-          .findFirst();
-      if (templateDB.isEmpty()) {
-        logger.log(LogLevel.INFO, "Brak szablonu o podanej nazwie w bazie danych: " + templateName);
-      } else {
-        EmailTemplateModel template = templateDB.get();
-        template.setTemplateBody(newTemplateText);
-        templates.put(templateName, newTemplateText);
-        emailTemplateRepository.save(template);
-        logger.log(LogLevel.INFO, "Szablon został zaktualizowany: " + templateName);
-      }
     }
   }
 
@@ -234,18 +174,5 @@ public class EmailModuleImpl implements EmailModuleApi {
           new RuntimeException("Brak szablanu o podanej nazwie: " + templateName));
     }
     return templateBody;
-  }
-
-  @Override
-  public List<Email> getFiltered(List<Filter> filters) {
-    return emailRepository.findAll(filters).stream()
-        .map(emailMapper::emailModelToDomain)
-        .toList();
-  }
-
-  @Override
-  public MifidPage<Email> getPage(List<Filter> filters, Page page) {
-    MifidPage<EmailModel> emailModelPage = emailRepository.findAll(filters, page);
-    return emailMapper.emailModelPageToEmailPage(emailModelPage);
   }
 }

@@ -38,19 +38,26 @@ public class PropertiesUtils {
 
   public static final String SESSION_MAXTIME = "session.maxTime";
 
+  public static final String EMAIL_MOCK = "email.mock";
+
   private static final String PROPERTIES_FILE = "app.properties";
+
+  private static final String GET_PROPERTY_EXCEPTION = "Nie można pobrać paramentru. Brak parametru lub błędny format. Parametr: ";
 
   private static Logger logger = LoggerImpl.getInstance();
 
   public static String getProperty(String key) {
     Properties properties = new Properties();
+    String property = "";
     try (InputStream inputStream = PropertiesUtils.class.getClassLoader()
         .getResourceAsStream(PROPERTIES_FILE)) {
       properties.load(inputStream);
+      property = properties.getProperty(key);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw logger.logAndThrowRuntimeException(LogLevel.DEBUG, new ApplicationException("X343D",
+          GET_PROPERTY_EXCEPTION + property));
     }
-    return properties.getProperty(key);
+    return property;
   }
 
   public static int getIntProperty(String key) {
@@ -59,7 +66,11 @@ public class PropertiesUtils {
       return Integer.parseInt(property);
     } catch (NumberFormatException e) {
       throw logger.logAndThrowRuntimeException(LogLevel.DEBUG, new ApplicationException("X343D",
-          "Błąd pobrania parametru " + property + ". Brak parametru lub błędny format."));
+          GET_PROPERTY_EXCEPTION + property));
     }
+  }
+
+  public static boolean getBooleanProperty(String key) {
+    return Boolean.parseBoolean(getProperty(key).toLowerCase());
   }
 }
